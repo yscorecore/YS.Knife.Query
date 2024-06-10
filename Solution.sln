@@ -7,9 +7,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{6C7E5914-CD6
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{9D50B35B-1EAA-4620-B0A6-245456051247}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YS.Knife.Query", "src\YS.Knife.Query\YS.Knife.Query.csproj", "{C735EFEF-EE33-4662-86A0-2197314F05F9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YS.Knife.Query", "src\YS.Knife.Query\YS.Knife.Query.csproj", "{C735EFEF-EE33-4662-86A0-2197314F05F9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YS.Knife.Query.UnitTest", "test\YS.Knife.Query.UnitTest\YS.Knife.Query.UnitTest.csproj", "{8CE8046F-4A2C-4EB2-8F51-8D366603B4BB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YS.Knife.Query.UnitTest", "test\YS.Knife.Query.UnitTest\YS.Knife.Query.UnitTest.csproj", "{8CE8046F-4A2C-4EB2-8F51-8D366603B4BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YS.Knife.Query.IntegrationTest", "test\YS.Knife.Query.IntegrationTest\YS.Knife.Query.IntegrationTest.csproj", "{E2ADF207-B5D6-47FE-A0D5-8FFEF9ED0552}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject1", "test\TestProject1\TestProject1.csproj", "{8AF8CDC7-03E4-4D0B-908E-9DCF3710C807}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,6 +29,14 @@ Global
 		{8CE8046F-4A2C-4EB2-8F51-8D366603B4BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8CE8046F-4A2C-4EB2-8F51-8D366603B4BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8CE8046F-4A2C-4EB2-8F51-8D366603B4BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2ADF207-B5D6-47FE-A0D5-8FFEF9ED0552}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2ADF207-B5D6-47FE-A0D5-8FFEF9ED0552}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2ADF207-B5D6-47FE-A0D5-8FFEF9ED0552}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2ADF207-B5D6-47FE-A0D5-8FFEF9ED0552}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8AF8CDC7-03E4-4D0B-908E-9DCF3710C807}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8AF8CDC7-03E4-4D0B-908E-9DCF3710C807}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8AF8CDC7-03E4-4D0B-908E-9DCF3710C807}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8AF8CDC7-03E4-4D0B-908E-9DCF3710C807}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -32,6 +44,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{C735EFEF-EE33-4662-86A0-2197314F05F9} = {6C7E5914-CD6B-40F1-BFD7-8FB17E3EAE11}
 		{8CE8046F-4A2C-4EB2-8F51-8D366603B4BB} = {9D50B35B-1EAA-4620-B0A6-245456051247}
+		{E2ADF207-B5D6-47FE-A0D5-8FFEF9ED0552} = {9D50B35B-1EAA-4620-B0A6-245456051247}
+		{8AF8CDC7-03E4-4D0B-908E-9DCF3710C807} = {9D50B35B-1EAA-4620-B0A6-245456051247}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DB11BB21-3F5D-42D6-8737-F19C0666F1F8}

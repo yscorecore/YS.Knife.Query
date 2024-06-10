@@ -12,6 +12,8 @@ namespace YS.Knife.Query
         public string OrderBy { get; set; }
         [MaxLength(1024)]
         public string Select { get; set; }
+        [MaxLength(1024)]
+        public string Agg { get; set; }
 
         public LimitQueryInfo AsLimit(int limitCount = 10000)
         {

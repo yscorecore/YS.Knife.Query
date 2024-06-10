@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace YS.Knife.Query.Order
+namespace YS.Knife.Query.OrderBy
 {
     public enum OrderType
     {

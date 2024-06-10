@@ -7,19 +7,24 @@ using System.Threading.Tasks;
 namespace YS.Knife.Query.Limit
 {
     [Serializable]
-    public record PagedList<T> : IPagedList<T>
+    public record PagedList<T> : IPagedList<T>, IAggData
     {
         public PagedList()
         {
         }
         public PagedList(IEnumerable<T> limitListData, int offset, int limit, long totalCount)
+            : this(limitListData, offset, limit, totalCount, null)
+        {
+
+        }
+        public PagedList(IEnumerable<T> limitListData, int offset, int limit, long totalCount, IDictionary<string, object> aggs)
         {
             this.Limit = limit;
             this.Offset = offset;
             this.TotalCount = totalCount;
             this.Items = limitListData?.ToList() ?? new List<T>();
+            this.Aggs = aggs == null ? new Dictionary<string, object>() : new Dictionary<string, object>(aggs);
         }
-
 
         public bool HasNext
         {
@@ -38,12 +43,8 @@ namespace YS.Knife.Query.Limit
 
 
         public long TotalCount { get; set; }
-
+        public Dictionary<string, object> Aggs { get; }
     }
 
-    [Serializable]
-    public record PagedList<T, S> : PagedList<T>, IPagedList<T, S>
-    {
-        public S Summary { get; }
-    }
+
 }

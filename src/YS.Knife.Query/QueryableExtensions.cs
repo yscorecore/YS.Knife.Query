@@ -3,16 +3,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using YS.Knife.Query.Filter;
 using YS.Knife.Query.Limit;
+using YS.Knife.Query.OrderBy;
 
 namespace YS.Knife.Query
 {
     public static class QueryableExtensions
     {
+        public static Dictionary<string, object> DoAgg<T>(this IQueryable<T> source, AggInfo aggInfo)
+        {
+            return null;
+        }
+        public static IQueryable<T> DoFilter<T>(this IQueryable<T> source, FilterInfo filterInfo)
+        {
+            return null;
+        }
+        public static IQueryable<T> DoOrderBy<T>(this IQueryable<T> souce, OrderByInfo orderByInfo) {
+            return null;
+        }
         public static IQueryable<T> DoQuery<T>(this IQueryable<T> source, QueryInfo queryInfo)
         {
             return source;
         }
+       
         public static List<T> QueryList<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
         {
             return source.DoQuery(queryInfo).Skip(queryInfo.Offset).Take(queryInfo.Limit).ToList();
@@ -35,7 +49,7 @@ namespace YS.Knife.Query
         public static PagedList<T> QueryPage<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
         {
             _ = source ?? throw new ArgumentNullException(nameof(source));
-            _ = source ?? throw new ArgumentNullException(nameof(queryInfo));
+            _ = queryInfo ?? throw new ArgumentNullException(nameof(queryInfo));
             var query = source.DoQuery(queryInfo);
             if (queryInfo.Limit == 0)
             {
@@ -94,10 +108,7 @@ namespace YS.Knife.Query
             return query.Where(lambda);
         }
 
-        public static T Summary<R, T>(this IQueryable<R> query, Expression<Func<IGrouping<int, R>, T>> expression, T defaultValue = default)
-        {
-            return query.GroupBy(p => 1).Select(expression).FirstOrDefault() ?? defaultValue;
-        }
+
         class ParameterReplacerVisitor : ExpressionVisitor
         {
             private readonly Expression _oldParameter;
