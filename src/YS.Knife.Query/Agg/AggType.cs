@@ -8,9 +8,10 @@ namespace YS.Knife.Query
 {
     public enum AggType
     {
-        Sum,
-        Min,
-        Max,
-        Avg,
+        Sum = 0,
+        Min = 1,
+        Max = 2,
+        Avg = 3,
+        Count = 100,
     }
 }

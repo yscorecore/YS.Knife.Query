@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
- 
-
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\YS.Knife.Query\YS.Knife.Query.csproj" />
+  </ItemGroup>
 </Project>

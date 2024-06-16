@@ -16,11 +16,32 @@ namespace TestProject1
         public void Test2()
         {
             var source = GetTestSources();
-
-            var abd = source.GroupBy(p => 1).Select(t => new
+            var query = source.GroupBy(p => 1).Select(t => new
             {
-                maxAge = t.Max(p => p.Age)
-            }).FirstOrDefault();
+                Column0 = t.Count(p => true)
+            });
+            var res = query.ToList();
+        }
+        [Fact]
+        public void Test3()
+        {
+            var source = GetTestSources();
+            var result = source.DoAgg(new YS.Knife.Query.AggInfo
+            {
+                Items = new List<YS.Knife.Query.AggItem>
+             {
+                 new YS.Knife.Query.AggItem
+                 {
+                      AggType= YS.Knife.Query.AggType.Sum,
+                        NavigatePaths= new List<YS.Knife.Query.ValuePath>
+                        {
+                         new YS.Knife.Query.ValuePath{ Name="Age"}
+                        }
+                 }
+             }
+
+            });
+            var r = result.ToList();
         }
 
         public IQueryable<User> GetTestSources()
