@@ -33,9 +33,28 @@ namespace System.Linq
                     }
                     return res;
                 }
+                else
+                {
+                    Dictionary<string, object> res = new Dictionary<string, object>();
+                    for (int i = 0; i < items.Count; i++)
+                    {
+                        res[items[i].AggName ?? $"agg{i}"] = GetAggItemDefaultValue(items[i]);
+                    }
+                    return res;
+                }
 
             }
             return null;
+        }
+        private static object GetAggItemDefaultValue(AggItem item)
+        {
+            return item.AggType switch
+            {
+                AggType.Sum => 0,
+                AggType.Count => 0,
+                _ => null,
+            };
+
         }
         private static IQueryable<TempRecord> QueryFieldDaynmic<T>(IQueryable<IGrouping<int, T>> source, List<AggItem> items, List<PropertyInfo> properties)
         {
@@ -66,9 +85,17 @@ namespace System.Linq
                 var castToObject = Expression.Convert(valueExp, typeof(object));
                 return Expression.Bind(propertyInfo, castToObject);
             }
+            else if (aggItem.AggType == AggType.Sum)
+            {
+                var (lambda, returnType) = CreateLamda<T>(aggItem.NavigatePaths, false);
+                var method = GetMethod(aggItem, typeof(T), returnType);
+                var valueExp = Expression.Call(null, method, sourceExpression, lambda);
+                var castToObject = Expression.Convert(valueExp, typeof(object));
+                return Expression.Bind(propertyInfo, castToObject);
+            }
             else
             {
-                var (lambda, returnType) = CreateLamda<T>(aggItem.NavigatePaths);
+                var (lambda, returnType) = CreateLamda<T>(aggItem.NavigatePaths, true);
                 var method = GetMethod(aggItem, typeof(T), returnType);
                 var valueExp = Expression.Call(null, method, sourceExpression, lambda);
                 var castToObject = Expression.Convert(valueExp, typeof(object));
@@ -96,7 +123,7 @@ namespace System.Linq
                 _ => throw new InvalidEnumArgumentException()
             };
         }
-        private static (LambdaExpression, Type) CreateLamda<T>(List<ValuePath> paths)
+        private static (LambdaExpression, Type) CreateLamda<T>(List<ValuePath> paths, bool caseNullable = true)
         {
             var p = Expression.Parameter(typeof(T), "p");
             Expression currentExp = p;
@@ -111,14 +138,14 @@ namespace System.Linq
             {
                 throw new InvalidOperationException($"can not support agg value type '{currentType.FullName}'");
             }
-            if (Nullable.GetUnderlyingType(currentType) == null)
+            if (Nullable.GetUnderlyingType(currentType) == null && caseNullable)
             {
                 currentType = typeof(Nullable<>).MakeGenericType(currentType);
                 currentExp = Expression.Convert(currentExp, currentType);
             }
             return (Expression.Lambda(typeof(Func<,>).MakeGenericType(typeof(T), currentType), currentExp, p), currentType);
         }
-        private record TempRecord
+        public record TempRecord
         {
             public object Column0 { get; set; }
             public object Column1 { get; set; }

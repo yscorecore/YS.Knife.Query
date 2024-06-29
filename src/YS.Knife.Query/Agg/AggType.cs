@@ -13,5 +13,6 @@ namespace YS.Knife.Query
         Max = 2,
         Avg = 3,
         Count = 100,
+        
     }
 }

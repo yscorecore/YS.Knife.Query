@@ -12,7 +12,7 @@ namespace YS.Knife.Query
         static System.Collections.Concurrent.ConcurrentDictionary<string, PropertyInfo> caches = new System.Collections.Concurrent.ConcurrentDictionary<string, PropertyInfo>();
         public static PropertyInfo GetProertyOrField(Type type, string propertyOrField)
         {
-            string key = $"{type.GUID}_{propertyOrField}";
+            string key = $"{type.FullName}_{propertyOrField}";
             return caches.GetOrAdd(key, (t) => {
                 return type.GetProperties().Where(p => p.Name.Equals(propertyOrField, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
             });
