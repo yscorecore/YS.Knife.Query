@@ -52,6 +52,7 @@ namespace System.Linq
             {
                 AggType.Sum => 0,
                 AggType.Count => 0,
+                AggType.DistinctCount => 0,
                 _ => null,
             };
 
@@ -80,8 +81,20 @@ namespace System.Linq
         {
             if (aggItem.AggType == AggType.Count)
             {
-                var method = GetMethod(aggItem, typeof(T));
+                var method = EnumerableMethodFinder.GetLongCount1(typeof(T));
                 var valueExp = Expression.Call(null, method, sourceExpression);
+                var castToObject = Expression.Convert(valueExp, typeof(object));
+                return Expression.Bind(propertyInfo, castToObject);
+            }
+            else if (aggItem.AggType == AggType.DistinctCount)
+            {
+                var (lambda, returnType) = CreateLamda<T>(aggItem.NavigatePaths, false);
+                var selectMethod = EnumerableMethodFinder.GetSelect2(typeof(T), returnType);
+                var selectExpression = Expression.Call(null, selectMethod, sourceExpression, lambda);
+                var distinctMethod = EnumerableMethodFinder.GetDistinct1(returnType);
+                var distinctExpression = Expression.Call(null, distinctMethod, selectExpression);
+                var longCountmethod = EnumerableMethodFinder.GetLongCount1(returnType);
+                var valueExp = Expression.Call(null, longCountmethod, distinctExpression);
                 var castToObject = Expression.Convert(valueExp, typeof(object));
                 return Expression.Bind(propertyInfo, castToObject);
             }
@@ -115,13 +128,9 @@ namespace System.Linq
                 _ => throw new InvalidEnumArgumentException()
             };
         }
-        private static MethodInfo GetMethod(AggItem aggItem, Type type)
+        private static MethodInfo GetLongCountMethod(Type type)
         {
-            return aggItem.AggType switch
-            {
-                AggType.Count => EnumerableMethodFinder.GetLongCount2(type),
-                _ => throw new InvalidEnumArgumentException()
-            };
+            return EnumerableMethodFinder.GetLongCount1(type);
         }
         private static (LambdaExpression, Type) CreateLamda<T>(List<ValuePath> paths, bool caseNullable = true)
         {
@@ -134,10 +143,10 @@ namespace System.Linq
                 currentExp = Expression.Property(currentExp, property);
                 currentType = currentExp.Type;
             }
-            if (!EnumerableMethodFinder.SupportAggValueType(currentType))
-            {
-                throw new InvalidOperationException($"can not support agg value type '{currentType.FullName}'");
-            }
+            //if (!EnumerableMethodFinder.SupportAggValueType(currentType))
+            //{
+            //    throw new InvalidOperationException($"can not support agg value type '{currentType.FullName}'");
+            //}
             if (Nullable.GetUnderlyingType(currentType) == null && caseNullable)
             {
                 currentType = typeof(Nullable<>).MakeGenericType(currentType);

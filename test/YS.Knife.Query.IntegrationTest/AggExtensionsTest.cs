@@ -126,11 +126,12 @@ namespace YS.Knife.Query.IntegrationTest
             var isNullable = Nullable.GetUnderlyingType(dataType) != null;
             var method = this.GetType().GetMethod(isNullable ? nameof(ShouldNullableAvgValueInternal) : nameof(ShouldAvgValueInternal), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
             var instanceMethod = method.MakeGenericMethod(dataType);
-            instanceMethod.Invoke(this, new object[] { sampleCount, AggType.Avg,nameof(Queryable.Average) });
+            instanceMethod.Invoke(this, new object[] { sampleCount, AggType.Avg, nameof(Queryable.Average) });
         }
- 
 
 
+
+        #region Count
         [Theory]
         [InlineData(typeof(string), 0)]
         [InlineData(typeof(string), 10)]
@@ -162,11 +163,12 @@ namespace YS.Knife.Query.IntegrationTest
             var instanceMethod = method.MakeGenericMethod(dataType);
             instanceMethod.Invoke(this, new object[] { sampleCount });
 
-        }
 
-        private void ShouldDoCountAggsInternal<T>(int caseCount)
+
+        }
+        void ShouldDoCountAggsInternal<T>(int caseCount)
         {
-            var source = GetTestSources<T>(caseCount,false);
+            var source = GetTestSources<T>(caseCount, false);
             var res = source.DoAgg(new AggInfo
             {
                 Items = new List<AggItem>
@@ -182,11 +184,69 @@ namespace YS.Knife.Query.IntegrationTest
                  }
             });
 
-            var expectedRes = source.Count() ;
+            var expectedRes = source.Count();
             var actualRes = res.First().Value;
             testOutputHelper.WriteLine($"execute Count, expected value is {expectedRes}, actual value is {actualRes}. ");
             actualRes.Should().Be(expectedRes);
         }
+        #endregion
+
+        #region DistinctCount
+        [Theory]
+        [InlineData(typeof(double), 0)]
+        [InlineData(typeof(double), 10)]
+        [InlineData(typeof(int), 0)]
+        [InlineData(typeof(int), 10)]
+        [InlineData(typeof(long), 0)]
+        [InlineData(typeof(long), 10)]
+        [InlineData(typeof(decimal), 0)]
+        [InlineData(typeof(decimal), 10)]
+        [InlineData(typeof(float), 0)]
+        [InlineData(typeof(float), 10)]
+        [InlineData(typeof(double?), 0)]
+        [InlineData(typeof(double?), 10)]
+        [InlineData(typeof(int?), 0)]
+        [InlineData(typeof(int?), 10)]
+        [InlineData(typeof(long?), 0)]
+        [InlineData(typeof(long?), 10)]
+        [InlineData(typeof(decimal?), 0)]
+        [InlineData(typeof(decimal?), 10)]
+        [InlineData(typeof(float?), 0)]
+        [InlineData(typeof(float?), 10)]
+        public void ShouldDistinctCountAggs(Type dataType, int sampleCount)
+        {
+            var method = this.GetType().GetMethod(nameof(ShouldDoDistinctCountAggsInternal), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            var instanceMethod = method.MakeGenericMethod(dataType);
+            instanceMethod.Invoke(this, new object[] { sampleCount });
+
+
+
+        }
+        void ShouldDoDistinctCountAggsInternal<T>(int caseCount)
+        {
+            var source = GetRepeadTestSources<T>(caseCount, true);
+            var res = source.DoAgg(new AggInfo
+            {
+                Items = new List<AggItem>
+                 {
+                     new AggItem
+                     {
+                          AggType= AggType.DistinctCount,
+                          NavigatePaths= new List<ValuePath>
+                          {
+                             new ValuePath{ Name= nameof(Entity<T>.Value)}
+                          }
+                     }
+                 }
+            });
+
+            var expectedRes = source.Select(p => p.Value).Distinct().Count();
+            var actualRes = res.First().Value;
+            testOutputHelper.WriteLine($"execute DistinctCount, expected value is {expectedRes}, actual value is {actualRes}. ");
+            actualRes.Should().Be(expectedRes);
+        }
+
+        #endregion
 
         private void ShouldSumValueInternal<T>(int caseCount)
         {
@@ -336,16 +396,27 @@ namespace YS.Knife.Query.IntegrationTest
         }
 
 
-        private IQueryable<Entity<T>> GetTestSources<T>(int count = 10, bool hasNumberRule=true)
+        private IQueryable<Entity<T>> GetTestSources<T>(int count = 10, bool hasNumberRule = true)
         {
             var valueType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
             var faker = new Bogus.Faker<Entity<T>>();
             if (hasNumberRule)
             {
-                faker = faker.RuleFor(p => p.Value, f => Convert.ChangeType(f.Random.Int(100,5000) / 1.0, valueType));
+                faker = faker.RuleFor(p => p.Value, f => Convert.ChangeType(f.Random.Int(100, 5000) / 1.0, valueType));
             }
             var data = faker.Generate(count);
             return data.AsQueryable();
+        }
+        private IQueryable<Entity<T>> GetRepeadTestSources<T>(int count = 10, bool hasNumberRule = true)
+        {
+            var valueType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+            var faker = new Bogus.Faker<Entity<T>>();
+            if (hasNumberRule)
+            {
+                faker = faker.RuleFor(p => p.Value, f => Convert.ChangeType(f.Random.Int(100, 5000) / 1.0, valueType));
+            }
+            var data = faker.Generate(count);
+            return data.Concat(data).AsQueryable();
         }
         public record Entity<T>
         {

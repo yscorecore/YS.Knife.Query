@@ -31,6 +31,15 @@ namespace YS.Knife.Query
          .Where(p => p.GetParameters().Length == 1)
          .Single();
 
+        private static readonly MethodInfo DistinctMethodWith1Args = typeof(Enumerable).GetMethods()
+           .Where(p => p.Name == nameof(Enumerable.Distinct))
+           .Where(p => p.GetParameters().Length == 1)
+           .Single();
+        private static readonly MethodInfo SelectMethodWith2Args = typeof(Enumerable).GetMethods()
+          .Where(p => p.Name == nameof(Enumerable.Select))
+          .Where(p => p.GetParameters().Length == 2 && p.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>))
+          .Single();
+
         public static MethodInfo GetSumAgg2<TSource, TResult>()
         {
             return SumMethodWith2Args[typeof(TResult)].MakeGenericMethod(typeof(TSource));
@@ -51,13 +60,21 @@ namespace YS.Knife.Query
         {
             return AverageMethodWith2Args[returnType].MakeGenericMethod(sourceType);
         }
-        public static MethodInfo GetLongCount2(Type sourceType)
+        public static MethodInfo GetLongCount1(Type sourceType)
         {
             return LongCountMethodWith1Args.MakeGenericMethod(sourceType);
+        }
+        public static MethodInfo GetDistinct1(Type sourceType)
+        {
+            return DistinctMethodWith1Args.MakeGenericMethod(sourceType);
         }
         public static bool SupportAggValueType(Type valueType)
         {
             return SumMethodWith2Args.ContainsKey(valueType);
+        }
+        public static MethodInfo GetSelect2(Type sourceType, Type returnType)
+        {
+            return SelectMethodWith2Args.MakeGenericMethod(sourceType, returnType);
         }
     }
 }
