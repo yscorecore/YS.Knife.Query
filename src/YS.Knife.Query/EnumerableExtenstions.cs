@@ -4,6 +4,11 @@ namespace System.Linq
 {
     public static class EnumerableExtenstions
     {
+        public static IEnumerable<T> TrimNotNull<T>(this IEnumerable<T> items)
+          where T : class
+        {
+            return items == null ? Enumerable.Empty<T>() : items.Where(p => p != null);
+        }
         public static bool HasDuplicate<T>(this IEnumerable<T> source)
         {
             _ = source ?? throw new ArgumentNullException(nameof(source));

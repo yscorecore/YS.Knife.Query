@@ -5,7 +5,6 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using YS.Knife.Query.Filter;
 using YS.Knife.Query.Limit;
-using YS.Knife.Query.OrderBy;
 
 namespace YS.Knife.Query
 {
@@ -19,9 +18,7 @@ namespace YS.Knife.Query
         {
             return null;
         }
-        public static IQueryable<T> DoOrderBy<T>(this IQueryable<T> souce, OrderByInfo orderByInfo) {
-            return null;
-        }
+     
         public static IQueryable<T> DoQuery<T>(this IQueryable<T> source, QueryInfo queryInfo)
         {
             return source;

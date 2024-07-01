@@ -88,7 +88,7 @@ namespace System.Linq
             }
             else if (aggItem.AggType == AggType.DistinctCount)
             {
-                var (lambda, returnType) = CreateLamda<T>(aggItem.NavigatePaths, false);
+                var (lambda, returnType) = LambdaUtils.CreateValuePathLambda(typeof(T), aggItem.NavigatePaths, false);
                 var selectMethod = EnumerableMethodFinder.GetSelect2(typeof(T), returnType);
                 var selectExpression = Expression.Call(null, selectMethod, sourceExpression, lambda);
                 var distinctMethod = EnumerableMethodFinder.GetDistinct1(returnType);
@@ -100,7 +100,7 @@ namespace System.Linq
             }
             else if (aggItem.AggType == AggType.Sum)
             {
-                var (lambda, returnType) = CreateLamda<T>(aggItem.NavigatePaths, false);
+                var (lambda, returnType) = LambdaUtils.CreateValuePathLambda(typeof(T), aggItem.NavigatePaths, false);
                 var method = GetMethod(aggItem, typeof(T), returnType);
                 var valueExp = Expression.Call(null, method, sourceExpression, lambda);
                 var castToObject = Expression.Convert(valueExp, typeof(object));
@@ -108,7 +108,7 @@ namespace System.Linq
             }
             else
             {
-                var (lambda, returnType) = CreateLamda<T>(aggItem.NavigatePaths, true);
+                var (lambda, returnType) = LambdaUtils.CreateValuePathLambda(typeof(T), aggItem.NavigatePaths, true);
                 var method = GetMethod(aggItem, typeof(T), returnType);
                 var valueExp = Expression.Call(null, method, sourceExpression, lambda);
                 var castToObject = Expression.Convert(valueExp, typeof(object));
@@ -128,32 +128,7 @@ namespace System.Linq
                 _ => throw new InvalidEnumArgumentException()
             };
         }
-        private static MethodInfo GetLongCountMethod(Type type)
-        {
-            return EnumerableMethodFinder.GetLongCount1(type);
-        }
-        private static (LambdaExpression, Type) CreateLamda<T>(List<ValuePath> paths, bool caseNullable = true)
-        {
-            var p = Expression.Parameter(typeof(T), "p");
-            Expression currentExp = p;
-            var currentType = typeof(T);
-            foreach (var vp in paths)
-            {
-                var property = PropertyFinder.GetProertyOrField(currentType, vp.Name);
-                currentExp = Expression.Property(currentExp, property);
-                currentType = currentExp.Type;
-            }
-            //if (!EnumerableMethodFinder.SupportAggValueType(currentType))
-            //{
-            //    throw new InvalidOperationException($"can not support agg value type '{currentType.FullName}'");
-            //}
-            if (Nullable.GetUnderlyingType(currentType) == null && caseNullable)
-            {
-                currentType = typeof(Nullable<>).MakeGenericType(currentType);
-                currentExp = Expression.Convert(currentExp, currentType);
-            }
-            return (Expression.Lambda(typeof(Func<,>).MakeGenericType(typeof(T), currentType), currentExp, p), currentType);
-        }
+      
         public record TempRecord
         {
             public object Column0 { get; set; }

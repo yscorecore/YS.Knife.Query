@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace YS.Knife.Query.OrderBy
+namespace YS.Knife.Query
 {
-    public enum OrderType
+    public enum OrderByType
     {
         /// <summary>
         /// 正序
