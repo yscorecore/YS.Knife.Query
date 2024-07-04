@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Reflection;
 using YS.Knife.Query;
+using YS.Knife.Query.Expressions;
 
 namespace System.Linq
 {
@@ -88,29 +89,29 @@ namespace System.Linq
             }
             else if (aggItem.AggType == AggType.DistinctCount)
             {
-                var (lambda, returnType) = LambdaUtils.CreateValuePathLambda(typeof(T), aggItem.NavigatePaths, false);
-                var selectMethod = EnumerableMethodFinder.GetSelect2(typeof(T), returnType);
-                var selectExpression = Expression.Call(null, selectMethod, sourceExpression, lambda);
-                var distinctMethod = EnumerableMethodFinder.GetDistinct1(returnType);
+                var lambdaDesc = LambdaUtils.CreateFunc2Lambda(typeof(T), aggItem.NavigatePaths, false);
+                var selectMethod = EnumerableMethodFinder.GetSelect2(typeof(T), lambdaDesc.ValueType);
+                var selectExpression = Expression.Call(null, selectMethod, sourceExpression, lambdaDesc.Lambda);
+                var distinctMethod = EnumerableMethodFinder.GetDistinct1(lambdaDesc.ValueType);
                 var distinctExpression = Expression.Call(null, distinctMethod, selectExpression);
-                var longCountmethod = EnumerableMethodFinder.GetLongCount1(returnType);
+                var longCountmethod = EnumerableMethodFinder.GetLongCount1(lambdaDesc.ValueType);
                 var valueExp = Expression.Call(null, longCountmethod, distinctExpression);
                 var castToObject = Expression.Convert(valueExp, typeof(object));
                 return Expression.Bind(propertyInfo, castToObject);
             }
             else if (aggItem.AggType == AggType.Sum)
             {
-                var (lambda, returnType) = LambdaUtils.CreateValuePathLambda(typeof(T), aggItem.NavigatePaths, false);
-                var method = GetMethod(aggItem, typeof(T), returnType);
-                var valueExp = Expression.Call(null, method, sourceExpression, lambda);
+                var lambdaDesc = LambdaUtils.CreateFunc2Lambda(typeof(T), aggItem.NavigatePaths, false);
+                var method = GetMethod(aggItem, typeof(T), lambdaDesc.ValueType);
+                var valueExp = Expression.Call(null, method, sourceExpression, lambdaDesc.Lambda);
                 var castToObject = Expression.Convert(valueExp, typeof(object));
                 return Expression.Bind(propertyInfo, castToObject);
             }
             else
             {
-                var (lambda, returnType) = LambdaUtils.CreateValuePathLambda(typeof(T), aggItem.NavigatePaths, true);
-                var method = GetMethod(aggItem, typeof(T), returnType);
-                var valueExp = Expression.Call(null, method, sourceExpression, lambda);
+                var lambdaDesc = LambdaUtils.CreateFunc2Lambda(typeof(T), aggItem.NavigatePaths, true);
+                var method = GetMethod(aggItem, typeof(T), lambdaDesc.ValueType);
+                var valueExp = Expression.Call(null, method, sourceExpression, lambdaDesc.Lambda);
                 var castToObject = Expression.Convert(valueExp, typeof(object));
                 return Expression.Bind(propertyInfo, castToObject);
             }

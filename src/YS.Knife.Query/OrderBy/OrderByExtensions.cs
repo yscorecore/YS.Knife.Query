@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using YS.Knife.Query.Expressions;
 
 namespace YS.Knife.Query
 {
@@ -65,8 +66,8 @@ namespace YS.Knife.Query
 
         private static LambdaExpression CreateKeySelectorLambda<TSource>(List<ValuePath> valuePaths)
         {
-            var (lambdaExp, _) = LambdaUtils.CreateValuePathLambda(typeof(TSource), valuePaths, false);
-            return lambdaExp;
+            var lambdaExp = LambdaUtils.CreateFunc2Lambda(typeof(TSource), valuePaths, false);
+            return lambdaExp.Lambda;
         }
 
         private static IOrderedQueryable<T> Asc<T>(this IQueryable<T> source, LambdaExpression keySelector)
