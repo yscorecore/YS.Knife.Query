@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using YS.Knife.Query.Expressions;
 
 namespace YS.Knife.Query.Filter.Operators
 {
@@ -11,7 +12,7 @@ namespace YS.Knife.Query.Filter.Operators
     {
         public abstract Operator Operator { get; }
 
-        public abstract Expression CreatePredicateExpression(ExpressionOperatorContext context);
+        public abstract ValueExpressionDesc CreatePredicateExpression(ExpressionOperatorContext context);
        
     }
 }

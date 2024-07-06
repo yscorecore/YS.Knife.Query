@@ -77,8 +77,12 @@ namespace YS.Knife.Query
                 FilterInfo = singleItemFilter
             };
             var expressionOperator = GetExpressionOperator(singleItemFilter.Operator);
-            return expressionOperator.CreatePredicateExpression(context);
-
+            var expressionDesc = expressionOperator.CreatePredicateExpression(context);
+            //if (expressionDesc.ValueType != typeof(bool))
+            //{ 
+            //    throw new 
+            //}
+            return expressionDesc.Expression;
         }
 
 
