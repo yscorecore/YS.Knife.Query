@@ -64,7 +64,8 @@ namespace YS.Knife.Query.Expressions
             return new ValueExpressionDesc
             {
                 Expression = exp,
-                ValueType = exp.Type
+                ValueType = exp.Type,
+                IsConstant = true,
             };
         }
 
@@ -122,7 +123,7 @@ namespace YS.Knife.Query.Expressions
                 while (true);
             }
 
-           
+
         }
         private static ValueExpressionDesc ExecuteFunctionPath(ValueNavigateContext context, ValuePath valuePath)
         {

@@ -11,6 +11,6 @@ namespace YS.Knife.Query.Filter.Operators
     internal interface IExpressionOperator
     {
         Operator Operator { get; }
-        ValueExpressionDesc CreatePredicateExpression(ExpressionOperatorContext context);
+        ValueExpressionDesc CreatePredicateExpression(OperatorExpressionContext context);
     }
 }

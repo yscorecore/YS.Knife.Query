@@ -10,15 +10,7 @@ namespace YS.Knife.Query
 {
     public static class QueryableExtensions
     {
-        //public static Dictionary<string, object> DoAgg<T>(this IQueryable<T> source, AggInfo aggInfo)
-        //{
-        //    return null;
-        //}
-        public static IQueryable<T> DoFilter<T>(this IQueryable<T> source, FilterInfo filterInfo)
-        {
-            return null;
-        }
-     
+        
         public static IQueryable<T> DoQuery<T>(this IQueryable<T> source, QueryInfo queryInfo)
         {
             return source;

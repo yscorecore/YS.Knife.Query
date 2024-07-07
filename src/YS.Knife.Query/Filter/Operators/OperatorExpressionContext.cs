@@ -8,11 +8,9 @@ using YS.Knife.Query.Expressions;
 
 namespace YS.Knife.Query.Filter.Operators
 {
-    internal abstract class BaseExpressionOperator : IExpressionOperator
+    internal record OperatorExpressionContext
     {
-        public abstract Operator Operator { get; }
-
-        public abstract ValueExpressionDesc CreatePredicateExpression(OperatorExpressionContext context);
-       
+        public ValueExpressionDesc Left { get; set; }
+        public ValueExpressionDesc Right { get; set; }
     }
 }

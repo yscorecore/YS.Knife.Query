@@ -8,6 +8,7 @@ namespace YS.Knife.Query.Expressions
     {
         public Expression Expression { get; set; }
         public Type ValueType { get; set; }
+        public bool IsConstant { get; set; }
     }
 
 }

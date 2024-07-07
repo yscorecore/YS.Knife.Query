@@ -8,7 +8,7 @@ using Xunit;
 
 namespace YS.Knife.Query.IntegrationTest
 {
-    public class OrderByTest
+    public class OrderByExtensionsTest
     {
         [Fact]
         public void DoOrderByNull()

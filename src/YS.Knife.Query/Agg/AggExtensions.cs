@@ -17,7 +17,7 @@ namespace System.Linq
             var items = aggInfo?.Items?.Where(p => p != null).ToList();
             if (items?.Count > TempRecordProperties.Count)
             {
-                throw new NotSupportedException("max agg item count shoule not great than 64.");
+                throw new QueryExpressionBuildException("max agg item count shoule not great than 64.");
             }
             if (items?.Count > 0)
             {

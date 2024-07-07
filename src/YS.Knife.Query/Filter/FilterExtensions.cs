@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using YS.Knife.Query.Expressions;
 using YS.Knife.Query.Filter.Operators;
 
 namespace YS.Knife.Query
@@ -57,7 +58,6 @@ namespace YS.Knife.Query
         }
         private static Expression CreateAndConditionFilterExpression(ParameterExpression p, FilterInfo andGroupFilterInfo)
         {
-
             Expression current = null;
             foreach (FilterInfo item in andGroupFilterInfo.Items.TrimNotNull())
             {
@@ -69,26 +69,29 @@ namespace YS.Knife.Query
 
         private static Expression CreateSingleItemFilterExpression(ParameterExpression p, FilterInfo singleItemFilter)
         {
-            var context = new ExpressionOperatorContext
+            var context = new OperatorExpressionContext
             {
-                Left = singleItemFilter.Left,
-                Right = singleItemFilter.Right,
-                Parameter = p,
-                FilterInfo = singleItemFilter
+                Left = LambdaUtils.ExecuteValueInfo(p, singleItemFilter.Left),
+                Right = LambdaUtils.ExecuteValueInfo(p, singleItemFilter.Right)
             };
             var expressionOperator = GetExpressionOperator(singleItemFilter.Operator);
             var expressionDesc = expressionOperator.CreatePredicateExpression(context);
-            //if (expressionDesc.ValueType != typeof(bool))
-            //{ 
-            //    throw new 
-            //}
+            if (expressionDesc.ValueType != typeof(bool))
+            {
+                throw new QueryExpressionBuildException($"the return type of the operate '{singleItemFilter.Operator}' should be bool.");
+            }
             return expressionDesc.Expression;
         }
 
+        private static Dictionary<Operator, IExpressionOperator> supportOperators = new Dictionary<Operator, IExpressionOperator>
+        {
+            [Operator.Equals]= new OperatorEquals(),
+        };
 
         private static IExpressionOperator GetExpressionOperator(Operator operatorType)
         {
-            return null;
+
+            return supportOperators[operatorType];
         }
 
 
