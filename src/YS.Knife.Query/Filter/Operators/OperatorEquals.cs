@@ -13,8 +13,34 @@ namespace YS.Knife.Query.Filter.Operators
         {
             var leftNode = context.Left;
             var rightNode = context.Right;
+            
+
             if (leftNode.ValueType != rightNode.ValueType)
             {
+                if (leftNode.IsConstant && rightNode.IsConstant)
+                {
+
+                }
+                else if (leftNode.IsConstant && !rightNode.IsConstant)
+                {
+                    if (CanConvertValue(leftNode.ValueType, rightNode.ValueType, out var converter))
+                    {
+
+                    }
+                    else
+                    {
+                        throw new Exception();
+                    }
+                }
+                else if (!leftNode.IsConstant && rightNode.IsConstant)
+                {
+
+                }
+                else
+                { 
+                    
+                }
+
                 if (rightNode.IsConstant)
                 {
                     if (CanConvertValue(rightNode.ValueType, leftNode.ValueType, out var converter))
