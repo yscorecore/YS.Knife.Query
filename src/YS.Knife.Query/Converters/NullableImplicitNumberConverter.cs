@@ -1,24 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace YS.Knife.Query.Converters
 {
-    internal class NullableBasicConverter : BasicConverter, IValueConverter
+    internal class NullableImplicitNumberConverter : ImplicitNumberConverter
     {
         public override bool CanConvertTo(Type fromType, Type toType)
         {
             var toType2 = Nullable.GetUnderlyingType(toType);
             var fromType2 = Nullable.GetUnderlyingType(fromType);
-            return base.CanConvertTo(fromType2 ?? fromType, toType2 ?? toType);
+            return toType2 != null && base.CanConvertTo(fromType2 ?? fromType, toType2);
         }
-        public override object Convert(object fromValue, Type toType)
+        public override Expression Convert(Expression expression, Type toType)
         {
-            if (fromValue == null) return null;
-            var toType2 = Nullable.GetUnderlyingType(toType);
-            return base.Convert(fromValue, toType2 ?? toType);
+            return base.Convert(expression, toType);
         }
     }
 }

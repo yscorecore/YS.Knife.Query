@@ -14,6 +14,9 @@ namespace YS.Knife.Query.Converters
             new SubTypeConverter(),
             new BasicConverter(),
             new NullableBasicConverter(),
+            new ParserConverter(),
+            new NullableParserConverter(),
+            new ToStringConverter(),
         };
         public static IValueConverter GetConverter(Type fromType, Type toType)
         {
