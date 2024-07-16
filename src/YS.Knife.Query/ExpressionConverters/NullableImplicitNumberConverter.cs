@@ -5,9 +5,9 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace YS.Knife.Query.Converters
+namespace YS.Knife.Query.ExpressionConverters
 {
-    internal class NullableExplicitNumberConverter : ExplicitNumberConverter
+    internal class NullableImplicitNumberConverter : ImplicitNumberConverter
     {
         public override bool CanConvertTo(Type fromType, Type toType)
         {

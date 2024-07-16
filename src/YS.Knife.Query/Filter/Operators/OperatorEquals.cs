@@ -1,7 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq.Expressions;
+using YS.Knife.Query.ExpressionConverters;
 using YS.Knife.Query.Expressions;
+using YS.Knife.Query.ValueConverters;
 
 namespace YS.Knife.Query.Filter.Operators
 {
@@ -13,78 +15,112 @@ namespace YS.Knife.Query.Filter.Operators
         {
             var leftNode = context.Left;
             var rightNode = context.Right;
-            
-
-            if (leftNode.ValueType != rightNode.ValueType)
+            if (leftNode.ValueType == rightNode.ValueType)
             {
-                if (leftNode.IsConstant && rightNode.IsConstant)
+                return new ValueExpressionDesc
                 {
+                    ValueType = typeof(bool),
+                    Expression = DoOperatorAction(leftNode, rightNode)
+                };
+            }
 
-                }
-                else if (leftNode.IsConstant && !rightNode.IsConstant)
+            if (leftNode.IsConstant && rightNode.IsConstant)
+            {
+                if (ValueConverterFactory.CanConverter(rightNode.ValueType, leftNode.ValueType, out var converter1))
                 {
-                    if (CanConvertValue(leftNode.ValueType, rightNode.ValueType, out var converter))
+                    return new ValueExpressionDesc
                     {
-
-                    }
-                    else
-                    {
-                        throw new Exception();
-                    }
+                        ValueType = typeof(bool),
+                        Expression = DoOperatorAction(
+                            leftNode,
+                            RebuildConstantValue(rightNode, leftNode.ValueType, converter1))
+                    };
                 }
-                else if (!leftNode.IsConstant && rightNode.IsConstant)
+                else if (ValueConverterFactory.CanConverter(leftNode.ValueType, rightNode.ValueType, out var converter2))
                 {
-
-                }
-                else
-                { 
-                    
-                }
-
-                if (rightNode.IsConstant)
-                {
-                    if (CanConvertValue(rightNode.ValueType, leftNode.ValueType, out var converter))
+                    return new ValueExpressionDesc
                     {
-                        rightNode = RebuildConstantValue(rightNode, leftNode.ValueType, converter);
-                    }
-                }
-                else if (leftNode.IsConstant)
-                {
-                    if (CanConvertValue(leftNode.ValueType, rightNode.ValueType, out var converter))
-                    {
-                        leftNode = RebuildConstantValue(leftNode, rightNode.ValueType, converter);
-                    }
+                        ValueType = typeof(bool),
+                        Expression = DoOperatorAction(
+                           RebuildConstantValue(leftNode, rightNode.ValueType, converter2), rightNode)
+                    };
                 }
                 else
                 {
-                    if (CanConvertExpression(rightNode.ValueType, leftNode.ValueType))
-                    {
-                        rightNode = ConvertExpression(rightNode, leftNode.ValueType);
-                    }
-                    else if (CanConvertExpression(leftNode.ValueType, rightNode.ValueType))
-                    {
-                        leftNode = ConvertExpression(leftNode, rightNode.ValueType);
-                    }
+                    // 两个常量不能转换
+                    throw new Exception();
                 }
             }
-            if (leftNode.ValueType != rightNode.ValueType)
+            else if (leftNode.IsConstant && !rightNode.IsConstant)
             {
-                throw new QueryExpressionBuildException($"can not convert type between '{leftNode.ValueType.FullName}' and '{rightNode.ValueType.FullName}'");
+                if (ValueConverterFactory.CanConverter(leftNode.ValueType, rightNode.ValueType, out var converter3))
+                {
+                    return new ValueExpressionDesc
+                    {
+                        ValueType = typeof(bool),
+                        Expression = DoOperatorAction(
+                           RebuildConstantValue(leftNode, rightNode.ValueType, converter3), rightNode)
+                    };
+                }
+                else
+                {
+                    // 常量不能转为变量的类型
+                    throw new Exception();
+                }
             }
-
-            return new ValueExpressionDesc
+            else if (!leftNode.IsConstant && rightNode.IsConstant)
             {
-                ValueType = typeof(bool),
-                Expression = DoOperatorAction(leftNode.Expression, rightNode.Expression)
-            };
-
-
+                if (ValueConverterFactory.CanConverter(rightNode.ValueType, leftNode.ValueType, out var converter4))
+                {
+                    return new ValueExpressionDesc
+                    {
+                        ValueType = typeof(bool),
+                        Expression = DoOperatorAction(
+                            leftNode,
+                            RebuildConstantValue(rightNode, leftNode.ValueType, converter4))
+                    };
+                }
+                else
+                {
+                    // 常量不能转为变量的类型
+                    throw new Exception();
+                }
+            }
+            else
+            {
+                if (ExpressionConverterFactory.CanConverter(rightNode.ValueType, leftNode.ValueType, out var converter5))
+                {
+                    return new ValueExpressionDesc
+                    {
+                        ValueType = typeof(bool),
+                        Expression = DoOperatorAction(
+                            leftNode,
+                            RebuildExpressionValue(rightNode, leftNode.ValueType, converter5))
+                    };
+                }
+                else if (ExpressionConverterFactory.CanConverter(leftNode.ValueType, rightNode.ValueType, out var converter6))
+                {
+                    return new ValueExpressionDesc
+                    {
+                        ValueType = typeof(bool),
+                        Expression = DoOperatorAction(
+                            RebuildExpressionValue(leftNode,rightNode.ValueType,converter6),
+                            rightNode)
+                    };
+                }
+                else
+                {
+                    //表达式不能相互转换
+                    throw new Exception();
+                }
+            }
         }
+       
 
-        protected ValueExpressionDesc RebuildConstantValue(ValueExpressionDesc from, Type targetType, TypeConverter converter)
+        protected ValueExpressionDesc RebuildConstantValue(ValueExpressionDesc from, Type targetType, IValueConverter converter)
         {
             var originalExpression = (ConstantExpression)from.Expression;
-            var targetValue = converter.ConvertTo(originalExpression.Value, targetType);
+            var targetValue = converter.Convert(originalExpression.Value, targetType);
             return new ValueExpressionDesc
             {
                 IsConstant = true,
@@ -92,43 +128,23 @@ namespace YS.Knife.Query.Filter.Operators
                 Expression = Expression.Constant(targetValue, targetType)
             };
         }
-        protected ValueExpressionDesc ConvertExpression(ValueExpressionDesc from, Type targetType)
+        protected ValueExpressionDesc RebuildExpressionValue(ValueExpressionDesc from, Type targetType, IExpressionConverter converter)
         {
-            var originalExpression = (ConstantExpression)from.Expression;
+            var originalExpression = from.Expression;
+            var targetExpression = converter.Convert(originalExpression, targetType);
             return new ValueExpressionDesc
             {
-                IsConstant = true,
+                IsConstant = false,
                 ValueType = targetType,
-                Expression = Expression.Constant(originalExpression.Value, targetType)
+                Expression = targetExpression
             };
         }
-        protected virtual Expression DoOperatorAction(Expression left, Expression right)
-        {
-            return Expression.Equal(left, right);
-        }
 
-        bool CanConvertValue(Type fromType, Type toType, out TypeConverter converter)
+        protected virtual Expression DoOperatorAction(ValueExpressionDesc left, ValueExpressionDesc right)
         {
-            converter = System.ComponentModel.TypeDescriptor.GetConverter(fromType);
-            if (converter != null && converter.CanConvertTo(toType))
-            {
-                return true;
-            }
-            return false;
-        }
-        bool CanConvertExpression(Type fromType, Type toType)
-        {
-            if (Nullable.GetUnderlyingType(fromType) == toType)
-            { 
-                
-            }
-            return false;
-        }
-        enum ConvertKind
-        { 
-            Nullable,
-            ToString,
-            Convert
+            return Expression.Equal(left.Expression, right.Expression);
         }
     }
+
+
 }

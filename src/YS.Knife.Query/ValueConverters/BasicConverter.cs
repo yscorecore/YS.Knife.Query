@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace YS.Knife.Query.Converters
+namespace YS.Knife.Query.ValueConverters
 {
     internal class BasicConverter : IValueConverter
     {

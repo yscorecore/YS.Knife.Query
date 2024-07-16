@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace YS.Knife.Query.Converters
+namespace YS.Knife.Query.ExpressionConverters
 {
     internal class ConvertibleConverter : IExpressionConverter
     {
@@ -26,7 +23,7 @@ namespace YS.Knife.Query.Converters
 
         internal class ToMethodFinder
         {
-            static Dictionary<string, MethodInfo> methods = typeof(System.Convert)
+            static Dictionary<string, MethodInfo> methods = typeof(Convert)
                 .GetMethods(BindingFlags.Public | BindingFlags.Static)
                 .Where(p => p.GetParameters().Length == 1 && p.Name.StartsWith("To"))
                 .ToDictionary(p => $"{p.GetParameters()[0].ParameterType.Name}{p.Name}");
@@ -34,7 +31,7 @@ namespace YS.Knife.Query.Converters
 
             public static MethodInfo GetConvertMethod(Type fromType, Type toType)
             {
-                string key = $"{fromType.Name}To{toType.Name}";
+                var key = $"{fromType.Name}To{toType.Name}";
                 if (methods.TryGetValue(key, out var method))
                 {
                     return method;

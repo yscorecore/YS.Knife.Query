@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using FluentAssertions;
 using Xunit;
-using YS.Knife.Query.Converters;
+using YS.Knife.Query.ValueConverters;
 
 namespace YS.Knife.Query.UnitTest
 {
@@ -12,7 +12,7 @@ namespace YS.Knife.Query.UnitTest
         [MemberData(nameof(GetShouldConvertSourceTypeToTargetTypeData))]
         public void ShouldConvertSourceTypeToTargetType(Type from, object fromValue, Type to)
         {
-            var converter = ValueConverters.GetConverter(from, to);
+            var converter = ValueConverterFactory.GetConverter(from, to);
             converter.Should().NotBeNull();
             _ = converter.Convert(fromValue, to);
 

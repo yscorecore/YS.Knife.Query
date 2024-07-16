@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace YS.Knife.Query.Converters
+namespace YS.Knife.Query.ExpressionConverters
 {
-    internal class ExpressionConverters
+    internal class ExpressionConverterFactory
     {
         static List<IExpressionConverter> allConverters = new List<IExpressionConverter>
         {
@@ -26,6 +24,11 @@ namespace YS.Knife.Query.Converters
             double? v2 = v;
             var v3 = v2 > v;
             return allConverters.Where(p => p.CanConvertTo(fromType, toType)).FirstOrDefault();
+        }
+        public static bool CanConverter(Type fromType, Type toType, out IExpressionConverter converter)
+        {
+            converter = GetConverter(fromType, toType);
+            return converter != null;
         }
     }
 }

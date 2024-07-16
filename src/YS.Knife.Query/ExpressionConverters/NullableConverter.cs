@@ -5,23 +5,21 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace YS.Knife.Query.Converters
+namespace YS.Knife.Query.ExpressionConverters
 {
-    internal class SubTypeConverter : IValueConverter, IExpressionConverter
+    internal class NullableConverter :  IExpressionConverter
     {
         public bool CanConvertTo(Type fromType, Type toType)
         {
-            return toType.IsAssignableFrom(fromType);
-        }
+            return fromType.IsValueType && Nullable.GetUnderlyingType(toType) == fromType;
 
-        public object Convert(object fromValue, Type toType)
-        {
-            return fromValue;
         }
 
         public Expression Convert(Expression expression, Type toType)
         {
             return Expression.Convert(expression, toType);
         }
+
+
     }
 }

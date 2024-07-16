@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
-using YS.Knife.Query.Converters;
+using YS.Knife.Query.ExpressionConverters;
 
 namespace YS.Knife.Query.UnitTest
 {
@@ -15,7 +15,7 @@ namespace YS.Knife.Query.UnitTest
         [MemberData(nameof(GetShouldConvertSourceTypeToTargetTypeData))]
         public void ShouldConvertSourceTypeToTargetType(Type from, object fromValue, Type to)
         {
-            var converter = ExpressionConverters.GetConverter(from, to);
+            var converter = ExpressionConverterFactory.GetConverter(from, to);
             converter.Should().NotBeNull();
             var exp = System.Linq.Expressions.Expression.Constant(fromValue, from);
             var convertExp = converter.Convert(exp, to);

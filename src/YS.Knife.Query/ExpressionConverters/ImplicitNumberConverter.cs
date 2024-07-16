@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace YS.Knife.Query.Converters
+namespace YS.Knife.Query.ExpressionConverters
 {
     internal class ImplicitNumberConverter : IExpressionConverter
     {

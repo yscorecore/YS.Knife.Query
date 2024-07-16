@@ -91,7 +91,6 @@ namespace YS.Knife.Query
 
         private static IExpressionOperator GetExpressionOperator(Operator operatorType)
         {
-
             return supportOperators[operatorType];
         }
 

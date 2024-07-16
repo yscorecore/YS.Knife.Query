@@ -11,9 +11,15 @@ namespace YS.Knife.Query.IntegrationTest
 {
     public class FilterExtensionsTest
     {
+        [Fact]
+        public void Debug()
+        {
+            ConstantEqualsTest(1, "1.0", true);
+        }
+
         [Theory]
         [MemberData(nameof(GetConstantEqualsData))]
-        public void ConstantEqualsTest(object left, object right)
+        public void ConstantEqualsTest(object left, object right, bool equals)
         {
             var leftValue = new ValueInfo
             {
@@ -32,30 +38,77 @@ namespace YS.Knife.Query.IntegrationTest
                 Right = rightValue,
                 Operator = Operator.Equals
             };
+            var filter2 = new FilterInfo
+            {
+                OpType = CombinSymbol.SingleItem,
+                Left = rightValue,
+                Right = leftValue,
+                Operator = Operator.Equals
+            };
             var source = new int[] { 1 };
             var target = source.AsQueryable().DoFilter(filter).ToArray();
-            target.Should().BeEquivalentTo(source);
+            target.Should().BeEquivalentTo(source.Where(p => equals).ToArray());
+
+            var target2 = source.AsQueryable().DoFilter(filter2).ToArray();
+            target2.Should().BeEquivalentTo(source.Where(p => equals).ToArray());
+
         }
 
         public static IEnumerable<object[]> GetConstantEqualsData()
         {
             return new List<object[]>
             {
-                new object[]{ 1, 1},
-                new object[]{ 1, (short)1},
-                new object[]{ 1, (ushort)1},
-                new object[]{ 1, (uint)1},
-                new object[]{ 1, (ulong)1},
-                new object[]{ 1, 1L},
-                new object[]{ 1, 1.0},
-                new object[]{ 1, 1.0M},
-                new object[]{(short)1,1},
-                new object[]{(ushort)1,1},
-                new object[]{(uint)1, 1 },
-                new object[]{(ulong)1, 1 },
-                new object[]{1L,1},
-                new object[]{1.0, 1 },
-                new object[]{ new DateTime(2024,7,8),new DateTime(2024,7,8)},
+                new object[]{ 1, 1, true},
+                new object[]{ 1, (short)1,true},
+                new object[]{ 1, (ushort)1, true },
+                new object[]{ 1, (uint)1, true },
+                new object[]{ 1, (ulong)1, true },
+                new object[]{ 1, 1L, true },
+                new object[]{ 1, 1.0, true },
+                new object[]{ 1, 1.0M, true },
+                new object[]{ 1, "1", true },
+                new object[]{ 1, "1.0", true },
+                new object[]{ 1L, 1, true},
+                new object[]{ 1L, (short)1,true},
+                new object[]{ 1L, (ushort)1, true },
+                new object[]{ 1L, (uint)1, true },
+                new object[]{ 1L, (ulong)1, true },
+                new object[]{ 1L, 1L, true },
+                new object[]{ 1L, 1.0, true },
+                new object[]{ 1L, 1.0M, true },
+                new object[]{ 1L, "1", true },
+                new object[]{ 1L, "1.0", true },
+                new object[]{ 1.0, 1, true},
+                new object[]{ 1.0, (short)1,true},
+                new object[]{ 1.0, (ushort)1, true },
+                new object[]{ 1.0, (uint)1, true },
+                new object[]{ 1.0, (ulong)1, true },
+                new object[]{ 1.0, 1L, true },
+                new object[]{ 1.0, 1.0, true },
+                new object[]{ 1.0, 1.0M, true },
+                new object[]{ 1.0, "1", true },
+                new object[]{ 1.0, "1.0", true },
+                new object[]{ 1M, 1, true},
+                new object[]{ 1M, (short)1,true},
+                new object[]{ 1M, (ushort)1, true },
+                new object[]{ 1M, (uint)1, true },
+                new object[]{ 1M, (ulong)1, true },
+                new object[]{ 1M, 1L, true },
+                new object[]{ 1M, 1.0, true },
+                new object[]{ 1M, 1.0M, true },
+                new object[]{ 1M, "1", true },
+                new object[]{ 1M, "1.0", true },
+                new object[]{ "1", 1, true},
+                new object[]{ "1", (short)1,true},
+                new object[]{ "1", (ushort)1, true },
+                new object[]{ "1", (uint)1, true },
+                new object[]{ "1", (ulong)1, true },
+                new object[]{ "1", 1L, true },
+                new object[]{ "1", 1.0, true },
+                new object[]{ "1", 1.0M, true },
+                new object[]{ "1", "1", true },
+                new object[]{ "1", "1.0", true },
+                new object[]{ new DateTime(2024,7,8),new DateTime(2024,7,8),true},
             };
         }
         [Theory]

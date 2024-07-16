@@ -5,9 +5,9 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace YS.Knife.Query.Converters
+namespace YS.Knife.Query.ExpressionConverters
 {
-    internal class NullableConvertibleConverter : ConvertibleConverter
+    internal class NullableExplicitNumberConverter : ExplicitNumberConverter
     {
         public override bool CanConvertTo(Type fromType, Type toType)
         {
@@ -17,9 +17,7 @@ namespace YS.Knife.Query.Converters
         }
         public override Expression Convert(Expression expression, Type toType)
         {
-            var toType2 = Nullable.GetUnderlyingType(toType);
-            var baseExp = base.Convert(expression, toType2);
-            return Expression.Convert(baseExp, toType);
+            return base.Convert(expression, toType);
         }
     }
 }
