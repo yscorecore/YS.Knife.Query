@@ -10,6 +10,7 @@ namespace YS.Knife.Query.ValueConverters
         {
             new NullableConverter(),
             new SubTypeConverter(),
+            new TypeConverterConverter(),
             new ParserConverter(),
             new NullableParserConverter(),
             new BasicConverter(),

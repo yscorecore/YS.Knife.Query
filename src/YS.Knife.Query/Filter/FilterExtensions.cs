@@ -94,13 +94,9 @@ namespace YS.Knife.Query
             return supportOperators[operatorType];
         }
 
-
-
-
-
-
-
-
-
+        private static void ConvertToSameType(OperatorExpressionContext context)
+        { 
+            
+        }
     }
 }

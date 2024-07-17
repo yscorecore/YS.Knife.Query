@@ -19,7 +19,7 @@ namespace TestProject1
         public void Test1()
         {
             var source = GetTestSources();
-            var res = source.Select(p => (int?)p.Age);
+            var res = source.Where(p => p.Age>=null);
         }
         [Fact]
         public void Test5()
