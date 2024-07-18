@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace YS.Knife.Query.Limit
+namespace YS.Knife.Query
 {
     [Serializable]
     public record LimitList<T> : ILimitList<T>

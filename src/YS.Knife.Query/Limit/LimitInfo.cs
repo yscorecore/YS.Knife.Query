@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace YS.Knife.Query
 {
-    public interface ILimitInfo
+    public record LimitInfo : ILimitInfo
     {
-        int Offset { get; }
-        int Limit { get; }
+        public int Offset { get; set; }
+        public int Limit { get; set; }
     }
 }

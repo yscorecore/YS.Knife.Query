@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using YS.Knife.Query.Filter;
-using YS.Knife.Query.Limit;
 
 namespace YS.Knife.Query
 {
@@ -40,7 +38,7 @@ namespace YS.Knife.Query
             _ = source ?? throw new ArgumentNullException(nameof(source));
             _ = queryInfo ?? throw new ArgumentNullException(nameof(queryInfo));
             var query = source.DoQuery(queryInfo);
-            if (queryInfo.Limit == 0)
+            if (queryInfo.Limit <= 0)
             {
                 //only count all
                 var totalCount = query.LongCount();

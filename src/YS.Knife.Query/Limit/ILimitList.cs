@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace YS.Knife.Query.Limit
+namespace YS.Knife.Query
 {
     public interface ILimitList
     {

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using YS.Knife.Query.Limit;
 
 namespace YS.Knife.Query
 {
