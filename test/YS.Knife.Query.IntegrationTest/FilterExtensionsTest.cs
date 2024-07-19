@@ -10,6 +10,7 @@ namespace YS.Knife.Query.IntegrationTest
     public class FilterExtensionsTest
     {
 
+        #region ConstantCompareConstant
         [Theory]
         [MemberData(nameof(GetConstantEqualsData))]
         public void ConstantEqualsTest(object left, object right, bool equals)
@@ -101,6 +102,10 @@ namespace YS.Knife.Query.IntegrationTest
                 new object[]{ 1, null, false },
             };
         }
+
+        #endregion
+
+        #region ConstantComparePathValue
         [Theory]
         [MemberData(nameof(GetValuePathAndConstantEqualsTestData))]
         public void ValuePathAndConstantEqualsTest(Type itemType, object pathValue, object constantValue, bool isEquals)
@@ -114,6 +119,7 @@ namespace YS.Knife.Query.IntegrationTest
             };
             var rightValue = new ValueInfo
             {
+
                 IsConstant = true,
                 ConstantValue = constantValue
             };
@@ -128,12 +134,24 @@ namespace YS.Knife.Query.IntegrationTest
                 .MakeGenericMethod(itemType);
             IList res = (IList)(method.Invoke(this, new object[] { pathValue, filter }));
             res.Count.Should().Be(Convert.ToInt32(isEquals));
+            //swap left and right
+            var filter2 = new FilterInfo
+            {
+                OpType = CombinSymbol.SingleItem,
+                Left = rightValue,
+                Right = leftValue,
+                Operator = Operator.Equals
+            };
+            IList res2 = (IList)(method.Invoke(this, new object[] { pathValue, filter2 }));
+            res2.Count.Should().Be(Convert.ToInt32(isEquals));
+
+
         }
         List<Entity1<T>> GetFiltedResult<T>(T val, FilterInfo filterInfo)
         {
-            return getTestSource<T>(val).DoFilter(filterInfo).ToList();
+            return GetTestSource<T>(val).DoFilter(filterInfo).ToList();
         }
-        IQueryable<Entity1<T>> getTestSource<T>(T val)
+        IQueryable<Entity1<T>> GetTestSource<T>(T val)
         {
             return new List<Entity1<T>>
             {
@@ -168,9 +186,101 @@ namespace YS.Knife.Query.IntegrationTest
                 new object[]{ typeof(int?), null , null, true},
             };
         }
+
+        #endregion
+        [Theory]
+        [MemberData(nameof(GetValuePathAndValuePathEqualsTestData))]
+        public void ValuePathAndValuePathEqualsTest(Type leftType, object leftValue, Type rightType, object rightValue, bool isEquals)
+        {
+            var leftValueInfo = new ValueInfo
+            {
+                NavigatePaths = new List<ValuePath>
+                {
+                    new ValuePath{ Name=nameof(Entity2<string,string>.Val1) }
+                }
+            };
+            var rightValueInfo = new ValueInfo
+            {
+                NavigatePaths = new List<ValuePath>
+                {
+                    new ValuePath{ Name=nameof(Entity2<string,string>.Val2) }
+                }
+            };
+            var filter = new FilterInfo
+            {
+                OpType = CombinSymbol.SingleItem,
+                Left = leftValueInfo,
+                Right = rightValueInfo,
+                Operator = Operator.Equals
+            };
+            var method = this.GetType().GetMethod(nameof(GetFiltedResult2), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                .MakeGenericMethod(leftType, rightType);
+            IList res = (IList)(method.Invoke(this, new object[] { leftValue, rightValue, filter }));
+            res.Count.Should().Be(Convert.ToInt32(isEquals));
+            //swap left and right
+            var filter2 = new FilterInfo
+            {
+                OpType = CombinSymbol.SingleItem,
+                Left = rightValueInfo,
+                Right = leftValueInfo,
+                Operator = Operator.Equals
+            };
+            var method2 = this.GetType().GetMethod(nameof(GetFiltedResult2), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                .MakeGenericMethod(rightType, leftType);
+            IList res2 = (IList)(method2.Invoke(this, new object[] { rightValue, leftValue, filter2 }));
+            res2.Count.Should().Be(Convert.ToInt32(isEquals));
+
+        }
+        public static IEnumerable<object[]> GetValuePathAndValuePathEqualsTestData()
+        {
+            yield return new object[] { typeof(string), "1", typeof(int), 1, true };
+            yield return new object[] { typeof(string), "1", typeof(long), 1L, true };
+            yield return new object[] { typeof(string), "1", typeof(double), 1.0, true };
+            yield return new object[] { typeof(string), "1.0", typeof(decimal), 1.0M, true };
+            yield return new object[] { typeof(string), "1", typeof(string), "1", true };
+
+            yield return new object[] { typeof(string), "1", typeof(int?), 1, true };
+            yield return new object[] { typeof(string), "1", typeof(long?), 1L, true };
+            yield return new object[] { typeof(string), "1", typeof(double?), 1.0, true };
+            yield return new object[] { typeof(string), "1.0", typeof(decimal?), 1.0M, true };
+
+            yield return new object[] { typeof(int), 1, typeof(int), 1, true };
+            yield return new object[] { typeof(int), 1, typeof(long), 1L, true };
+            yield return new object[] { typeof(int), 1, typeof(double), 1.0, true };
+            yield return new object[] { typeof(int), 1, typeof(decimal), 1.0M, true };
+            yield return new object[] { typeof(int), 1, typeof(string), "1", true };
+
+            yield return new object[] { typeof(int), 1, typeof(int?), 1, true };
+            yield return new object[] { typeof(int), 1, typeof(long?), 1L, true };
+            yield return new object[] { typeof(int), 1, typeof(double?), 1.0, true };
+            yield return new object[] { typeof(int), 1, typeof(decimal?), 1.0M, true };
+
+            yield return new object[] { typeof(int?), 1, typeof(int?), 1, true };
+            yield return new object[] { typeof(int?), 1, typeof(long?), 1L, true };
+            yield return new object[] { typeof(int?), 1, typeof(double?), 1.0, true };
+            yield return new object[] { typeof(int?), 1, typeof(decimal?), 1.0M, true };
+
+        }
+        List<Entity2<T1, T2>> GetFiltedResult2<T1, T2>(T1 val1, T2 val2, FilterInfo filterInfo)
+        {
+            return GetTestSource2(val1, val2).DoFilter(filterInfo).ToList();
+        }
+        IQueryable<Entity2<T1, T2>> GetTestSource2<T1, T2>(T1 val1, T2 val2)
+        {
+            return new List<Entity2<T1, T2>>
+            {
+                new Entity2<T1,T2>{  Val1=val1,Val2=val2 }
+            }.AsQueryable();
+        }
         record Entity1<T>
         {
             public T Val { get; set; }
+        }
+
+        record Entity2<T1, T2>
+        {
+            public T1 Val1 { get; set; }
+            public T2 Val2 { get; set; }
         }
     }
 }
