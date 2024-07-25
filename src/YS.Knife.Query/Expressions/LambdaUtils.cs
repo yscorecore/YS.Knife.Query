@@ -1,12 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using YS.Knife.Query.ExpressionConverters;
+using YS.Knife.Query.Filter;
 using YS.Knife.Query.ValueConverters;
+using System.Linq;
 
 namespace YS.Knife.Query.Expressions
 {
@@ -155,7 +155,7 @@ namespace YS.Knife.Query.Expressions
                 Expression = Expression.Constant(null, targetType)
             };
         }
-        private static ValueExpressionDesc RebuildNullableExpressionValue(ValueExpressionDesc from,Type nullableType)
+        private static ValueExpressionDesc RebuildNullableExpressionValue(ValueExpressionDesc from, Type nullableType)
         {
             return new ValueExpressionDesc
             {
@@ -212,7 +212,7 @@ namespace YS.Knife.Query.Expressions
                     {
                         var nullableType = typeof(Nullable<>).MakeGenericType(rightNode.ValueType);
                         return (RebuildNullConstantValue(nullableType),
-                            RebuildNullableExpressionValue(rightNode,nullableType));
+                            RebuildNullableExpressionValue(rightNode, nullableType));
                     }
                     else
                     {
@@ -274,6 +274,118 @@ namespace YS.Knife.Query.Expressions
                     throw new Exception();
                 }
             }
+        }
+        private static TOut[] ConvertItemsValue<TIn, TOut>(IEnumerable<TIn> source, IValueConverter valueConverter)
+        {
+            return source.Select(p => (TOut)valueConverter.Convert(p, typeof(TOut))).ToArray();
+        }
+
+        private static ValueExpressionDesc RebuildConstantValueArray(object items, Type itemSourceType, Type itemTargetType, IValueConverter converter)
+        {
+            var method = typeof(LambdaUtils).GetMethod(nameof(ConvertItemsValue))
+                .MakeGenericMethod(itemSourceType, itemTargetType);
+            var targetItems = method.Invoke(null, new object[] { items, converter });
+            return new ValueExpressionDesc
+            {
+                IsNull = false,
+                IsConstant = true,
+                ValueType = targetItems.GetType(),
+                Expression = Expression.Constant(targetItems)
+            };
+        }
+        private static ValueExpressionDesc RebuildConstantValueArray(object items, Type itemSourceType, Type itemTargetType)
+        {
+            return RebuildConstantValueArray(items, itemSourceType, itemTargetType, ValueConverterFactory.GetConverter(itemSourceType, itemTargetType));
+        }
+        public static (ValueExpressionDesc Left, ValueExpressionDesc Right) ConvertToSameItemType(ValueExpressionDesc left, ValueExpressionDesc right)
+        {
+            var rightItemType = right.ValueType.GetEnumerableItemType();
+            if (rightItemType == null)
+            {
+                throw new Exception("right value type is not a enumerable type");
+            }
+            if (rightItemType == left.ValueType)
+            {
+                return (left, right);
+            }
+
+            if (left.IsConstant)
+            {
+                if (right.IsConstant)
+                {
+                    // 右边转换为左边的数组
+                    object rightValue = (right.Expression as ConstantExpression).Value;
+                    if (left.IsNull)
+                    {
+                        if (IsValueType(rightItemType))
+                        {
+                            var nullableRightItemType = typeof(Nullable<>).MakeGenericType(rightItemType);
+                            return (RebuildNullConstantValue(nullableRightItemType),
+                                RebuildConstantValueArray(rightValue, rightItemType, nullableRightItemType));
+                        }
+                        else
+                        {
+                            return (RebuildNullConstantValue(rightItemType), right);
+                        }
+                    }
+                    else
+                    {
+                        if (ValueConverterFactory.CanConverter(left.ValueType, rightItemType, out var converter))
+                        {
+                            return (RebuildConstantValue(left, rightItemType, converter), right);
+                        }
+                        else if (ValueConverterFactory.CanConverter(rightItemType, left.ValueType, out var converter2))
+                        {
+                            return (left, RebuildConstantValueArray(rightValue, rightItemType, left.ValueType, converter2));
+                        }
+                        else
+                        {
+                            throw new Exception("can not convert");
+                        }
+                    }
+                }
+                else
+                {
+                    //将左边转为右边的子类型
+                    if (ValueConverterFactory.CanConverter(left.ValueType, rightItemType, out var converter3))
+                    {
+                        return (RebuildConstantValue(left, rightItemType, converter3), right);
+                    }
+                    else
+                    {
+                        throw new Exception("can not converter");
+                    }
+                }
+            }
+            else
+            {
+                if (right.IsConstant)
+                {
+                    //右边转为左边的数组
+                    object rightValue = (right.Expression as ConstantExpression).Value;
+                    if (ValueConverterFactory.CanConverter(rightItemType, left.ValueType, out var converter5))
+                    {
+                        return (left, RebuildConstantValueArray(rightValue, rightItemType, left.ValueType, converter5));
+                    }
+                    else
+                    {
+                        throw new Exception("can not convert");
+                    }
+                }
+                else
+                {
+                    if (ExpressionConverterFactory.CanConverter(left.ValueType, rightItemType, out var converter6))
+                    {
+                        return (RebuildExpressionValue(left, rightItemType, converter6), right);
+                    }
+                    else
+                    {
+                        throw new Exception("can not convert");
+                    }
+                }
+
+            }
+
         }
     }
 }

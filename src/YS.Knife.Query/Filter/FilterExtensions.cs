@@ -73,7 +73,7 @@ namespace YS.Knife.Query
             var context = new OperatorExpressionContext
             {
                 Left = LambdaUtils.ExecuteValueInfo(p, singleItemFilter.Left),
-                Right = LambdaUtils.ExecuteValueInfo(p, singleItemFilter.Right)
+                Right = LambdaUtils.ExecuteValueInfo(p, singleItemFilter.Right),
             };
             var expressionOperator = GetExpressionOperator(singleItemFilter.Operator);
             var expressionDesc = expressionOperator.CreatePredicateExpression(context);
@@ -86,7 +86,8 @@ namespace YS.Knife.Query
 
         private static Dictionary<Operator, IExpressionOperator> supportOperators = new Dictionary<Operator, IExpressionOperator>
         {
-            [Operator.Equals]= new OperatorEquals(),
+            [Operator.Equals] = new EqualsOperator(),
+            [Operator.Between]= new BetweenOperator(Operator.Between),
         };
 
         private static IExpressionOperator GetExpressionOperator(Operator operatorType)
@@ -95,8 +96,8 @@ namespace YS.Knife.Query
         }
 
         private static void ConvertToSameType(OperatorExpressionContext context)
-        { 
-            
+        {
+
         }
     }
 }

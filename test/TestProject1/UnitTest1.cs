@@ -18,44 +18,11 @@ namespace TestProject1
         [Fact]
         public void Test1()
         {
-            var source = GetTestSources();
-            var res = source.Where(p => p.Age>=null);
+            var source = new Entity<int?, int?> { Val1 = 1, Val2 = 2 };
+            var query = new Entity<int?, int?>[] { source }.AsQueryable();
+            var res = query.Where(p => p.Val1.Value.CompareTo(p.Val2.Value) < 0);
         }
-        [Fact]
-        public void Test5()
-        {
-            var str = @"sbyte	byte, ushort, uint, ulong, or nuint
-byte	sbyte
-short	sbyte, byte, ushort, uint, ulong, or nuint
-ushort	sbyte, byte, or short
-int	sbyte, byte, short, ushort, uint, ulong, or nuint
-uint	sbyte, byte, short, ushort, int, or nint
-long	sbyte, byte, short, ushort, int, uint, ulong, nint, or nuint
-ulong	sbyte, byte, short, ushort, int, uint, long, nint, or nuint
-float	sbyte, byte, short, ushort, int, uint, long, ulong, decimal, nint, or nuint
-double	sbyte, byte, short, ushort, int, uint, long, ulong, float, decimal, nint, or nuint
-decimal	sbyte, byte, short, ushort, int, uint, long, ulong, float, double, nint, or nuint
-nint	sbyte, byte, short, ushort, int, uint, ulong, or nuint
-nuint	sbyte, byte, short, ushort, int, uint,";
-            using var sr = new StringReader(str);
-            do
-            {
-                var line = sr.ReadLine();
-                if (!string.IsNullOrEmpty(line))
-                {
-                    var items = line.Split(new string[] { "\t", ",", " " }, System.StringSplitOptions.RemoveEmptyEntries);
-                    var from = items[0];
-                    string resline = $"[typeof({items[0]})] = new HashSet<Type> {{ {string.Join(", ", items.Skip(1).Where(p => p != "or").Select(p => $"typeof({p})"))} }},";
-                    testOutputHelper.WriteLine(resline);
-                }
-                else
-                {
-                    break;
-                }
-            } while (true);
 
-
-        }
         [Fact]
         public void Test2()
         {
@@ -103,6 +70,11 @@ nuint	sbyte, byte, short, ushort, int, uint,";
             public string Name { get; set; }
             public int Age { get; set; }
 
+        }
+        public record Entity<T1, T2>
+        {
+            public T1 Val1 { get; set; }
+            public T2 Val2 { get; set; }
         }
     }
 }

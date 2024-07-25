@@ -5,9 +5,9 @@ using System.Linq;
 using FluentAssertions;
 using Xunit;
 
-namespace YS.Knife.Query.IntegrationTest
+namespace YS.Knife.Query.IntegrationTest.Operators
 {
-    public class FilterExtensionsTest
+    public class EqualsTest
     {
 
         #region ConstantCompareConstant
@@ -130,9 +130,9 @@ namespace YS.Knife.Query.IntegrationTest
                 Right = rightValue,
                 Operator = Operator.Equals
             };
-            var method = this.GetType().GetMethod(nameof(GetFiltedResult), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+            var method = GetType().GetMethod(nameof(GetFiltedResult), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
                 .MakeGenericMethod(itemType);
-            IList res = (IList)(method.Invoke(this, new object[] { pathValue, filter }));
+            var res = (IList)method.Invoke(this, new object[] { pathValue, filter });
             res.Count.Should().Be(Convert.ToInt32(isEquals));
             //swap left and right
             var filter2 = new FilterInfo
@@ -142,14 +142,14 @@ namespace YS.Knife.Query.IntegrationTest
                 Right = leftValue,
                 Operator = Operator.Equals
             };
-            IList res2 = (IList)(method.Invoke(this, new object[] { pathValue, filter2 }));
+            var res2 = (IList)method.Invoke(this, new object[] { pathValue, filter2 });
             res2.Count.Should().Be(Convert.ToInt32(isEquals));
 
 
         }
         List<Entity1<T>> GetFiltedResult<T>(T val, FilterInfo filterInfo)
         {
-            return GetTestSource<T>(val).DoFilter(filterInfo).ToList();
+            return GetTestSource(val).DoFilter(filterInfo).ToList();
         }
         IQueryable<Entity1<T>> GetTestSource<T>(T val)
         {
@@ -213,9 +213,9 @@ namespace YS.Knife.Query.IntegrationTest
                 Right = rightValueInfo,
                 Operator = Operator.Equals
             };
-            var method = this.GetType().GetMethod(nameof(GetFiltedResult2), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+            var method = GetType().GetMethod(nameof(GetFiltedResult2), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
                 .MakeGenericMethod(leftType, rightType);
-            IList res = (IList)(method.Invoke(this, new object[] { leftValue, rightValue, filter }));
+            var res = (IList)method.Invoke(this, new object[] { leftValue, rightValue, filter });
             res.Count.Should().Be(Convert.ToInt32(isEquals));
             //swap left and right
             var filter2 = new FilterInfo
@@ -225,9 +225,9 @@ namespace YS.Knife.Query.IntegrationTest
                 Right = leftValueInfo,
                 Operator = Operator.Equals
             };
-            var method2 = this.GetType().GetMethod(nameof(GetFiltedResult2), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+            var method2 = GetType().GetMethod(nameof(GetFiltedResult2), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
                 .MakeGenericMethod(rightType, leftType);
-            IList res2 = (IList)(method2.Invoke(this, new object[] { rightValue, leftValue, filter2 }));
+            var res2 = (IList)method2.Invoke(this, new object[] { rightValue, leftValue, filter2 });
             res2.Count.Should().Be(Convert.ToInt32(isEquals));
 
         }

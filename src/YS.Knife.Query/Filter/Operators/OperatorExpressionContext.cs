@@ -12,5 +12,7 @@ namespace YS.Knife.Query.Filter.Operators
     {
         public ValueExpressionDesc Left { get; set; }
         public ValueExpressionDesc Right { get; set; }
+
+        public Operator Operator { get; set; }
     }
 }

@@ -2,7 +2,4 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\YS.Knife.Query\YS.Knife.Query.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="新文件夹\" />
-  </ItemGroup>
 </Project>
