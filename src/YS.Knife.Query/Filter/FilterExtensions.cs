@@ -87,7 +87,8 @@ namespace YS.Knife.Query
         private static Dictionary<Operator, IExpressionOperator> supportOperators = new Dictionary<Operator, IExpressionOperator>
         {
             [Operator.Equals] = new EqualsOperator(),
-            [Operator.Between]= new BetweenOperator(Operator.Between),
+            [Operator.Between]= new BetweenOperator(false, Operator.Between),
+            [Operator.NotBetween] = new BetweenOperator(true, Operator.NotBetween),
         };
 
         private static IExpressionOperator GetExpressionOperator(Operator operatorType)

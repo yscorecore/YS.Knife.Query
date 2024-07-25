@@ -6,7 +6,7 @@ using Xunit;
 
 namespace YS.Knife.Query.IntegrationTest.Operators
 {
-    public class BetweenTest
+    public class NotBetweenTest
     {
         [Theory]
         [MemberData(nameof(GetTestData))]
@@ -27,7 +27,7 @@ namespace YS.Knife.Query.IntegrationTest.Operators
                 OpType = CombinSymbol.SingleItem,
                 Left = leftValue,
                 Right = rightValue,
-                Operator = Operator.Between
+                Operator = Operator.NotBetween
             };
             var source = new int[] { 1 };
             var target = source.AsQueryable().DoFilter(filter).ToArray();
@@ -57,7 +57,7 @@ namespace YS.Knife.Query.IntegrationTest.Operators
                 OpType = CombinSymbol.SingleItem,
                 Left = leftValue,
                 Right = rightValue,
-                Operator = Operator.Between
+                Operator = Operator.NotBetween
             };
             var genericMethod = this.GetType().GetMethod(nameof(GetDataCount), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             var method = genericMethod.MakeGenericMethod(leftType);
@@ -95,18 +95,18 @@ namespace YS.Knife.Query.IntegrationTest.Operators
         }
         private static IEnumerable<(Type, object, Type, object, bool)> GetTestDataInternal()
         {
-            yield return new(typeof(int), 1, typeof(int[]), null, true);
-            yield return new(typeof(int), 1, typeof(object[]), new object[] { 1, null }, true);
-            yield return new(typeof(int), 1, typeof(object[]), new object[] { null, 1 }, true);
-            yield return new(typeof(int), 1, typeof(int[]), new object[] { 1, 1 }, true);
-            yield return new(typeof(int), 1, typeof(int[]), new int[] { 1, 1 }, true);
-            yield return new(typeof(int), 1, typeof(int[]), new int[] { 2, 3 }, false);
-            yield return new(typeof(int), 1, typeof(int[]), new int[] { -1, 0 }, false);
-            yield return new(typeof(int), 1, typeof(int[]), new int[] { 0, 2 }, true);
-            yield return new(typeof(int), 1, typeof(int[]), new int[] { 2, 0 }, false);
-            yield return new(typeof(string), "1", typeof(object[]), new object[] { "0", "2" }, true);
-            yield return new(typeof(DateTime), new DateTime(2024, 7, 25), typeof(object[]), new object[] { new DateTime(2024, 7, 24), new DateTime(2024, 7, 26) }, true);
-            yield return new(typeof(DateTime), new DateTime(2024, 7, 25), typeof(DateTime[]), new DateTime[] { new DateTime(2024, 7, 24), new DateTime(2024, 7, 26) }, true);
+            yield return new(typeof(int), 1, typeof(int[]), null, false);
+            yield return new(typeof(int), 1, typeof(object[]), new object[] { 1, null }, false);
+            yield return new(typeof(int), 1, typeof(object[]), new object[] { null, 1 }, false);
+            yield return new(typeof(int), 1, typeof(int[]), new object[] { 1, 1 }, false);
+            yield return new(typeof(int), 1, typeof(int[]), new int[] { 1, 1 }, false);
+            yield return new(typeof(int), 1, typeof(int[]), new int[] { 2, 3 }, true);
+            yield return new(typeof(int), 1, typeof(int[]), new int[] { -1, 0 }, true);
+            yield return new(typeof(int), 1, typeof(int[]), new int[] { 0, 2 }, false);
+            yield return new(typeof(int), 1, typeof(int[]), new int[] { 2, 0 }, true);
+            yield return new(typeof(string), "1", typeof(object[]), new object[] { "0", "2" }, false);
+            yield return new(typeof(DateTime), new DateTime(2024, 7, 25), typeof(object[]), new object[] { new DateTime(2024, 7, 24), new DateTime(2024, 7, 26) }, false);
+            yield return new(typeof(DateTime), new DateTime(2024, 7, 25), typeof(DateTime[]), new DateTime[] { new DateTime(2024, 7, 24), new DateTime(2024, 7, 26) }, false);
 
         }
 
