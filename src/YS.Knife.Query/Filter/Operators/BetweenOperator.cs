@@ -7,7 +7,7 @@ namespace YS.Knife.Query.Filter.Operators
 {
     internal class BetweenOperator : NotResultOperator
     {
-        public BetweenOperator(bool isNot, Operator @operator) : base(isNot, @operator)
+        public BetweenOperator(Operator @operator) : base(@operator)
         {
         }
         private readonly IExpressionOperator LessThanOrEquals = new ComparerOperator(Operator.LessThanOrEqual);

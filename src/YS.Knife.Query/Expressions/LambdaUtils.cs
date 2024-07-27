@@ -180,6 +180,47 @@ namespace YS.Knife.Query.Expressions
         {
             return type.IsValueType && Nullable.GetUnderlyingType(type) == null;
         }
+        public static (ValueExpressionDesc Left, ValueExpressionDesc Right) ConvertToStringType(ValueExpressionDesc left, ValueExpressionDesc right)
+        {
+            return (ToStringType(left), ToStringType(right));
+            ValueExpressionDesc ToStringType(ValueExpressionDesc valueExpression)
+            {
+                if (valueExpression.ValueType == typeof(string))
+                {
+                    return valueExpression;
+                }
+
+                if (valueExpression.IsConstant)
+                {
+                    if (valueExpression.IsNull)
+                    {
+                        return RebuildNullConstantValue(typeof(string));
+                    }
+                    else
+                    {
+                        if (ValueConverterFactory.CanConverter(valueExpression.ValueType, typeof(string), out var converter))
+                        {
+                            return RebuildConstantValue(valueExpression, typeof(string), converter);
+                        }
+                        else
+                        {
+                            throw new Exception("can not convert const value to string");
+                        }
+                    }
+                }
+                else
+                {
+                    if (ExpressionConverterFactory.CanConverter(valueExpression.ValueType, typeof(string), out var converter))
+                    {
+                        return RebuildExpressionValue(valueExpression, typeof(string), converter);
+                    }
+                    else
+                    {
+                        throw new Exception("can not convert expression value to string");
+                    }
+                }
+            }
+        }
         public static (ValueExpressionDesc Left, ValueExpressionDesc Right) ConvertToSameType(ValueExpressionDesc leftNode, ValueExpressionDesc rightNode)
         {
             if (leftNode.ValueType == rightNode.ValueType)

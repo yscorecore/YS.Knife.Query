@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using FluentAssertions;
 using Xunit;
+using static YS.Knife.Query.IntegrationTest.Operators.OperatorTestUtils;
+
 
 namespace YS.Knife.Query.IntegrationTest.Operators
 {
@@ -10,77 +11,20 @@ namespace YS.Knife.Query.IntegrationTest.Operators
     {
         [Theory]
         [MemberData(nameof(GetTestData))]
-        public void ShouldFilter_ConstantAndConstant(Type leftType, object left, Type rightType, object right, bool result)
+        public void ConstantAndConstant(Type leftType, object left, Type rightType, object right, bool result)
         {
-            var leftValue = new ValueInfo
-            {
-                IsConstant = true,
-                ConstantValue = left
-            };
-            var rightValue = new ValueInfo
-            {
-                IsConstant = true,
-                ConstantValue = right
-            };
-            var filter = new FilterInfo
-            {
-                OpType = CombinSymbol.SingleItem,
-                Left = leftValue,
-                Right = rightValue,
-                Operator = Operator.NotBetween
-            };
-            var source = new int[] { 1 };
-            var target = source.AsQueryable().DoFilter(filter).ToArray();
-            target.Should().BeEquivalentTo(source.Where(p => result).ToArray());
+            CompareConstantAndConstant(Operator.NotBetween, leftType, left, rightType, right, result);
         }
 
 
         [Theory]
         [MemberData(nameof(GetTestData))]
-        public void ShouldFilter_PathAndConstant(Type leftType, object left, Type rightType, object right, bool result)
+        public void PathAndConstant(Type leftType, object left, Type rightType, object right, bool result)
         {
-            var leftValue = new ValueInfo
-            {
-                IsConstant = false,
-                NavigatePaths = new List<ValuePath>
-               {
-                 new ValuePath { Name=nameof(Entity1<object>.Val) }
-               }
-            };
-            var rightValue = new ValueInfo
-            {
-                IsConstant = true,
-                ConstantValue = right
-            };
-            var filter = new FilterInfo
-            {
-                OpType = CombinSymbol.SingleItem,
-                Left = leftValue,
-                Right = rightValue,
-                Operator = Operator.NotBetween
-            };
-            var genericMethod = this.GetType().GetMethod(nameof(GetDataCount), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            var method = genericMethod.MakeGenericMethod(leftType);
-            var res = method.Invoke(this, new object[] { left, filter });
-            res.Should().Be(Convert.ToInt32(result));
+            ComparePathAndConstant(Operator.NotBetween, leftType, left, rightType, right, result);
         }
 
 
-
-        private int GetDataCount<T1>(T1 t1, FilterInfo filterInfo)
-        {
-            var res = GetEntity1TestData(t1);
-            res = res.DoFilter(filterInfo);
-            return res.Count();
-        }
-        private IQueryable<Entity1<T1>> GetEntity1TestData<T1>(T1 t1)
-        {
-            var data = new Entity1<T1>
-            {
-                Val = t1
-            };
-            return new Entity1<T1>[] { data }.AsQueryable();
-        }
 
         public static IEnumerable<object[]> GetTestData()
         {
@@ -98,7 +42,7 @@ namespace YS.Knife.Query.IntegrationTest.Operators
             yield return new(typeof(int), 1, typeof(int[]), null, false);
             yield return new(typeof(int), 1, typeof(object[]), new object[] { 1, null }, false);
             yield return new(typeof(int), 1, typeof(object[]), new object[] { null, 1 }, false);
-            yield return new(typeof(int), 1, typeof(int[]), new object[] { 1, 1 }, false);
+            yield return new(typeof(int), 1, typeof(object[]), new object[] { 1, 1 }, false);
             yield return new(typeof(int), 1, typeof(int[]), new int[] { 1, 1 }, false);
             yield return new(typeof(int), 1, typeof(int[]), new int[] { 2, 3 }, true);
             yield return new(typeof(int), 1, typeof(int[]), new int[] { -1, 0 }, true);
@@ -107,12 +51,6 @@ namespace YS.Knife.Query.IntegrationTest.Operators
             yield return new(typeof(string), "1", typeof(object[]), new object[] { "0", "2" }, false);
             yield return new(typeof(DateTime), new DateTime(2024, 7, 25), typeof(object[]), new object[] { new DateTime(2024, 7, 24), new DateTime(2024, 7, 26) }, false);
             yield return new(typeof(DateTime), new DateTime(2024, 7, 25), typeof(DateTime[]), new DateTime[] { new DateTime(2024, 7, 24), new DateTime(2024, 7, 26) }, false);
-
-        }
-
-        record Entity1<T1>
-        {
-            public T1 Val { get; set; }
         }
     }
 }

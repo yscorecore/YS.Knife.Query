@@ -87,8 +87,9 @@ namespace YS.Knife.Query
         private static Dictionary<Operator, IExpressionOperator> supportOperators = new Dictionary<Operator, IExpressionOperator>
         {
             [Operator.Equals] = new EqualsOperator(),
-            [Operator.Between]= new BetweenOperator(false, Operator.Between),
-            [Operator.NotBetween] = new BetweenOperator(true, Operator.NotBetween),
+            [Operator.Between] = new BetweenOperator(Operator.Between),
+            [Operator.NotBetween] = new BetweenOperator(Operator.NotBetween),
+            [Operator.StartsWith] = new StringOperator(Operator.StartsWith),
         };
 
         private static IExpressionOperator GetExpressionOperator(Operator operatorType)
@@ -96,9 +97,6 @@ namespace YS.Knife.Query
             return supportOperators[operatorType];
         }
 
-        private static void ConvertToSameType(OperatorExpressionContext context)
-        {
-
-        }
+       
     }
 }

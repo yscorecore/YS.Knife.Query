@@ -4,283 +4,115 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using Xunit;
+using static YS.Knife.Query.IntegrationTest.Operators.OperatorTestUtils;
+
 
 namespace YS.Knife.Query.IntegrationTest.Operators
 {
     public class EqualsTest
     {
 
-        #region ConstantCompareConstant
         [Theory]
-        [MemberData(nameof(GetConstantEqualsData))]
-        public void ConstantEqualsTest(object left, object right, bool equals)
+        [MemberData(nameof(GetTestData))]
+        [MemberData(nameof(GetConstantAndConstantTestData))]
+        public void ConstantAndConstant(Type leftType, object left, Type rightType, object right, bool result)
         {
-            var leftValue = new ValueInfo
-            {
-                IsConstant = true,
-                ConstantValue = left
-            };
-            var rightValue = new ValueInfo
-            {
-                IsConstant = true,
-                ConstantValue = right
-            };
-            var filter = new FilterInfo
-            {
-                OpType = CombinSymbol.SingleItem,
-                Left = leftValue,
-                Right = rightValue,
-                Operator = Operator.Equals
-            };
-            var source = new int[] { 1 };
-            var target = source.AsQueryable().DoFilter(filter).ToArray();
-            target.Should().BeEquivalentTo(source.Where(p => equals).ToArray());
-
-
+            CompareConstantAndConstant(Operator.Equals, leftType, left, rightType, right, result);
         }
-
-        public static IEnumerable<object[]> GetConstantEqualsData()
+        public static IEnumerable<object[]> GetConstantAndConstantTestData()
         {
             return new List<object[]>
             {
-                new object[]{ 1, 1, true},
-                new object[]{ 1, 2, false},
-                new object[]{ 1, (short)1,true},
-                new object[]{ 1, (ushort)1, true },
-                new object[]{ 1, (uint)1, true },
-                new object[]{ 1, (ulong)1, true },
-                new object[]{ 1, 1L, true },
-                new object[]{ 1, 1.0, true },
-                new object[]{ 1, 1.0M, true },
-                new object[]{ 1, "1", true },
-                new object[]{ 1L, 1, true},
-                new object[]{ 1L, (short)1,true},
-                new object[]{ 1L, (ushort)1, true },
-                new object[]{ 1L, (uint)1, true },
-                new object[]{ 1L, (ulong)1, true },
-                new object[]{ 1L, 1L, true },
-                new object[]{ 1L, 1.0, true },
-                new object[]{ 1L, 1.0M, true },
-                new object[]{ 1L, "1", true },
-                new object[]{ 1.0, 1, true},
-                new object[]{ 1.0, (short)1,true},
-                new object[]{ 1.0, (ushort)1, true },
-                new object[]{ 1.0, (uint)1, true },
-                new object[]{ 1.0, (ulong)1, true },
-                new object[]{ 1.0, 1L, true },
-                new object[]{ 1.0, 1.0, true },
-                new object[]{ 1.0, 1.0M, true },
-                new object[]{ 1.0, "1", true },
-                new object[]{ 1.0, "1.0", true },
-                new object[]{ 1M, 1, true},
-                new object[]{ 1M, (short)1,true},
-                new object[]{ 1M, (ushort)1, true },
-                new object[]{ 1M, (uint)1, true },
-                new object[]{ 1M, (ulong)1, true },
-                new object[]{ 1M, 1L, true },
-                new object[]{ 1M, 1.0, true },
-                new object[]{ 1M, 1.0M, true },
-                new object[]{ 1M, "1", true },
-                new object[]{ 1M, "1.0", true },
-                new object[]{ "1", 1, true},
-                new object[]{ "1", (short)1,true},
-                new object[]{ "1", (ushort)1, true },
-                new object[]{ "1", (uint)1, true },
-                new object[]{ "1", (ulong)1, true },
-                new object[]{ "1", 1L, true },
-                new object[]{ "1", 1.0, true },
-                new object[]{ "1.0", 1.0M, true },
-                new object[]{ "1", "1", true },
-                new object[]{ new DateTime(2024,7,8),new DateTime(2024,7,8),true},
-                new object[]{ new DateTime(2024,7,8),"2024-07-08",true},
-                new object[]{ new DateTime(2024,7,8),"2024-07-08 00:00:00",true},
-                new object[]{ new DateTimeOffset(new DateTime(2024, 7, 8)),"2024-07-08",true},
-                new object[]{ new DateTimeOffset(new DateTime(2024, 7, 8)),"2024-07-08 00:00:00",true},
-                new object[]{ new Guid("C7BD06E4-DFFB-4110-860C-9DC36523E9A9"), new Guid("C7BD06E4-DFFB-4110-860C-9DC36523E9A9"), true},
-                new object[]{ new Guid("C7BD06E4-DFFB-4110-860C-9DC36523E9A9"), "C7BD06E4-DFFB-4110-860C-9DC36523E9A9", true},
-                new object[]{ "1", null, false },
-                new object[]{ 1, null, false },
+                new object[]{ typeof(DateTime),new DateTime(2024,7,8), typeof(string), "2024-07-08",true},
+                new object[]{ typeof(DateTime),new DateTime(2024,7,8), typeof(string), "2024-07-08 00:00:00",true},
+                new object[]{ typeof(DateTimeOffset),new DateTimeOffset(new DateTime(2024, 7, 8)), typeof(string), "2024-07-08",true},
+                new object[]{ typeof(DateTimeOffset),new DateTimeOffset(new DateTime(2024, 7, 8)), typeof(string), "2024-07-08 00:00:00",true},
+                new object[]{ typeof(Guid),new Guid("C7BD06E4-DFFB-4110-860C-9DC36523E9A9"), typeof(string), "c7bd06e4-dffb-4110-860c-9dc36523e9a9", true},
+                new object[]{ typeof(string),"1", typeof(object), null, false },
+                new object[]{ typeof(int),1, typeof(object),null, false },
             };
         }
 
-        #endregion
 
-        #region ConstantComparePathValue
+
         [Theory]
-        [MemberData(nameof(GetValuePathAndConstantEqualsTestData))]
-        public void ValuePathAndConstantEqualsTest(Type itemType, object pathValue, object constantValue, bool isEquals)
+        [MemberData(nameof(GetTestData))]
+        public void PathAndConstant(Type leftType, object left, Type rightType, object right, bool result)
         {
-            var leftValue = new ValueInfo
-            {
-                NavigatePaths = new List<ValuePath>
-                {
-                    new ValuePath{ Name=nameof(Entity1<string>.Val) }
-                }
-            };
-            var rightValue = new ValueInfo
-            {
-
-                IsConstant = true,
-                ConstantValue = constantValue
-            };
-            var filter = new FilterInfo
-            {
-                OpType = CombinSymbol.SingleItem,
-                Left = leftValue,
-                Right = rightValue,
-                Operator = Operator.Equals
-            };
-            var method = GetType().GetMethod(nameof(GetFiltedResult), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                .MakeGenericMethod(itemType);
-            var res = (IList)method.Invoke(this, new object[] { pathValue, filter });
-            res.Count.Should().Be(Convert.ToInt32(isEquals));
-            //swap left and right
-            var filter2 = new FilterInfo
-            {
-                OpType = CombinSymbol.SingleItem,
-                Left = rightValue,
-                Right = leftValue,
-                Operator = Operator.Equals
-            };
-            var res2 = (IList)method.Invoke(this, new object[] { pathValue, filter2 });
-            res2.Count.Should().Be(Convert.ToInt32(isEquals));
-
-
+            ComparePathAndConstant(Operator.Equals, leftType, left, rightType, right, result);
         }
-        List<Entity1<T>> GetFiltedResult<T>(T val, FilterInfo filterInfo)
+
+        [Theory]
+        [MemberData(nameof(GetTestData))]
+        public void ConstantAndPath(Type leftType, object left, Type rightType, object right, bool result)
         {
-            return GetTestSource(val).DoFilter(filterInfo).ToList();
+            CompareConstantAndPath(Operator.Equals, leftType, left, rightType, right, result);
         }
-        IQueryable<Entity1<T>> GetTestSource<T>(T val)
+
+        [Theory]
+        [MemberData(nameof(GetTestData))]
+        public void PathAndPath(Type leftType, object left, Type rightType, object right, bool result)
         {
-            return new List<Entity1<T>>
-            {
-                new Entity1<T>{ Val = val }
-            }.AsQueryable();
+            ComparePathAndPath(Operator.Equals, leftType, left, rightType, right, result);
         }
-        public static IEnumerable<object[]> GetValuePathAndConstantEqualsTestData()
+
+        public static IEnumerable<object[]> GetTestData()
         {
             return new List<object[]>
             {
-                new object[]{ typeof(string),"abc","abc",true},
-                new object[]{ typeof(string),"abc","abcd",false},
-                new object[]{ typeof(string), "1" , 1,true},
-                new object[]{ typeof(string), "1" , 2, false },
-                new object[]{ typeof(string), "1" , 1L,true},
-                new object[]{ typeof(string), "1" , 1.0,true},
-                new object[]{ typeof(string), "1.0" , 1.0M,true},
-                new object[]{ typeof(string), "1" , null, false},
-                new object[]{ typeof(int), 1 , 1, true},
-                new object[]{ typeof(int), 1 , 2, false},
-                new object[]{ typeof(int), 1 , 1L, true},
-                new object[]{ typeof(int), 1 , 1.0, true},
-                new object[]{ typeof(int), 1 , 1.0M, true},
-                new object[]{ typeof(int), 1 , null, false},
-                new object[]{ typeof(int?), 1 , 1, true},
-                new object[]{ typeof(int?), 1 , 2, false},
-                new object[]{ typeof(int?), 1 , 1L, true},
-                new object[]{ typeof(int?), 1 , 1.0, true},
-                new object[]{ typeof(int?), 1 , 1.0M, true},
-                new object[]{ typeof(int?), 1 , null, false},
-                new object[]{ typeof(int?), null , 1, false},
-                new object[]{ typeof(int?), null , null, true},
+                new object[]{typeof(int),1, typeof(int),1, true},
+                new object[]{typeof(int),1, typeof(int), 2, false},
+                new object[]{typeof(int),1, typeof(short), (short)1,true},
+                new object[]{typeof(int),1, typeof(ushort), (ushort)1, true },
+                new object[]{typeof(int),1, typeof(uint), (uint)1, true },
+                new object[]{typeof(int),1, typeof(ulong), (ulong)1, true },
+                new object[]{typeof(int),1, typeof(long), 1L, true },
+                new object[]{typeof(int),1, typeof(double),1.0, true },
+                new object[]{typeof(int),1, typeof(decimal),1.0M, true },
+                new object[]{typeof(int),1, typeof(string), "1", true },
+                new object[]{ typeof(long),1L,typeof(int), 1, true},
+                new object[]{ typeof(long),1L, typeof(short), (short)1,true},
+                new object[]{ typeof(long),1L, typeof(ushort),(ushort)1, true },
+                new object[]{ typeof(long),1L, typeof(uint), (uint)1, true },
+                new object[]{ typeof(long),1L, typeof(ulong), (ulong)1, true },
+                new object[]{ typeof(long),1L, typeof(long), 1L, true },
+                new object[]{ typeof(long),1L, typeof(double), 1.0, true },
+                new object[]{ typeof(long),1L, typeof(decimal),1.0M, true },
+                new object[]{ typeof(long),1L, typeof(string), "1", true },
+                new object[]{ typeof(double),1.0, typeof(int), 1, true},
+                new object[]{ typeof(double),1.0, typeof(short), (short)1,true},
+                new object[]{ typeof(double),1.0, typeof(ushort),(ushort)1, true },
+                new object[]{ typeof(double),1.0, typeof(uint),(uint)1, true },
+                new object[]{ typeof(double),1.0, typeof(ulong), (ulong)1, true },
+                new object[]{ typeof(double),1.0, typeof(long), 1L, true },
+                new object[]{ typeof(double),1.0, typeof(double), 1.0, true },
+                new object[]{ typeof(double),1.0, typeof(decimal), 1.0M, true },
+                new object[]{ typeof(double),1.0, typeof(string), "1", true },
+                new object[]{ typeof(decimal),1M, typeof(int), 1, true},
+                new object[]{ typeof(decimal),1M, typeof(short), (short)1,true},
+                new object[]{ typeof(decimal),1M, typeof(ushort), (ushort)1, true },
+                new object[]{ typeof(decimal),1M, typeof(uint), (uint)1, true },
+                new object[]{ typeof(decimal),1M, typeof(ulong), (ulong)1, true },
+                new object[]{ typeof(decimal),1M, typeof(long), 1L, true },
+                new object[]{ typeof(decimal),1M, typeof(double), 1.0, true },
+                new object[]{ typeof(decimal),1M, typeof(decimal), 1.0M, true },
+                new object[]{ typeof(decimal),1M, typeof(string), "1", true },
+                new object[]{ typeof(string),"1", typeof(int), 1, true},
+                new object[]{ typeof(string),"1", typeof(short), (short)1,true},
+                new object[]{ typeof(string),"1", typeof(ushort), (ushort)1, true },
+                new object[]{ typeof(string),"1", typeof(uint), (uint)1, true },
+                new object[]{ typeof(string),"1", typeof(ulong), (ulong)1, true },
+                new object[]{ typeof(string),"1", typeof(long), 1L, true },
+                new object[]{ typeof(string),"1", typeof(double), 1.0, true },
+                new object[]{ typeof(string),"1.0", typeof(decimal), 1.0M, true },
+                new object[]{ typeof(string),"1", typeof(string), "1", true },
+                new object[]{ typeof(DateTime),new DateTime(2024,7,8),typeof(DateTime), new DateTime(2024,7,8),true},
+                new object[]{ typeof(DateTimeOffset),new DateTimeOffset(new DateTime(2024, 7, 8)), typeof(DateTimeOffset), new DateTimeOffset(new DateTime(2024, 7, 8)), true},
+                new object[]{ typeof(Guid),new Guid("C7BD06E4-DFFB-4110-860C-9DC36523E9A9"), typeof(Guid), new Guid("C7BD06E4-DFFB-4110-860C-9DC36523E9A9"), true},
+                new object[]{ typeof(string),"1", typeof(object), null, false },
             };
         }
 
-        #endregion
-        [Theory]
-        [MemberData(nameof(GetValuePathAndValuePathEqualsTestData))]
-        public void ValuePathAndValuePathEqualsTest(Type leftType, object leftValue, Type rightType, object rightValue, bool isEquals)
-        {
-            var leftValueInfo = new ValueInfo
-            {
-                NavigatePaths = new List<ValuePath>
-                {
-                    new ValuePath{ Name=nameof(Entity2<string,string>.Val1) }
-                }
-            };
-            var rightValueInfo = new ValueInfo
-            {
-                NavigatePaths = new List<ValuePath>
-                {
-                    new ValuePath{ Name=nameof(Entity2<string,string>.Val2) }
-                }
-            };
-            var filter = new FilterInfo
-            {
-                OpType = CombinSymbol.SingleItem,
-                Left = leftValueInfo,
-                Right = rightValueInfo,
-                Operator = Operator.Equals
-            };
-            var method = GetType().GetMethod(nameof(GetFiltedResult2), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                .MakeGenericMethod(leftType, rightType);
-            var res = (IList)method.Invoke(this, new object[] { leftValue, rightValue, filter });
-            res.Count.Should().Be(Convert.ToInt32(isEquals));
-            //swap left and right
-            var filter2 = new FilterInfo
-            {
-                OpType = CombinSymbol.SingleItem,
-                Left = rightValueInfo,
-                Right = leftValueInfo,
-                Operator = Operator.Equals
-            };
-            var method2 = GetType().GetMethod(nameof(GetFiltedResult2), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
-                .MakeGenericMethod(rightType, leftType);
-            var res2 = (IList)method2.Invoke(this, new object[] { rightValue, leftValue, filter2 });
-            res2.Count.Should().Be(Convert.ToInt32(isEquals));
 
-        }
-        public static IEnumerable<object[]> GetValuePathAndValuePathEqualsTestData()
-        {
-            yield return new object[] { typeof(string), "1", typeof(int), 1, true };
-            yield return new object[] { typeof(string), "1", typeof(long), 1L, true };
-            yield return new object[] { typeof(string), "1", typeof(double), 1.0, true };
-            yield return new object[] { typeof(string), "1.0", typeof(decimal), 1.0M, true };
-            yield return new object[] { typeof(string), "1", typeof(string), "1", true };
-
-            yield return new object[] { typeof(string), "1", typeof(int?), 1, true };
-            yield return new object[] { typeof(string), "1", typeof(long?), 1L, true };
-            yield return new object[] { typeof(string), "1", typeof(double?), 1.0, true };
-            yield return new object[] { typeof(string), "1.0", typeof(decimal?), 1.0M, true };
-
-            yield return new object[] { typeof(int), 1, typeof(int), 1, true };
-            yield return new object[] { typeof(int), 1, typeof(long), 1L, true };
-            yield return new object[] { typeof(int), 1, typeof(double), 1.0, true };
-            yield return new object[] { typeof(int), 1, typeof(decimal), 1.0M, true };
-            yield return new object[] { typeof(int), 1, typeof(string), "1", true };
-
-            yield return new object[] { typeof(int), 1, typeof(int?), 1, true };
-            yield return new object[] { typeof(int), 1, typeof(long?), 1L, true };
-            yield return new object[] { typeof(int), 1, typeof(double?), 1.0, true };
-            yield return new object[] { typeof(int), 1, typeof(decimal?), 1.0M, true };
-
-            yield return new object[] { typeof(int?), 1, typeof(int?), 1, true };
-            yield return new object[] { typeof(int?), 1, typeof(long?), 1L, true };
-            yield return new object[] { typeof(int?), 1, typeof(double?), 1.0, true };
-            yield return new object[] { typeof(int?), 1, typeof(decimal?), 1.0M, true };
-
-        }
-        List<Entity2<T1, T2>> GetFiltedResult2<T1, T2>(T1 val1, T2 val2, FilterInfo filterInfo)
-        {
-            return GetTestSource2(val1, val2).DoFilter(filterInfo).ToList();
-        }
-        IQueryable<Entity2<T1, T2>> GetTestSource2<T1, T2>(T1 val1, T2 val2)
-        {
-            return new List<Entity2<T1, T2>>
-            {
-                new Entity2<T1,T2>{  Val1=val1,Val2=val2 }
-            }.AsQueryable();
-        }
-        record Entity1<T>
-        {
-            public T Val { get; set; }
-        }
-
-        record Entity2<T1, T2>
-        {
-            public T1 Val1 { get; set; }
-            public T2 Val2 { get; set; }
-        }
     }
 }

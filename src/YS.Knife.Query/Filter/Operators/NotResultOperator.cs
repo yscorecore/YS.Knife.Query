@@ -6,9 +6,9 @@ namespace YS.Knife.Query.Filter.Operators
 {
     internal abstract class NotResultOperator : IExpressionOperator
     {
-        public NotResultOperator(bool isNot, Operator @operator)
+        public NotResultOperator( Operator @operator)
         {
-            IsNot = isNot;
+            IsNot = @operator<0;
             Operator = @operator;
         }
 

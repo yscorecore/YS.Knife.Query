@@ -7,25 +7,24 @@ namespace YS.Knife.Query.Filter.Operators
 {
     internal class StringOperator : NotResultOperator
     {
-        public StringOperator(bool isNot, Operator @operator) : base(isNot, @operator)
+        public StringOperator(Operator @operator) : base(@operator)
         {
         }
 
         protected override Expression DoOperatorAction(ValueExpressionDesc left, ValueExpressionDesc right)
         {
-            return Expression.Call(left.Expression, GetExpressionMethod(), right.Expression);
+            var (left2, right2) = LambdaUtils.ConvertToStringType(left, right);
+            if (right2.IsNull || left2.IsNull) return Expression.Constant(false);
+            return Expression.Call(left2.Expression, GetExpressionMethod(), right2.Expression);
         }
 
         private MethodInfo GetExpressionMethod()
         {
             return Operator switch
             {
-                Operator.StartsWith => StringMethodFinder.StartsWith,
-                Operator.EndsWith => StringMethodFinder.EndsWith,
-                Operator.Contains => StringMethodFinder.Contains,
-                Operator.NotStartsWith => StringMethodFinder.StartsWith,
-                Operator.NotEndsWith => StringMethodFinder.EndsWith,
-                Operator.NotContains => StringMethodFinder.Contains,
+                Operator.StartsWith or Operator.NotStartsWith => StringMethodFinder.StartsWith,
+                Operator.EndsWith or Operator.NotEndsWith => StringMethodFinder.EndsWith,
+                Operator.Contains or Operator.NotContains => StringMethodFinder.Contains,
                 _ => throw new InvalidOperationException("invalid operator type"),
             };
 

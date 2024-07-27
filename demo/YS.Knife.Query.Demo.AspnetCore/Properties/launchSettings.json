@@ -1,23 +1,23 @@
-﻿{
+{
   "$schema": "https://json.schemastore.org/launchsettings.json",
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:11724",
-      "sslPort": 44316
+      "applicationUrl": "http://localhost:61635/",
+      "sslPort": 44323
     }
   },
   "profiles": {
     "YS.Knife.Query.Demo.AspnetCore": {
       "commandName": "Project",
-      "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "http://localhost:5049",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "applicationUrl": "http://localhost:5049",
+      "dotnetRunMessages": true
     },
     "IIS Express": {
       "commandName": "IISExpress",
