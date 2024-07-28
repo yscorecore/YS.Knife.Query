@@ -19,12 +19,7 @@ namespace YS.Knife.Query.Expressions
             if (Nullable.GetUnderlyingType(valueExpression.ValueType) == null && caseNullable)
             {
                 var nullableType = typeof(Nullable<>).MakeGenericType(valueExpression.ValueType);
-                valueExpression = new ValueExpressionDesc
-                {
-                    ValueType = nullableType,
-                    Expression = Expression.Convert(valueExpression.Expression, nullableType)
-                };
-
+                valueExpression = ValueExpressionDesc.FromExpression(Expression.Convert(valueExpression.Expression, nullableType));
             }
             var funcType = typeof(Func<,>).MakeGenericType(fromType, valueExpression.ValueType);
             return new Func2LambdaExpressionDesc
@@ -63,13 +58,7 @@ namespace YS.Knife.Query.Expressions
         {
             Debug.Assert(value.IsConstant);
             var exp = Expression.Constant(value.ConstantValue);
-            return new ValueExpressionDesc
-            {
-                Expression = exp,
-                ValueType = exp.Type,
-                IsConstant = true,
-                IsNull = value.ConstantValue == null
-            };
+            return ValueExpressionDesc.FromValue(value.ConstantValue);
         }
 
         private static ValueExpressionDesc ExecuteValuePath(ValueNavigateContext context, ValuePath valuePath)
@@ -94,11 +83,7 @@ namespace YS.Knife.Query.Expressions
                     throw new QueryExpressionBuildException($"can not find member '{valuePath.Name}' from type '{lastExpression.ValueType.FullName}'.");
                 }
                 var expression = Expression.Property(lastExpression.Expression, property);
-                return new ValueExpressionDesc
-                {
-                    Expression = expression,
-                    ValueType = property.PropertyType
-                };
+                return ValueExpressionDesc.FromExpression(expression);
             }
             else
             {
@@ -108,11 +93,8 @@ namespace YS.Knife.Query.Expressions
                     if (property != null)
                     {
                         var expression = Expression.Property(context.LastParameter, property);
-                        return new ValueExpressionDesc
-                        {
-                            Expression = expression,
-                            ValueType = property.PropertyType
-                        };
+                     
+                        return ValueExpressionDesc.FromExpression(expression);
                     }
                     else
                     {
@@ -137,44 +119,21 @@ namespace YS.Knife.Query.Expressions
         {
             var originalExpression = (ConstantExpression)from.Expression;
             var targetValue = converter.Convert(originalExpression.Value, targetType);
-            return new ValueExpressionDesc
-            {
-                IsNull = targetValue == null,
-                IsConstant = true,
-                ValueType = targetType,
-                Expression = Expression.Constant(targetValue, targetType)
-            };
+            return ValueExpressionDesc.FromValue(targetValue, targetType);
         }
         private static ValueExpressionDesc RebuildNullConstantValue(Type targetType)
         {
-            return new ValueExpressionDesc
-            {
-                IsNull = true,
-                IsConstant = true,
-                ValueType = targetType,
-                Expression = Expression.Constant(null, targetType)
-            };
+            return ValueExpressionDesc.FromValue(null, targetType);
         }
         private static ValueExpressionDesc RebuildNullableExpressionValue(ValueExpressionDesc from, Type nullableType)
         {
-            return new ValueExpressionDesc
-            {
-                IsNull = false,
-                IsConstant = false,
-                ValueType = nullableType,
-                Expression = Expression.Convert(from.Expression, nullableType)
-            };
+            return ValueExpressionDesc.FromExpression(Expression.Convert(from.Expression, nullableType));
         }
         private static ValueExpressionDesc RebuildExpressionValue(ValueExpressionDesc from, Type targetType, IExpressionConverter converter)
         {
             var originalExpression = from.Expression;
             var targetExpression = converter.Convert(originalExpression, targetType);
-            return new ValueExpressionDesc
-            {
-                IsConstant = false,
-                ValueType = targetType,
-                Expression = targetExpression
-            };
+            return ValueExpressionDesc.FromExpression(targetExpression);
         }
         private static bool IsValueType(Type type)
         {
@@ -326,13 +285,7 @@ namespace YS.Knife.Query.Expressions
             var method = typeof(LambdaUtils).GetMethod(nameof(ConvertItemsValue))
                 .MakeGenericMethod(itemSourceType, itemTargetType);
             var targetItems = method.Invoke(null, new object[] { items, converter });
-            return new ValueExpressionDesc
-            {
-                IsNull = false,
-                IsConstant = true,
-                ValueType = targetItems.GetType(),
-                Expression = Expression.Constant(targetItems)
-            };
+            return ValueExpressionDesc.FromValue(targetItems);
         }
         private static ValueExpressionDesc RebuildConstantValueArray(object items, Type itemSourceType, Type itemTargetType)
         {

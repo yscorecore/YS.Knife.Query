@@ -23,11 +23,7 @@ namespace YS.Knife.Query.Filter.Operators
             {
                 exp = Expression.Not(exp);
             }
-            return new ValueExpressionDesc
-            {
-                ValueType = typeof(bool),
-                Expression = exp
-            };
+            return ValueExpressionDesc.FromExpression(exp);
         }
         protected abstract Expression DoOperatorAction(ValueExpressionDesc left, ValueExpressionDesc right);
 

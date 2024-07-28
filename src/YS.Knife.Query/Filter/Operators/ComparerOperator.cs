@@ -22,11 +22,7 @@ namespace YS.Knife.Query.Filter.Operators
         public ValueExpressionDesc CreatePredicateExpression(OperatorExpressionContext context)
         {
             var (left, right) = LambdaUtils.ConvertToSameType(context.Left, context.Right);
-            return new ValueExpressionDesc
-            {
-                Expression = DoOperatorAction(left, right),
-                ValueType = typeof(bool)
-            };
+            return ValueExpressionDesc.FromExpression(DoOperatorAction(left, right));
         }
         private Func<Expression, Expression, BinaryExpression> GetExpressionMethod()
         {
@@ -79,11 +75,7 @@ namespace YS.Knife.Query.Filter.Operators
         protected override ValueExpressionDesc DoOperatorAction(ValueExpressionDesc left, ValueExpressionDesc right)
         {
             var method = ContainsMethod.MakeGenericMethod(left.ValueType);
-            return new ValueExpressionDesc
-            {
-                Expression = Expression.Call(null, method, right.Expression, left.Expression),
-                ValueType = typeof(bool)
-            };
+            return ValueExpressionDesc.FromExpression(Expression.Call(null, method, right.Expression, left.Expression));
         }
     }
 }

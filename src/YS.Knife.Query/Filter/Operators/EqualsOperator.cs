@@ -11,11 +11,7 @@ namespace YS.Knife.Query.Filter.Operators
         public ValueExpressionDesc CreatePredicateExpression(OperatorExpressionContext context)
         {
             var (left, right) = LambdaUtils.ConvertToSameType(context.Left, context.Right);
-            return new ValueExpressionDesc
-            {
-                Expression = DoOperatorAction(left.Expression, right.Expression),
-                ValueType = typeof(bool)
-            };
+            return ValueExpressionDesc.FromExpression(DoOperatorAction(left.Expression, right.Expression));
         }
         private Expression DoOperatorAction(Expression left, Expression right)
         {

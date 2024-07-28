@@ -30,6 +30,8 @@ namespace YS.Knife.Query.IntegrationTest.Operators
                 new object[]{ typeof(Guid),new Guid("C7BD06E4-DFFB-4110-860C-9DC36523E9A9"), typeof(string), "c7bd06e4-dffb-4110-860c-9dc36523e9a9", true},
                 new object[]{ typeof(string),"1", typeof(object), null, false },
                 new object[]{ typeof(int),1, typeof(object),null, false },
+                new object[]{ typeof(string),"1", typeof(object), null, false },
+
             };
         }
 
@@ -109,7 +111,6 @@ namespace YS.Knife.Query.IntegrationTest.Operators
                 new object[]{ typeof(DateTime),new DateTime(2024,7,8),typeof(DateTime), new DateTime(2024,7,8),true},
                 new object[]{ typeof(DateTimeOffset),new DateTimeOffset(new DateTime(2024, 7, 8)), typeof(DateTimeOffset), new DateTimeOffset(new DateTime(2024, 7, 8)), true},
                 new object[]{ typeof(Guid),new Guid("C7BD06E4-DFFB-4110-860C-9DC36523E9A9"), typeof(Guid), new Guid("C7BD06E4-DFFB-4110-860C-9DC36523E9A9"), true},
-                new object[]{ typeof(string),"1", typeof(object), null, false },
             };
         }
 

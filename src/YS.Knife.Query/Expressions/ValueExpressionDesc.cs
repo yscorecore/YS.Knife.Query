@@ -6,6 +6,10 @@ namespace YS.Knife.Query.Expressions
 
     internal record ValueExpressionDesc
     {
+        private ValueExpressionDesc()
+        {
+
+        }
         public Expression Expression { get; set; }
         public Type ValueType { get; set; }
         public bool IsConstant { get; set; }
@@ -20,6 +24,15 @@ namespace YS.Knife.Query.Expressions
                 IsNull = value == null,
                 Expression = exp,
                 ValueType = exp.Type
+            };
+        }
+       
+        public static ValueExpressionDesc FromExpression(Expression expression)
+        {
+            return new ValueExpressionDesc
+            {
+                Expression = expression,
+                ValueType = expression.Type
             };
         }
     }
