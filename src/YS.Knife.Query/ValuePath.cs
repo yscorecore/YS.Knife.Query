@@ -10,7 +10,7 @@ namespace YS.Knife.Query
     {
         public string Name { get; set; }
         public bool IsFunction { get; set; }
-        public object[] FunctionArgs { get; set; }
+        public ValueInfo[] FunctionArgs { get; set; }
         public override string ToString()
         {
             if (IsFunction)

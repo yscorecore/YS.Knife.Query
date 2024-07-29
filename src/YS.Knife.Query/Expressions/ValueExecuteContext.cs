@@ -5,13 +5,13 @@ using System.Linq.Expressions;
 
 namespace YS.Knife.Query.Expressions
 {
-    internal record ValueNavigateContext
+    public record ValueExecuteContext
     {
-        private ValueNavigateContext()
+        private ValueExecuteContext()
         {
 
         }
-        public ValueNavigateContext(ParameterExpression p)
+        public ValueExecuteContext(ParameterExpression p)
         {
             this.Parameters = new List<ParameterExpression>
             {
@@ -22,11 +22,11 @@ namespace YS.Knife.Query.Expressions
         public List<ParameterExpression> Parameters { get; private set; }
 
         public ParameterExpression LastParameter { get; private set; }
-        public ValueExpressionDesc LastExpression { get; set; }
+        public ValueExpressionDesc LastExpression { get; internal set; }
 
-        public ValueNavigateContext Fork(ParameterExpression sub)
+        public ValueExecuteContext Fork(ParameterExpression sub)
         {
-            return new ValueNavigateContext
+            return new ValueExecuteContext
             {
                 Parameters = new List<ParameterExpression>(Parameters.Concat(new ParameterExpression[] { sub })),
                 LastParameter = sub,
@@ -34,7 +34,7 @@ namespace YS.Knife.Query.Expressions
             };
         }
         public int Deepth { get => this.Parameters.Count; }
-        public ValueNavigateContext Pop()
+        public ValueExecuteContext Pop()
         {
             if (Parameters.Count == 0)
             {
@@ -43,7 +43,7 @@ namespace YS.Knife.Query.Expressions
             else
             {
                 var parameters = this.Parameters.SkipLast(1).ToList();
-                return new ValueNavigateContext
+                return new ValueExecuteContext
                 {
                     Parameters = parameters,
                     LastExpression = null,
@@ -54,5 +54,6 @@ namespace YS.Knife.Query.Expressions
 
 
     }
+
 
 }

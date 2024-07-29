@@ -7,6 +7,7 @@ using YS.Knife.Query.ExpressionConverters;
 using YS.Knife.Query.Filter;
 using YS.Knife.Query.ValueConverters;
 using System.Linq;
+using YS.Knife.Query.Functions;
 
 namespace YS.Knife.Query.Expressions
 {
@@ -44,9 +45,9 @@ namespace YS.Knife.Query.Expressions
         }
         private static ValueExpressionDesc ExecuteValuePaths(ParameterExpression p, List<ValuePath> valuePaths)
         {
-            return ExecuteValuePaths(new ValueNavigateContext(p), valuePaths);
+            return ExecuteValuePaths(new ValueExecuteContext(p), valuePaths);
         }
-        private static ValueExpressionDesc ExecuteValuePaths(ValueNavigateContext context, List<ValuePath> valuePaths)
+        private static ValueExpressionDesc ExecuteValuePaths(ValueExecuteContext context, List<ValuePath> valuePaths)
         {
             foreach (var vp in valuePaths)
             {
@@ -61,7 +62,7 @@ namespace YS.Knife.Query.Expressions
             return ValueExpressionDesc.FromValue(value.ConstantValue);
         }
 
-        private static ValueExpressionDesc ExecuteValuePath(ValueNavigateContext context, ValuePath valuePath)
+        private static ValueExpressionDesc ExecuteValuePath(ValueExecuteContext context, ValuePath valuePath)
         {
             if (valuePath.IsFunction)
             {
@@ -72,7 +73,7 @@ namespace YS.Knife.Query.Expressions
                 return ExecuteMemberPath(context, valuePath);
             }
         }
-        private static ValueExpressionDesc ExecuteMemberPath(ValueNavigateContext context, ValuePath valuePath)
+        private static ValueExpressionDesc ExecuteMemberPath(ValueExecuteContext context, ValuePath valuePath)
         {
             var lastExpression = context.LastExpression;
             if (lastExpression != null)
@@ -93,7 +94,7 @@ namespace YS.Knife.Query.Expressions
                     if (property != null)
                     {
                         var expression = Expression.Property(context.LastParameter, property);
-                     
+
                         return ValueExpressionDesc.FromExpression(expression);
                     }
                     else
@@ -110,9 +111,15 @@ namespace YS.Knife.Query.Expressions
 
 
         }
-        private static ValueExpressionDesc ExecuteFunctionPath(ValueNavigateContext context, ValuePath valuePath)
+        private static ValueExpressionDesc ExecuteFunctionPath(ValueExecuteContext context, ValuePath valuePath)
         {
-            throw new NotSupportedException();
+            var functionContext = new FunctionContext { Arguments = valuePath.FunctionArgs ?? new object[0], ExecuteContext = context };
+            var function = AllFunctions.Get(valuePath.Name);
+            if (function == null)
+            {
+                throw new Exception($"function '{valuePath.Name}' not supported.");
+            }
+            return function.Execute(functionContext);
         }
 
         private static ValueExpressionDesc RebuildConstantValue(ValueExpressionDesc from, Type targetType, IValueConverter converter)

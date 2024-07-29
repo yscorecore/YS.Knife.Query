@@ -90,6 +90,8 @@ namespace YS.Knife.Query
             [Operator.Between] = new BetweenOperator(Operator.Between),
             [Operator.NotBetween] = new BetweenOperator(Operator.NotBetween),
             [Operator.StartsWith] = new StringOperator(Operator.StartsWith),
+            [Operator.LessThan]=new ComparerOperator(Operator.LessThan),
+            [Operator.GreaterThan] = new ComparerOperator(Operator.GreaterThan),
         };
 
         private static IExpressionOperator GetExpressionOperator(Operator operatorType)

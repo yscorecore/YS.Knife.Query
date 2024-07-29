@@ -3,8 +3,7 @@ using System.Linq.Expressions;
 
 namespace YS.Knife.Query.Expressions
 {
-
-    internal record ValueExpressionDesc
+    public record ValueExpressionDesc
     {
         private ValueExpressionDesc()
         {
