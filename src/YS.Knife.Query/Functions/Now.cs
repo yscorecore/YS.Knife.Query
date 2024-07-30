@@ -9,19 +9,22 @@ using YS.Knife.Query.Expressions;
 
 namespace YS.Knife.Query.Functions
 {
-    internal class Now : StaticFunction
+    internal class Now : StaticFunction<DateTime>
     {
-        private static PropertyInfo NowProperty = typeof(DateTime)
-            .GetProperty(nameof(DateTime.Now), BindingFlags.Static | BindingFlags.Public);
-        protected override ValueExpressionDesc ExecuteStaticFunction(FunctionContext context)
+        public Now() : base(() => DateTime.Now)
         {
-            if (context.Arguments.Length > 0)
-            {
-                throw new Exception($"function '{nameof(Now)}' should has 0 argument.");
-            }
-            //DateTime.Now.AddYears()
-            var expression = Expression.Property(null, NowProperty);
-            return ValueExpressionDesc.FromExpression(expression);
         }
+        //private static PropertyInfo NowProperty = typeof(DateTime)
+        //    .GetProperty(nameof(DateTime.Now), BindingFlags.Static | BindingFlags.Public);
+        //protected override ValueExpressionDesc ExecuteStaticFunction(FunctionContext context)
+        //{
+        //    if (context.Arguments.Length > 0)
+        //    {
+        //        throw new Exception($"function '{nameof(Now)}' should has 0 argument.");
+        //    }
+        //    //DateTime.Now.AddYears()
+        //    var expression = Expression.Property(null, NowProperty);
+        //    return ValueExpressionDesc.FromExpression(expression);
+        //}
     }
 }

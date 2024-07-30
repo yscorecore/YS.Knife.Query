@@ -9,7 +9,8 @@ namespace YS.Knife.Query.Functions
 {
     public record FunctionContext 
     {
-        public object[] Arguments { get; internal set; }
+        public string Name { get; internal set; }
+        public ValueInfo[] Arguments { get; internal set; }
         public ValueExecuteContext ExecuteContext { get; internal set; }
     }
 }

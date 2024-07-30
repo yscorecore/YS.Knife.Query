@@ -22,7 +22,7 @@ namespace YS.Knife.Query.Expressions
         public List<ParameterExpression> Parameters { get; private set; }
 
         public ParameterExpression LastParameter { get; private set; }
-        public ValueExpressionDesc LastExpression { get; internal set; }
+        public ValueExpressionDesc LastExpression { get; private set; }
 
         public ValueExecuteContext Fork(ParameterExpression sub)
         {
@@ -52,6 +52,15 @@ namespace YS.Knife.Query.Expressions
             }
         }
 
+        public ValueExecuteContext Go(ValueExpressionDesc lastExpression)
+        {
+            return new ValueExecuteContext
+            {
+                LastParameter = this.LastParameter,
+                LastExpression = lastExpression,
+                Parameters = this.Parameters
+            };
+        }
 
     }
 

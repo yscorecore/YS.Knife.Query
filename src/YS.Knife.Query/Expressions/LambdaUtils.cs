@@ -16,7 +16,8 @@ namespace YS.Knife.Query.Expressions
         public static Func2LambdaExpressionDesc CreateFunc2Lambda(Type fromType, List<ValuePath> paths, bool caseNullable)
         {
             var p = Expression.Parameter(fromType, "p");
-            var valueExpression = ExecuteValuePaths(p, paths);
+            var context = new ValueExecuteContext(p);
+            var valueExpression = ExecuteValuePaths(context, paths);
             if (Nullable.GetUnderlyingType(valueExpression.ValueType) == null && caseNullable)
             {
                 var nullableType = typeof(Nullable<>).MakeGenericType(valueExpression.ValueType);
@@ -32,30 +33,33 @@ namespace YS.Knife.Query.Expressions
             };
         }
 
-        public static ValueExpressionDesc ExecuteValueInfo(ParameterExpression p, ValueInfo value)
+        public static ValueExpressionDesc ExecuteValueInfo(ValueExecuteContext context, ValueInfo value)
         {
             if (value.IsConstant)
             {
-                return ExecuteConstantValue(p, value);
+                return ExecuteConstantValue(context, value);
             }
             else
             {
-                return ExecuteValuePaths(p, value.NavigatePaths);
+                return ExecuteValuePaths(context, value.NavigatePaths);
             }
         }
-        private static ValueExpressionDesc ExecuteValuePaths(ParameterExpression p, List<ValuePath> valuePaths)
+        public static ValueExpressionDesc ExecuteValueInfoAndConvert(ValueExecuteContext context, ValueInfo value,Type type)
         {
-            return ExecuteValuePaths(new ValueExecuteContext(p), valuePaths);
+            return ToType(ExecuteValueInfo(context, value), type);
         }
         private static ValueExpressionDesc ExecuteValuePaths(ValueExecuteContext context, List<ValuePath> valuePaths)
         {
+            var currentContext = context;
             foreach (var vp in valuePaths)
             {
-                context.LastExpression = ExecuteValuePath(context, vp);
+                var valueExpression = ExecuteValuePath(currentContext, vp);
+                currentContext = currentContext.Go(valueExpression);
             }
-            return context.LastExpression;
+            return currentContext.LastExpression;
         }
-        private static ValueExpressionDesc ExecuteConstantValue(ParameterExpression p, ValueInfo value)
+
+        private static ValueExpressionDesc ExecuteConstantValue(ValueExecuteContext _, ValueInfo value)
         {
             Debug.Assert(value.IsConstant);
             var exp = Expression.Constant(value.ConstantValue);
@@ -113,7 +117,7 @@ namespace YS.Knife.Query.Expressions
         }
         private static ValueExpressionDesc ExecuteFunctionPath(ValueExecuteContext context, ValuePath valuePath)
         {
-            var functionContext = new FunctionContext { Arguments = valuePath.FunctionArgs ?? new object[0], ExecuteContext = context };
+            var functionContext = new FunctionContext { Arguments = valuePath.FunctionArgs ?? Array.Empty<ValueInfo>(), ExecuteContext = context };
             var function = AllFunctions.Get(valuePath.Name);
             if (function == null)
             {
@@ -146,46 +150,47 @@ namespace YS.Knife.Query.Expressions
         {
             return type.IsValueType && Nullable.GetUnderlyingType(type) == null;
         }
-        public static (ValueExpressionDesc Left, ValueExpressionDesc Right) ConvertToStringType(ValueExpressionDesc left, ValueExpressionDesc right)
+        public static ValueExpressionDesc ToType(ValueExpressionDesc valueExpression, Type targetType)
         {
-            return (ToStringType(left), ToStringType(right));
-            ValueExpressionDesc ToStringType(ValueExpressionDesc valueExpression)
+            if (valueExpression.ValueType == targetType)
             {
-                if (valueExpression.ValueType == typeof(string))
-                {
-                    return valueExpression;
-                }
+                return valueExpression;
+            }
 
-                if (valueExpression.IsConstant)
+            if (valueExpression.IsConstant)
+            {
+                if (valueExpression.IsNull)
                 {
-                    if (valueExpression.IsNull)
-                    {
-                        return RebuildNullConstantValue(typeof(string));
-                    }
-                    else
-                    {
-                        if (ValueConverterFactory.CanConverter(valueExpression.ValueType, typeof(string), out var converter))
-                        {
-                            return RebuildConstantValue(valueExpression, typeof(string), converter);
-                        }
-                        else
-                        {
-                            throw new Exception("can not convert const value to string");
-                        }
-                    }
+                    return RebuildNullConstantValue(targetType);
                 }
                 else
                 {
-                    if (ExpressionConverterFactory.CanConverter(valueExpression.ValueType, typeof(string), out var converter))
+                    if (ValueConverterFactory.CanConverter(valueExpression.ValueType, targetType, out var converter))
                     {
-                        return RebuildExpressionValue(valueExpression, typeof(string), converter);
+                        return RebuildConstantValue(valueExpression, targetType, converter);
                     }
                     else
                     {
-                        throw new Exception("can not convert expression value to string");
+                        throw new Exception($"can not convert const value to {targetType.FullName}");
                     }
                 }
             }
+            else
+            {
+                if (ExpressionConverterFactory.CanConverter(valueExpression.ValueType, typeof(string), out var converter))
+                {
+                    return RebuildExpressionValue(valueExpression, typeof(string), converter);
+                }
+                else
+                {
+                    throw new Exception("can not convert expression value to string");
+                }
+            }
+        }
+        public static (ValueExpressionDesc Left, ValueExpressionDesc Right) ConvertToStringType(ValueExpressionDesc left, ValueExpressionDesc right)
+        {
+            return (ToType(left,typeof(string)), ToType(right,typeof(string)));
+        
         }
         public static (ValueExpressionDesc Left, ValueExpressionDesc Right) ConvertToSameType(ValueExpressionDesc leftNode, ValueExpressionDesc rightNode)
         {

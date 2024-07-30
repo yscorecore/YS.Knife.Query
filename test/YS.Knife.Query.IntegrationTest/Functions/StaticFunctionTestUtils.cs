@@ -65,10 +65,9 @@ namespace YS.Knife.Query.IntegrationTest.Functions
         }
 
 
-        public static void ComparePathAndFunction(Operator @operator, Type leftType, object left, Type rightType, object right, bool result)
+        public static void ComparePathAndFunction(Operator @operator, Type constValueType, object constValue, string functionName, ValueInfo[] arguments, bool result)
         {
-            AssertObjectType(leftType, left);
-            AssertObjectType(rightType, right);
+            AssertObjectType(constValueType, constValue);
             var leftValue = new ValueInfo
             {
                 IsConstant = false,
@@ -79,8 +78,11 @@ namespace YS.Knife.Query.IntegrationTest.Functions
             };
             var rightValue = new ValueInfo
             {
-                IsConstant = true,
-                ConstantValue = right
+                IsConstant = false,
+                NavigatePaths = new List<ValuePath>
+                {
+                    new ValuePath{ Name=functionName,IsFunction=true,FunctionArgs=arguments},
+                }
             };
             var filter = new FilterInfo
             {
@@ -90,19 +92,22 @@ namespace YS.Knife.Query.IntegrationTest.Functions
                 Operator = @operator
             };
             var genericMethod = typeof(StaticFunctionTestUtils).GetMethod(nameof(GetEntity1DataCount), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-            var method = genericMethod.MakeGenericMethod(leftType);
-            var res = method.Invoke(null, new object[] { left, filter });
+            var method = genericMethod.MakeGenericMethod(constValueType);
+            var res = method.Invoke(null, new object[] { constValue, filter });
             res.Should().Be(Convert.ToInt32(result));
         }
 
-        public static void CompareFunctionAndPath(Operator @operator, Type leftType, object left, Type rightType, object right, bool result)
+        public static void CompareFunctionAndPath(Operator @operator, Type constValueType, object constValue, string functionName, ValueInfo[] arguments, bool result)
         {
-            AssertObjectType(leftType, left);
-            AssertObjectType(rightType, right);
+            AssertObjectType(constValueType, constValue);
+
             var leftValue = new ValueInfo
             {
-                IsConstant = true,
-                ConstantValue = left
+                IsConstant = false,
+                NavigatePaths = new List<ValuePath>
+                {
+                    new ValuePath{ Name=functionName,IsFunction=true,FunctionArgs=arguments},
+                }
             };
             var rightValue = new ValueInfo
             {
@@ -121,8 +126,8 @@ namespace YS.Knife.Query.IntegrationTest.Functions
                 Operator = @operator
             };
             var genericMethod = typeof(StaticFunctionTestUtils).GetMethod(nameof(GetEntity1DataCount), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
-            var method = genericMethod.MakeGenericMethod(rightType);
-            var res = method.Invoke(null, new object[] { right, filter });
+            var method = genericMethod.MakeGenericMethod(constValueType);
+            var res = method.Invoke(null, new object[] { constValue, filter });
             res.Should().Be(Convert.ToInt32(result));
         }
 

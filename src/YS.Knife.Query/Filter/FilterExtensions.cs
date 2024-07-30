@@ -70,10 +70,11 @@ namespace YS.Knife.Query
         private static Expression CreateSingleItemFilterExpression(ParameterExpression p, FilterInfo singleItemFilter)
         {
             // TODO 处理导航属性为空的情况
+            var valueContext = new ValueExecuteContext(p);
             var context = new OperatorExpressionContext
             {
-                Left = LambdaUtils.ExecuteValueInfo(p, singleItemFilter.Left),
-                Right = LambdaUtils.ExecuteValueInfo(p, singleItemFilter.Right),
+                Left = LambdaUtils.ExecuteValueInfo(valueContext, singleItemFilter.Left),
+                Right = LambdaUtils.ExecuteValueInfo(valueContext, singleItemFilter.Right),
             };
             var expressionOperator = GetExpressionOperator(singleItemFilter.Operator);
             var expressionDesc = expressionOperator.CreatePredicateExpression(context);
