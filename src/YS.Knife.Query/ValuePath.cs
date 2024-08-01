@@ -8,6 +8,8 @@ namespace YS.Knife.Query
 {
     public class ValuePath
     {
+        public object ConstantValue { get; set; }
+        public bool IsConstant { get; set; }
         public string Name { get; set; }
         public bool IsFunction { get; set; }
         public ValueInfo[] FunctionArgs { get; set; }

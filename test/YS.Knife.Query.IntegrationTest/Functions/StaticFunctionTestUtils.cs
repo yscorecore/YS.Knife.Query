@@ -10,14 +10,9 @@ namespace YS.Knife.Query.IntegrationTest.Functions
         public static void CompareConstantAndFunction(Operator @operator, Type constValueType, object constValue, string functionName, ValueInfo[] arguments, bool result)
         {
             AssertObjectType(constValueType, constValue);
-            var leftValue = new ValueInfo
-            {
-                IsConstant = true,
-                ConstantValue = constValue
-            };
+            var leftValue = ValueInfo.FromConstantValue(constValue);
             var rightValue = new ValueInfo
             {
-                IsConstant = false,
                 NavigatePaths = new List<ValuePath>
                 {
                     new ValuePath{ Name=functionName,IsFunction=true,FunctionArgs=arguments},
@@ -41,17 +36,12 @@ namespace YS.Knife.Query.IntegrationTest.Functions
 
             var leftValue = new ValueInfo
             {
-                IsConstant = false,
                 NavigatePaths = new List<ValuePath>
                 {
                     new ValuePath{ Name=functionName,IsFunction=true,FunctionArgs=arguments},
                 }
             };
-            var rightValue = new ValueInfo
-            {
-                IsConstant = true,
-                ConstantValue = constValue
-            };
+            var rightValue = ValueInfo.FromConstantValue(constValue);
             var filter = new FilterInfo
             {
                 OpType = CombinSymbol.SingleItem,
@@ -70,7 +60,6 @@ namespace YS.Knife.Query.IntegrationTest.Functions
             AssertObjectType(constValueType, constValue);
             var leftValue = new ValueInfo
             {
-                IsConstant = false,
                 NavigatePaths = new List<ValuePath>
                 {
                   new ValuePath { Name=nameof(Entity1<object>.Val) }
@@ -78,7 +67,6 @@ namespace YS.Knife.Query.IntegrationTest.Functions
             };
             var rightValue = new ValueInfo
             {
-                IsConstant = false,
                 NavigatePaths = new List<ValuePath>
                 {
                     new ValuePath{ Name=functionName,IsFunction=true,FunctionArgs=arguments},
@@ -103,7 +91,6 @@ namespace YS.Knife.Query.IntegrationTest.Functions
 
             var leftValue = new ValueInfo
             {
-                IsConstant = false,
                 NavigatePaths = new List<ValuePath>
                 {
                     new ValuePath{ Name=functionName,IsFunction=true,FunctionArgs=arguments},
@@ -111,7 +98,6 @@ namespace YS.Knife.Query.IntegrationTest.Functions
             };
             var rightValue = new ValueInfo
             {
-                IsConstant = false,
                 NavigatePaths = new List<ValuePath>
                 {
                   new ValuePath { Name=nameof(Entity1<object>.Val) }
@@ -136,7 +122,6 @@ namespace YS.Knife.Query.IntegrationTest.Functions
         {
             var leftValue = new ValueInfo
             {
-                IsConstant = false,
                 NavigatePaths = new List<ValuePath>
                 {
                     new ValuePath{ Name=functionName,IsFunction=true,FunctionArgs=leftArguments},
@@ -144,7 +129,6 @@ namespace YS.Knife.Query.IntegrationTest.Functions
             };
             var rightValue = new ValueInfo
             {
-                IsConstant = false,
                 NavigatePaths = new List<ValuePath>
                 {
                     new ValuePath{ Name=functionName,IsFunction=true,FunctionArgs=rightArguments},

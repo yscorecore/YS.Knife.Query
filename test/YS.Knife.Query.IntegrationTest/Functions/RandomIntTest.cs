@@ -14,9 +14,9 @@ namespace YS.Knife.Query.IntegrationTest.Functions
         [Fact]
         public void ConstantAndFunction()
         {
-            CompareConstantAndFunction(Operator.LessThan,
-                typeof(int), 5, functionName,
-                new ValueInfo[] { new ValueInfo { IsConstant = true, ConstantValue = 10 } }, true);
+            CompareConstantAndFunction(Operator.GreaterThan,
+                typeof(int), 10, functionName,
+                new ValueInfo[] { ValueInfo.FromConstantValue(10) }, true);
         }
     }
 }

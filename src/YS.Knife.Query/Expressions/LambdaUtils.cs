@@ -35,16 +35,9 @@ namespace YS.Knife.Query.Expressions
 
         public static ValueExpressionDesc ExecuteValueInfo(ValueExecuteContext context, ValueInfo value)
         {
-            if (value.IsConstant)
-            {
-                return ExecuteConstantValue(context, value);
-            }
-            else
-            {
-                return ExecuteValuePaths(context, value.NavigatePaths);
-            }
+            return ExecuteValuePaths(context, value.NavigatePaths);
         }
-        public static ValueExpressionDesc ExecuteValueInfoAndConvert(ValueExecuteContext context, ValueInfo value,Type type)
+        public static ValueExpressionDesc ExecuteValueInfoAndConvert(ValueExecuteContext context, ValueInfo value, Type type)
         {
             return ToType(ExecuteValueInfo(context, value), type);
         }
@@ -59,16 +52,20 @@ namespace YS.Knife.Query.Expressions
             return currentContext.LastExpression;
         }
 
-        private static ValueExpressionDesc ExecuteConstantValue(ValueExecuteContext _, ValueInfo value)
-        {
-            Debug.Assert(value.IsConstant);
-            var exp = Expression.Constant(value.ConstantValue);
-            return ValueExpressionDesc.FromValue(value.ConstantValue);
-        }
+        //private static ValueExpressionDesc ExecuteConstantValue(ValueExecuteContext _, ValueInfo value)
+        //{
+        //    Debug.Assert(value.IsConstant);
+        //    var exp = Expression.Constant(value.ConstantValue);
+        //    return ValueExpressionDesc.FromValue(value.ConstantValue);
+        //}
 
         private static ValueExpressionDesc ExecuteValuePath(ValueExecuteContext context, ValuePath valuePath)
         {
-            if (valuePath.IsFunction)
+            if (valuePath.IsConstant)
+            {
+                return ValueExpressionDesc.FromValue(valuePath.ConstantValue);
+            }
+            else if (valuePath.IsFunction)
             {
                 return ExecuteFunctionPath(context, valuePath);
             }
@@ -189,8 +186,8 @@ namespace YS.Knife.Query.Expressions
         }
         public static (ValueExpressionDesc Left, ValueExpressionDesc Right) ConvertToStringType(ValueExpressionDesc left, ValueExpressionDesc right)
         {
-            return (ToType(left,typeof(string)), ToType(right,typeof(string)));
-        
+            return (ToType(left, typeof(string)), ToType(right, typeof(string)));
+
         }
         public static (ValueExpressionDesc Left, ValueExpressionDesc Right) ConvertToSameType(ValueExpressionDesc leftNode, ValueExpressionDesc rightNode)
         {

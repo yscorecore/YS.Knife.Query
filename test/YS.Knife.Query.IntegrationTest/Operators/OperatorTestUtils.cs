@@ -13,16 +13,8 @@ namespace YS.Knife.Query.IntegrationTest.Operators
         {
             AssertObjectType(leftType, left);
             AssertObjectType(rightType, right);
-            var leftValue = new ValueInfo
-            {
-                IsConstant = true,
-                ConstantValue = left
-            };
-            var rightValue = new ValueInfo
-            {
-                IsConstant = true,
-                ConstantValue = right
-            };
+            var leftValue = ValueInfo.FromConstantValue(left);
+            var rightValue = ValueInfo.FromConstantValue(right);
             var filter = new FilterInfo
             {
                 OpType = CombinSymbol.SingleItem,
@@ -41,17 +33,12 @@ namespace YS.Knife.Query.IntegrationTest.Operators
             AssertObjectType(rightType, right);
             var leftValue = new ValueInfo
             {
-                IsConstant = false,
                 NavigatePaths = new List<ValuePath>
                 {
                   new ValuePath { Name=nameof(Entity1<object>.Val) }
                 }
             };
-            var rightValue = new ValueInfo
-            {
-                IsConstant = true,
-                ConstantValue = right
-            };
+            var rightValue = ValueInfo.FromConstantValue(right);
             var filter = new FilterInfo
             {
                 OpType = CombinSymbol.SingleItem,
@@ -69,20 +56,16 @@ namespace YS.Knife.Query.IntegrationTest.Operators
         {
             AssertObjectType(leftType, left);
             AssertObjectType(rightType, right);
-            var leftValue = new ValueInfo
-            {
-                IsConstant = true,
-                ConstantValue = left
-            };
+            var leftValue = ValueInfo.FromConstantValue(left);
+
             var rightValue = new ValueInfo
             {
-                IsConstant = false,
                 NavigatePaths = new List<ValuePath>
                 {
                   new ValuePath { Name=nameof(Entity1<object>.Val) }
                 }
             };
-           
+
             var filter = new FilterInfo
             {
                 OpType = CombinSymbol.SingleItem,
@@ -102,7 +85,6 @@ namespace YS.Knife.Query.IntegrationTest.Operators
             AssertObjectType(rightType, right);
             var leftValue = new ValueInfo
             {
-                IsConstant = false,
                 NavigatePaths = new List<ValuePath>
                 {
                   new ValuePath { Name=nameof(Entity2<object,object>.Val1) }
@@ -110,7 +92,6 @@ namespace YS.Knife.Query.IntegrationTest.Operators
             };
             var rightValue = new ValueInfo
             {
-                IsConstant = false,
                 NavigatePaths = new List<ValuePath>
                 {
                   new ValuePath { Name=nameof(Entity2<object,object>.Val2) }
@@ -126,7 +107,7 @@ namespace YS.Knife.Query.IntegrationTest.Operators
             };
             var genericMethod = typeof(OperatorTestUtils).GetMethod(nameof(GetEntity2DataCount), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
             var method = genericMethod.MakeGenericMethod(leftType, rightType);
-            var res = method.Invoke(null, new object[] {  left,  right, filter });
+            var res = method.Invoke(null, new object[] { left, right, filter });
             res.Should().Be(Convert.ToInt32(result));
         }
 
@@ -143,7 +124,7 @@ namespace YS.Knife.Query.IntegrationTest.Operators
             {
                 if (!type.IsAssignableFrom(value.GetType()))
                 {
-                    throw new Exception("type and value not match."); 
+                    throw new Exception("type and value not match.");
                 }
             }
         }
@@ -162,13 +143,13 @@ namespace YS.Knife.Query.IntegrationTest.Operators
             return new Entity1<T1>[] { data }.AsQueryable();
         }
 
-        private static int GetEntity2DataCount<T1,T2>(T1 t1, T2 t2, FilterInfo filterInfo)
+        private static int GetEntity2DataCount<T1, T2>(T1 t1, T2 t2, FilterInfo filterInfo)
         {
-            var res = GetEntity2TestData(t1,t2);
+            var res = GetEntity2TestData(t1, t2);
             res = res.DoFilter(filterInfo);
             return res.Count();
         }
-        private static IQueryable<Entity2<T1,T2>> GetEntity2TestData<T1,T2>(T1 t1,T2 t2)
+        private static IQueryable<Entity2<T1, T2>> GetEntity2TestData<T1, T2>(T1 t1, T2 t2)
         {
             var data = new Entity2<T1, T2>
             {

@@ -9,22 +9,21 @@ using System.Threading.Tasks;
 
 namespace YS.Knife.Query
 {
-   // [DebuggerDisplay("{ToString()}")]
+    // [DebuggerDisplay("{ToString()}")]
     public class ValueInfo
     {
-        public object ConstantValue { get; set; }
-        public bool IsConstant { get; set; }
         public List<ValuePath> NavigatePaths { get; set; }
         public override string ToString()
         {
-            if (IsConstant)
-            {
-                return ValueToString(ConstantValue);
-            }
-            else
+            if (NavigatePaths?.Count > 0)
             {
                 var names = (NavigatePaths ?? Enumerable.Empty<ValuePath>()).Where(p => p != null).Select(p => p.ToString());
                 return string.Join(".", names);
+            }
+            else
+            {
+                return ValueToString(null);
+
             }
 
             string ValueToString(object value, bool convertCollection = true)
@@ -68,22 +67,23 @@ namespace YS.Knife.Query
         public static ValueInfo Parse(string valueExpression, CultureInfo cultureInfo)
         {
             throw new NotImplementedException();
-           // return new QueryExpressionParser(cultureInfo).ParseValue(valueExpression);
+            // return new QueryExpressionParser(cultureInfo).ParseValue(valueExpression);
         }
 
         public static ValueInfo FromConstantValue(object value)
         {
             return new ValueInfo
             {
-                IsConstant = true,
-                ConstantValue = value
+                NavigatePaths = new List<ValuePath>
+                {
+                    new ValuePath{ IsConstant=true, ConstantValue=value}
+                }
             };
         }
         public static ValueInfo FromPaths(List<ValuePath> navigatePaths)
         {
             return new ValueInfo
             {
-                IsConstant = false,
                 NavigatePaths = navigatePaths ?? new List<ValuePath>()
             };
         }

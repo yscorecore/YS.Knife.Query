@@ -36,7 +36,7 @@ namespace YS.Knife.Query.Functions
         {
             typeof(AllFunctions)
                 .Assembly.GetTypes()
-                .Where(p => typeof(IFunction).IsAssignableFrom(p) && !p.IsAbstract)
+                .Where(p => typeof(IFunction).IsAssignableFrom(p) && !p.IsAbstract && !p.IsGenericTypeDefinition)
                 .Select(p => new KeyValuePair<string, IFunction>(p.Name, (IFunction)Activator.CreateInstance(p)))
                 .ToList()
                 .ForEach(p =>

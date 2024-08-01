@@ -18,7 +18,7 @@ namespace YS.Knife.Query.Functions
         protected abstract ValueExpressionDesc ExecuteStaticFunction(FunctionContext context);
 
     }
-    public abstract class StaticFunction<T> : StaticFunction
+    public class StaticFunction<T> : StaticFunction
     {
         public StaticFunction(Expression<Func<T>> body)
         {
@@ -71,11 +71,7 @@ namespace YS.Knife.Query.Functions
                 {
                     return base.VisitMethodCall(node);
                 }
-
-
             }
-
-
         }
     }
 }
