@@ -24,8 +24,6 @@ namespace YS.Knife.Query.IntegrationTest.Operators
             ComparePathAndConstant(Operator.Between, leftType, left, rightType, right, result);
         }
 
-
-
         public static IEnumerable<object[]> GetTestData()
         {
             return GetTestDataInternal().Select(p => new object[]

@@ -212,20 +212,51 @@ namespace YS.Knife.Query.Expressions
 
             if (leftNode.IsConstant && rightNode.IsConstant)
             {
-                if (ValueConverterFactory.CanConverter(rightNode.ValueType, leftNode.ValueType, out var converter1))
+                if (leftNode.IsNull && !rightNode.IsNull)
                 {
-                    return (leftNode, RebuildConstantValue(rightNode, leftNode.ValueType, converter1));
-
+                    if (IsValueType(rightNode.ValueType))
+                    {
+                        var nullableType = typeof(Nullable<>).MakeGenericType(rightNode.ValueType);
+                        return (RebuildNullConstantValue(nullableType),
+                           RebuildNullableExpressionValue(rightNode, nullableType));
+                    }
+                    else
+                    { 
+                        return (RebuildNullConstantValue(rightNode.ValueType), rightNode);
+                    }
                 }
-                else if (ValueConverterFactory.CanConverter(leftNode.ValueType, rightNode.ValueType, out var converter2))
+                else if (rightNode.IsNull && !leftNode.IsNull)
                 {
-                    return (RebuildConstantValue(leftNode, rightNode.ValueType, converter2), rightNode);
+                    if (IsValueType(leftNode.ValueType))
+                    {
+                        var nullableType = typeof(Nullable<>).MakeGenericType(leftNode.ValueType);
+                        return (RebuildNullableExpressionValue(leftNode, nullableType),
+                            RebuildNullConstantValue(nullableType));
+                    }
+                    else
+                    {
+                        return (leftNode, RebuildNullConstantValue(leftNode.ValueType));
+                    }
                 }
                 else
                 {
-                    // 两个常量不能转换
-                    throw new Exception();
+                    if (ValueConverterFactory.CanConverter(rightNode.ValueType, leftNode.ValueType, out var converter1))
+                    {
+                        return (leftNode, RebuildConstantValue(rightNode, leftNode.ValueType, converter1));
+
+                    }
+                    else if (ValueConverterFactory.CanConverter(leftNode.ValueType, rightNode.ValueType, out var converter2))
+                    {
+                        return (RebuildConstantValue(leftNode, rightNode.ValueType, converter2), rightNode);
+                    }
+                    else
+                    {
+                        // 两个常量不能转换
+                        throw new Exception();
+                    }
                 }
+
+                
             }
             else if (leftNode.IsConstant && !rightNode.IsConstant)
             {

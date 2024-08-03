@@ -87,12 +87,25 @@ namespace YS.Knife.Query
 
         private static Dictionary<Operator, IExpressionOperator> supportOperators = new Dictionary<Operator, IExpressionOperator>
         {
-            [Operator.Equals] = new EqualsOperator(),
+            [Operator.Equals] = new EqualsOperator(Operator.Equals),
+            [Operator.NotEquals] = new EqualsOperator(Operator.NotEquals),
+
             [Operator.Between] = new BetweenOperator(Operator.Between),
             [Operator.NotBetween] = new BetweenOperator(Operator.NotBetween),
             [Operator.StartsWith] = new StringOperator(Operator.StartsWith),
-            [Operator.LessThan]=new ComparerOperator(Operator.LessThan),
+            [Operator.NotStartsWith] = new StringOperator(Operator.NotStartsWith),
+
+            [Operator.EndsWith] = new StringOperator(Operator.EndsWith),
+            [Operator.NotEndsWith] = new StringOperator(Operator.NotEndsWith),
+
+            [Operator.Contains] = new StringOperator(Operator.Contains),
+            [Operator.NotContains] = new StringOperator(Operator.NotContains),
+
+            [Operator.LessThan] = new ComparerOperator(Operator.LessThan),
+            [Operator.LessThanOrEqual] = new ComparerOperator(Operator.LessThanOrEqual),
             [Operator.GreaterThan] = new ComparerOperator(Operator.GreaterThan),
+            [Operator.GreaterThanOrEqual] = new ComparerOperator(Operator.GreaterThanOrEqual),
+
         };
 
         private static IExpressionOperator GetExpressionOperator(Operator operatorType)
@@ -100,6 +113,6 @@ namespace YS.Knife.Query
             return supportOperators[operatorType];
         }
 
-       
+
     }
 }

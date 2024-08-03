@@ -6,7 +6,11 @@ namespace YS.Knife.Query.Filter.Operators
 {
     internal class EqualsOperator : IExpressionOperator
     {
-        public Operator Operator { get; set; }
+        public EqualsOperator(Operator @operator)
+        {
+            this.Operator = @operator;
+        }
+        public Operator Operator { get; private set; }
 
         public ValueExpressionDesc CreatePredicateExpression(OperatorExpressionContext context)
         {

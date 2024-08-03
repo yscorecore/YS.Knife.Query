@@ -14,7 +14,7 @@ namespace YS.Knife.Query.Filter.Operators
         {
             this.Operator = @operator;
         }
-        public Operator Operator { get; set; }
+        public Operator Operator { get; private set; }
         private static MethodInfo StaticStringCompare = typeof(string)
             .GetMethod(nameof(string.Compare),
             BindingFlags.Static | BindingFlags.Public, null,
