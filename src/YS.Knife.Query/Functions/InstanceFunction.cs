@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+using YS.Knife.Query.ExpressionConverters;
 using YS.Knife.Query.Expressions;
 
 namespace YS.Knife.Query.Functions
@@ -22,27 +20,55 @@ namespace YS.Knife.Query.Functions
 
     }
 
-    public class InstanceFunction<Source,Target> : InstanceFunction
+    public class InstanceFunction<Source, Target> : InstanceFunction
     {
-        public InstanceFunction(Expression<Func<Source,Target>> body)
+        public InstanceFunction(Expression<Func<Source, Target>> body)
         {
-
             this.body = body;
         }
         private Expression<Func<Source, Target>> body;
-
         protected override ValueExpressionDesc ExecuteInstanceFunction(FunctionContext context)
         {
             var argumentReplacer = new ArgumentReplacer((index, type) =>
             {
                 return GetArgumentExpression(index, type, context);
             });
-            var expression = argumentReplacer.Visit(body.Body);
+            var instanceExpressionDesc = context.ExecuteContext.LastExpression;
+            if (instanceExpressionDesc == null)
+            {
+                throw new Exception("can not find a instance.");
+            }
+
+            var instance = GetSourceInstance(instanceExpressionDesc);
+            var firstParam = body.Parameters.Single();
+            var parameterReplacer = new ParameterReplacer(firstParam, instance);
+
+            //replace instance
+            var expression = parameterReplacer.Visit(body.Body);
+            expression = argumentReplacer.Visit(expression);
             if (argumentReplacer.ArgumentCount != context.Arguments.Length)
             {
                 throw new Exception($"The argument count for function '{context.Name}' not match.");
             }
             return ValueExpressionDesc.FromExpression(expression);
+        }
+        private Expression GetSourceInstance(ValueExpressionDesc expressionDesc)
+        {
+            if (expressionDesc.ValueType != typeof(Source))
+            {
+                if (ExpressionConverterFactory.CanConverter(expressionDesc.ValueType, typeof(Source), out var converter))
+                {
+                    return converter.Convert(expressionDesc.Expression, typeof(Source));
+                }
+                else
+                {
+                    throw new Exception("can not convert to instance type");
+                }
+            }
+            else
+            {
+                return expressionDesc.Expression;
+            }
         }
         private Expression GetArgumentExpression(int index, Type type, FunctionContext context)
         {
@@ -78,5 +104,23 @@ namespace YS.Knife.Query.Functions
             }
         }
 
+        class ParameterReplacer : ExpressionVisitor
+        {
+            private readonly ParameterExpression m_parameter;
+            private readonly Expression m_replacement;
+
+            public ParameterReplacer(ParameterExpression parameter, Expression replacement)
+            {
+                this.m_parameter = parameter;
+                this.m_replacement = replacement;
+            }
+
+            protected override Expression VisitParameter(ParameterExpression node)
+            {
+                if (ReferenceEquals(node, m_parameter))
+                    return m_replacement;
+                return node;
+            }
+        }
     }
 }

@@ -114,13 +114,27 @@ namespace YS.Knife.Query.Expressions
         }
         private static ValueExpressionDesc ExecuteFunctionPath(ValueExecuteContext context, ValuePath valuePath)
         {
-            var functionContext = new FunctionContext { Arguments = valuePath.FunctionArgs ?? Array.Empty<ValueInfo>(), ExecuteContext = context };
-            var function = AllFunctions.Get(valuePath.Name);
-            if (function == null)
+            if (context.LastExpression != null)
             {
-                throw new Exception($"function '{valuePath.Name}' not supported.");
+                var instanceFunction = InstanceFunctions.Get(context.LastExpression.ValueType, valuePath.Name);
+                if (instanceFunction == null)
+                {
+                    throw new Exception($"can not find instance functino '{valuePath.Name}' for type '{context.LastExpression.ValueType}'.");
+                }
+                var functionContext = new FunctionContext { Arguments = valuePath.FunctionArgs ?? Array.Empty<ValueInfo>(), ExecuteContext = context };
+                return instanceFunction.Execute(functionContext);
             }
-            return function.Execute(functionContext);
+            else
+            {
+                //static function
+                var staticFunction = StaticFunctions.Get(valuePath.Name);
+                if (staticFunction == null)
+                {
+                    throw new Exception($"can not find static function '{valuePath.Name}'");
+                }
+                var functionContext = new FunctionContext { Arguments = valuePath.FunctionArgs ?? Array.Empty<ValueInfo>(), ExecuteContext = context };
+                return staticFunction.Execute(functionContext);
+            }
         }
 
         private static ValueExpressionDesc RebuildConstantValue(ValueExpressionDesc from, Type targetType, IValueConverter converter)

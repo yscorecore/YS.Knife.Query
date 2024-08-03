@@ -4,13 +4,19 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using YS.Knife.Query.Functions;
 using static YS.Knife.Query.IntegrationTest.Functions.StaticFunctionTestUtils;
 
 namespace YS.Knife.Query.IntegrationTest.Functions
 {
     public class RandomIntTest
     {
-        string functionName = "RandomInt";
+        static RandomIntTest()
+        {
+            StaticFunctions.Add(functionName, () => Random.Next(0, It.Arg<int>()));
+        }
+        public static Random Random = new Random();
+        const string functionName = "RandomInt";
         [Fact]
         public void ConstantAndFunction()
         {
