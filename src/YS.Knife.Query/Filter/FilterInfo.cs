@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+using YS.Knife.Query.Parser;
 
 namespace YS.Knife.Query
 {
@@ -108,8 +109,7 @@ namespace YS.Knife.Query
 
         public static FilterInfo Parse(string filterExpression, CultureInfo cultureInfo)
         {
-            throw new NotImplementedException();
-            //return new QueryExpressionParser(cultureInfo).ParseFilter(filterExpression);
+            return new QueryExpressionParser(cultureInfo).ParseFilter(filterExpression);
         }
         public static FilterInfo CreateItem(string fieldPaths, Operator filterType, object value)
         {

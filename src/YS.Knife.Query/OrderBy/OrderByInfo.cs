@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using YS.Knife.Query.Parser;
 
 namespace YS.Knife.Query
 {
@@ -45,6 +44,14 @@ namespace YS.Knife.Query
         {
             this.Items.Add(orderItem);
             return this;
+        }
+        public static OrderByInfo Parse(string orderText)
+        {
+            return Parse(orderText, CultureInfo.CurrentCulture);
+        }
+        public static OrderByInfo Parse(string orderText, CultureInfo cultureInfo)
+        {
+            return new QueryExpressionParser(cultureInfo).ParseOrderBy(orderText);
         }
     }
 }

@@ -58,15 +58,6 @@ namespace YS.Knife.Query.Parser
             throw new Exception($"Invalid expression near index {context.Index}, parse limit error.");
         }
 
-        public static Exception FunctionArgumentLessThan(ParseContext context, string functionName, int minArgumentLength)
-        {
-            throw new Exception($"The number of arguments of the function '{functionName}' less than min required {minArgumentLength}.");
-        }
-        public static Exception FunctionArgumentGreatThan(ParseContext context, string functionName, int maxArgumentLength)
-        {
-            throw new Exception($"The number of arguments of the function '{functionName}' exceeds the limit {maxArgumentLength}.");
-        }
-
         #region select
         public static Exception OnlySupportCollectionFunctionInCurlyBracket(ParseContext context)
         {

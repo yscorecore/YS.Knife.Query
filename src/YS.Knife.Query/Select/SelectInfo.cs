@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using YS.Knife.Query.Parser;
 
 namespace YS.Knife.Query
 {
@@ -13,13 +15,13 @@ namespace YS.Knife.Query
             return string.Join(',', Items.TrimNotNull().Select(p => p.ToString()));
         }
 
-        //public static SelectInfo Parse(string text)
-        //{
-        //    return Parse(text, CultureInfo.CurrentCulture);
-        //}
-        //public static SelectInfo Parse(string text, CultureInfo culture)
-        //{
-        //    return new QueryExpressionParser(culture).ParseSelectInfo(text);
-        //}
+        public static SelectInfo Parse(string text)
+        {
+            return Parse(text, CultureInfo.CurrentCulture);
+        }
+        public static SelectInfo Parse(string text, CultureInfo culture)
+        {
+            return new QueryExpressionParser(culture).ParseSelectInfo(text);
+        }
     }
 }

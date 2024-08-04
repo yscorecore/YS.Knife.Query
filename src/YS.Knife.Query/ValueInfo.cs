@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using YS.Knife.Query.Parser;
 
 namespace YS.Knife.Query
 {
@@ -73,8 +74,7 @@ namespace YS.Knife.Query
 
         public static ValueInfo Parse(string valueExpression, CultureInfo cultureInfo)
         {
-            throw new NotImplementedException();
-            // return new QueryExpressionParser(cultureInfo).ParseValue(valueExpression);
+            return new QueryExpressionParser(cultureInfo).ParseValue(valueExpression);
         }
 
         public static ValueInfo FromConstantValue(object value)
