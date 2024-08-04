@@ -64,10 +64,7 @@ namespace YS.Knife.Query
              return Task.FromResult(QueryPage(source, queryInfo));
         }
 
-        //public static PagedList<T,S> QueryPage<T,S>(this IQueryable<T> source, LimitQueryInfo queryInfo)
-        //{
-           
-        //}
+
 
 
         public static IQueryable<R> WhereItemsAnd<T, R>(this IQueryable<R> query, IEnumerable<T> source, Expression<Func<T, R, bool>> predicate)

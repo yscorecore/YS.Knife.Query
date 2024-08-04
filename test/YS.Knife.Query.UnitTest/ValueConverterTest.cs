@@ -57,6 +57,8 @@ namespace YS.Knife.Query.UnitTest
                 new object[]{ typeof(string),"2024-07-11T21:51:00",typeof(DateTimeOffset?) },
                 new object[]{ typeof(DateTimeOffset), DateTimeOffset.Parse("2024-07-14"),typeof(string) },
                 new object[]{ typeof(DateTimeOffset?), DateTimeOffset.Parse("2024-07-14"),typeof(string) },
+                new object[]{ typeof(int), 0,typeof(Enum1) },
+                new object[]{ typeof(Enum1), Enum1.Value1,typeof(int) },
             };
         }
 
@@ -71,6 +73,12 @@ namespace YS.Knife.Query.UnitTest
         public class Sub : Parent, ISub
         {
 
+        }
+
+        public enum Enum1
+        {
+            Value0 = 0,
+            Value1 = 1,
         }
     }
 }

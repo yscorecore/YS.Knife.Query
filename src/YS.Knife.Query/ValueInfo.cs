@@ -12,6 +12,13 @@ namespace YS.Knife.Query
     // [DebuggerDisplay("{ToString()}")]
     public class ValueInfo
     {
+        public bool IsConstant
+        {
+            get
+            {
+                return this.NavigatePaths?.Count == 1 && this.NavigatePaths[0].IsConstant;
+            }
+        }
         public List<ValuePath> NavigatePaths { get; set; }
         public override string ToString()
         {

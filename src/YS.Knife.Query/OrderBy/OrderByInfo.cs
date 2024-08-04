@@ -30,5 +30,21 @@ namespace YS.Knife.Query
         {
             return new OrderByInfo(orderItems);
         }
+
+        public bool HasItems()
+        {
+            return this.Items != null && this.Items.Count > 0;
+        }
+
+        public override string ToString()
+        {
+            return string.Join(",", this.Items.TrimNotNull());
+        }
+
+        public OrderByInfo Add(OrderByItem orderItem)
+        {
+            this.Items.Add(orderItem);
+            return this;
+        }
     }
 }
