@@ -20,6 +20,13 @@ namespace YS.Knife.Query
                 return this.NavigatePaths?.Count == 1 && this.NavigatePaths[0].IsConstant;
             }
         }
+        public object ConstantValue
+        {
+            get
+            {
+                return this.NavigatePaths?.Count > 0 ? (this.NavigatePaths[0]?.ConstantValue) : null;
+            }
+        }
         public List<ValuePath> NavigatePaths { get; set; }
         public override string ToString()
         {
@@ -34,42 +41,42 @@ namespace YS.Knife.Query
 
             }
 
-            string ValueToString(object value, bool convertCollection = true)
+
+        }
+        public static string ValueToString(object value, bool convertCollection = true)
+        {
+            if (value == null || value == DBNull.Value)
             {
-                if (value == null || value == DBNull.Value)
-                {
-                    return "null";
-                }
-                else if (value is string str)
-                {
-                    return Repr(str);
-                }
-                else if (value is bool)
-                {
-                    return value.ToString().ToLowerInvariant();
-                }
-                else if (value is int || value is short || value is long || value is float || value is double ||
-                         value is decimal
-                         || value is uint || value is ushort || value is ulong || value is sbyte || value is byte)
-                {
-                    return value.ToString();
-                }
-                else if (convertCollection && value is IEnumerable items)
-                {
-                    var body = string.Join(',', items.OfType<object>().Select(p => ValueToString(p, false)));
-                    return string.Format($"[{body}]");
-                }
-                else
-                {
-                    return Repr(value.ToString());
-                }
+                return "null";
             }
-            string Repr(string str)
+            else if (value is string str)
             {
-                return $"\"{Regex.Escape(str).Replace("\"", "\\\"")}\"";
+                return Repr(str);
+            }
+            else if (value is bool)
+            {
+                return value.ToString().ToLowerInvariant();
+            }
+            else if (value is int || value is short || value is long || value is float || value is double ||
+                     value is decimal
+                     || value is uint || value is ushort || value is ulong || value is sbyte || value is byte)
+            {
+                return value.ToString();
+            }
+            else if (convertCollection && value is IEnumerable items)
+            {
+                var body = string.Join(',', items.OfType<object>().Select(p => ValueToString(p, false)));
+                return string.Format($"[{body}]");
+            }
+            else
+            {
+                return value.ToString();
             }
         }
-
+        static string Repr(string str)
+        {
+            return $"\"{Regex.Escape(str).Replace("\"", "\\\"")}\"";
+        }
         public static ValueInfo Parse(string valueExpression) => Parse(valueExpression, CultureInfo.CurrentCulture);
 
         public static ValueInfo Parse(string valueExpression, CultureInfo cultureInfo)

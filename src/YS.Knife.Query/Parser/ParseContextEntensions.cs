@@ -10,6 +10,19 @@ namespace YS.Knife.Query.Parser
 {
     public static class ParseContextEntensions
     {
+        internal static readonly HashSet<string> filterArgumentFunction = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
+        {
+            nameof(Where)
+        };
+        internal static readonly HashSet<string> orderByArgumentFunction = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
+        {
+            nameof(OrderBy)
+        };
+        internal static readonly HashSet<string> limitArgumentFunction = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
+        {
+            nameof(Limit)
+        };
+
         internal static readonly Dictionary<string, object> KeyWordValues = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase)
         {
             ["true"] = true,
@@ -372,7 +385,7 @@ namespace YS.Knife.Query.Parser
 
 
         }
-        private static ValueInfo[] ParseFunctionArguments(this ParseContext context,string name)
+        private static ValueInfo[] ParseFunctionArguments(this ParseContext context, string name)
         {
             // skip open 
             List<ValueInfo> args = new List<ValueInfo>();
@@ -388,11 +401,15 @@ namespace YS.Knife.Query.Parser
                 {
                     break;
                 }
-                var arg = context.ParseValueInfo();
+                var (arg, closed) = context.ParseFunctionArgument(name);
                 args.Add(arg);
 
                 if (context.SkipWhiteSpace())
                 {
+                    if (closed && context.Current()!=')')
+                    {
+                        throw ParseErrors.FunctionParametersExceedsLimit(context);
+                    }
                     if (context.Current() == ',')
                     {
                         context.Index++;
@@ -408,10 +425,30 @@ namespace YS.Knife.Query.Parser
                 }
             }
             context.SkipWhiteSpaceAndFirstChar(')');
-
-
-
             return args.ToArray();
+        }
+        private static (ValueInfo, bool Closed) ParseFunctionArgument(this ParseContext context, string name)
+        {
+            if (filterArgumentFunction.Contains(name))
+            {
+                var filter = context.ParseFilterInfo();
+                return (ValueInfo.FromConstantValue(filter), true);
+            }
+            else if (orderByArgumentFunction.Contains(name))
+            {
+                var orderBy = context.ParseOrderByInfo();
+                return (ValueInfo.FromConstantValue(orderBy), true);
+            }
+            else if (limitArgumentFunction.Contains(name))
+            {
+                var limitInfo = context.ParseLimitInfo();
+                return (ValueInfo.FromConstantValue(limitInfo), true);
+            }
+            else
+            {
+                return (context.ParseValueInfo(), false);
+
+            }
         }
 
         public static FilterInfo ParseFilterInfo(this ParseContext context)
@@ -553,7 +590,7 @@ namespace YS.Knife.Query.Parser
             }
         }
 
-        public static OrderByInfo ParseOrderInfo(this ParseContext context)
+        public static OrderByInfo ParseOrderByInfo(this ParseContext context)
         {
             OrderByInfo orderInfo = new OrderByInfo();
             while (context.SkipWhiteSpace())
@@ -739,17 +776,44 @@ namespace YS.Knife.Query.Parser
             }
             void SetCollectionFilterValue(ParseContext context, SelectItem selectItem, ValuePath valuePath)
             {
+                var firstArgument = valuePath.FunctionArgs.FirstOrDefault()?.ConstantValue;
                 if (nameof(Where).Equals(valuePath.Name, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    selectItem.CollectionFilter = valuePath.FunctionArgs.Cast<FilterInfo>().FirstOrDefault();
+                    if (firstArgument is FilterInfo filterInfo)
+                    {
+                        selectItem.CollectionFilter = filterInfo;
+                    }
+                    else
+                    {
+                        throw ParseErrors.CollectionWhereFunctionMissingBody(context);
+                    }
+
                 }
                 else if (nameof(OrderBy).Equals(valuePath.Name, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    selectItem.CollectionOrderBy = valuePath.FunctionArgs.Cast<OrderByInfo>().FirstOrDefault();
+                    if (firstArgument is OrderByInfo orderByInfo)
+                    {
+                        selectItem.CollectionOrderBy = orderByInfo;
+                    }
+                    else
+                    {
+                        throw ParseErrors.CollectionOrderByFunctionMissingBody(context);
+
+                    }
+
                 }
                 else if (nameof(Limit).Equals(valuePath.Name, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    selectItem.CollectionLimit = valuePath.FunctionArgs.Cast<LimitInfo>().FirstOrDefault();
+                    if (firstArgument is LimitInfo limitInfo)
+                    {
+                        selectItem.CollectionLimit = limitInfo;
+                    }
+                    else
+                    {
+                        throw ParseErrors.CollectionLimitFunctionMissingBody(context);
+
+                    }
+
                 }
                 else
                 {

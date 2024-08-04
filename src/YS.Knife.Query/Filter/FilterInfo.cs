@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -8,6 +9,7 @@ using YS.Knife.Query.Parser;
 namespace YS.Knife.Query
 {
     [Serializable]
+    [TypeConverter(typeof(FilterInfoTypeConverter))]
     public class FilterInfo
     {
         internal const string Operator_And = "and";

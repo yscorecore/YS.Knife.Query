@@ -30,7 +30,7 @@ namespace YS.Knife.Query.Parser
         {
             if (string.IsNullOrWhiteSpace(text)) return null;
             var context = new ParseContext(text, this.CurrentCulture);
-            OrderByInfo orderInfo = context.ParseOrderInfo();
+            OrderByInfo orderInfo = context.ParseOrderByInfo();
             context.SkipWhiteSpace();
             if (context.NotEnd())
             {

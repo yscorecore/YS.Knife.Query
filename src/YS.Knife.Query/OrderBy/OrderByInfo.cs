@@ -1,10 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using YS.Knife.Query.Parser;
 
 namespace YS.Knife.Query
 {
+    [TypeConverter(typeof(OrderByInfoTypeConverter))]
+    [Serializable]
     public class OrderByInfo
     {
         public OrderByInfo()
