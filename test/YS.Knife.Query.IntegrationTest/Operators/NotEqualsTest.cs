@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using FluentAssertions;
 using Xunit;
 using static YS.Knife.Query.IntegrationTest.Operators.OperatorTestUtils;
 
@@ -18,9 +15,6 @@ namespace YS.Knife.Query.IntegrationTest.Operators
         {
             CompareConstantAndConstant(Operator.NotEquals, leftType, left, rightType, right, result);
         }
-
-
-
 
         [Theory]
         [MemberData(nameof(GetTestData))]

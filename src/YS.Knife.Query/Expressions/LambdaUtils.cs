@@ -221,7 +221,7 @@ namespace YS.Knife.Query.Expressions
                            RebuildNullableExpressionValue(rightNode, nullableType));
                     }
                     else
-                    { 
+                    {
                         return (RebuildNullConstantValue(rightNode.ValueType), rightNode);
                     }
                 }
@@ -256,7 +256,7 @@ namespace YS.Knife.Query.Expressions
                     }
                 }
 
-                
+
             }
             else if (leftNode.IsConstant && !rightNode.IsConstant)
             {
@@ -331,12 +331,21 @@ namespace YS.Knife.Query.Expressions
         }
         private static TOut[] ConvertItemsValue<TIn, TOut>(IEnumerable<TIn> source, IValueConverter valueConverter)
         {
-            return source.Select(p => (TOut)valueConverter.Convert(p, typeof(TOut))).ToArray();
+            if (IsValueType(typeof(TOut)))
+            {
+                return source.Where(p => p != null).Select(p => (TOut)valueConverter.Convert(p, typeof(TOut))).ToArray();
+
+            }
+            else
+            {
+                return source.Select(p => (TOut)valueConverter.Convert(p, typeof(TOut))).ToArray();
+
+            }
         }
 
         private static ValueExpressionDesc RebuildConstantValueArray(object items, Type itemSourceType, Type itemTargetType, IValueConverter converter)
         {
-            var method = typeof(LambdaUtils).GetMethod(nameof(ConvertItemsValue))
+            var method = typeof(LambdaUtils).GetMethod(nameof(ConvertItemsValue), System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
                 .MakeGenericMethod(itemSourceType, itemTargetType);
             var targetItems = method.Invoke(null, new object[] { items, converter });
             return ValueExpressionDesc.FromValue(targetItems);
@@ -388,20 +397,24 @@ namespace YS.Knife.Query.Expressions
                         }
                         else
                         {
-                            throw new Exception("can not convert");
+                            throw new Exception($"can not convert '{left.ValueType}' to '{rightItemType}'.");
                         }
                     }
                 }
                 else
                 {
+                    if (left.IsNull && !IsValueType(rightItemType))
+                    {
+                        return (RebuildNullConstantValue(rightItemType), right);
+                    }
                     //将左边转为右边的子类型
-                    if (ValueConverterFactory.CanConverter(left.ValueType, rightItemType, out var converter3))
+                    else if (ValueConverterFactory.CanConverter(left.ValueType, rightItemType, out var converter3))
                     {
                         return (RebuildConstantValue(left, rightItemType, converter3), right);
                     }
                     else
                     {
-                        throw new Exception("can not converter");
+                        throw new Exception($"can not convert '{left.ValueType}' to '{rightItemType}'.");
                     }
                 }
             }
@@ -417,7 +430,7 @@ namespace YS.Knife.Query.Expressions
                     }
                     else
                     {
-                        throw new Exception("can not convert");
+                        throw new Exception($"can not convert '{rightItemType}' to '{left.ValueType}'.");
                     }
                 }
                 else
@@ -428,7 +441,7 @@ namespace YS.Knife.Query.Expressions
                     }
                     else
                     {
-                        throw new Exception("can not convert");
+                        throw new Exception($"can not convert '{left.ValueType}' to '{right.ValueType}'.");
                     }
                 }
 

@@ -106,6 +106,9 @@ namespace YS.Knife.Query
             [Operator.GreaterThan] = new ComparerOperator(Operator.GreaterThan),
             [Operator.GreaterThanOrEqual] = new ComparerOperator(Operator.GreaterThanOrEqual),
 
+            [Operator.In] = new InOperator(Operator.In),
+            [Operator.NotIn] = new InOperator(Operator.NotIn),
+
         };
 
         private static IExpressionOperator GetExpressionOperator(Operator operatorType)

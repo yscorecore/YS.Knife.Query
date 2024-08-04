@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace YS.Knife.Query
 {
@@ -35,9 +33,15 @@ namespace YS.Knife.Query
            .Where(p => p.Name == nameof(Enumerable.Distinct))
            .Where(p => p.GetParameters().Length == 1)
            .Single();
+
         private static readonly MethodInfo SelectMethodWith2Args = typeof(Enumerable).GetMethods()
           .Where(p => p.Name == nameof(Enumerable.Select))
           .Where(p => p.GetParameters().Length == 2 && p.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>))
+          .Single();
+
+        private static readonly MethodInfo ContainsMethod2Args = typeof(Enumerable).GetMethods()
+          .Where(p => p.Name == nameof(Enumerable.Contains))
+          .Where(p => p.GetParameters().Length == 2 )
           .Single();
 
         public static MethodInfo GetSumAgg2<TSource, TResult>()
@@ -75,6 +79,10 @@ namespace YS.Knife.Query
         public static MethodInfo GetSelect2(Type sourceType, Type returnType)
         {
             return SelectMethodWith2Args.MakeGenericMethod(sourceType, returnType);
+        }
+        public static MethodInfo GetContains(Type sourceType)
+        {
+            return ContainsMethod2Args.MakeGenericMethod(sourceType);
         }
     }
 }

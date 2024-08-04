@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using YS.Knife.Query.Expressions;
@@ -56,26 +54,5 @@ namespace YS.Knife.Query.Filter.Operators
         }
     }
 
-    internal abstract class ArrayOperator : IExpressionOperator
-    {
-        public Operator Operator { get; }
-        public ValueExpressionDesc CreatePredicateExpression(OperatorExpressionContext context)
-        {
-            var (left, right) = LambdaUtils.ConvertToSameItemType(context.Left, context.Right);
-            return DoOperatorAction(left, right);
-        }
-        protected abstract ValueExpressionDesc DoOperatorAction(ValueExpressionDesc left, ValueExpressionDesc right);
-    }
-    internal class InOperator : ArrayOperator
-    {
-        private static readonly MethodInfo ContainsMethod = typeof(Enumerable).GetMethods()
-         .Where(p => p.Name == nameof(Enumerable.Contains))
-         .Where(p => p.GetParameters().Length == 2)
-         .Single();
-        protected override ValueExpressionDesc DoOperatorAction(ValueExpressionDesc left, ValueExpressionDesc right)
-        {
-            var method = ContainsMethod.MakeGenericMethod(left.ValueType);
-            return ValueExpressionDesc.FromExpression(Expression.Call(null, method, right.Expression, left.Expression));
-        }
-    }
+    
 }
