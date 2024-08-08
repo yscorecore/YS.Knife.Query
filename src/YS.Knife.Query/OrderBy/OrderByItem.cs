@@ -21,35 +21,6 @@ namespace YS.Knife.Query
             }
             return string.Empty;
         }
-        internal static OrderByItem FromValuePaths(List<ValuePath> paths)
-        {
-            var last = paths?.LastOrDefault();
-
-            if (last != null && last.IsFunction)
-            {
-                if (string.Equals(last.Name, nameof(OrderByType.Desc), StringComparison.InvariantCultureIgnoreCase))
-                {
-                    return new OrderByItem
-                    {
-                        NavigatePaths = paths.SkipLast(1).ToList(),
-                        OrderByType = OrderByType.Desc
-                    };
-                }
-                else if (string.Equals(last.Name, nameof(OrderByType.Asc), StringComparison.InvariantCultureIgnoreCase))
-                {
-                    return new OrderByItem
-                    {
-                        NavigatePaths = paths.SkipLast(1).ToList(),
-                        OrderByType = OrderByType.Asc
-                    };
-                }
-            }
-            return new OrderByItem
-            {
-                NavigatePaths = paths,
-                OrderByType = OrderByType.Asc
-            };
-        }
     }
 }
 

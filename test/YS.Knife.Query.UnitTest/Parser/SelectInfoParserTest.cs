@@ -77,7 +77,7 @@ namespace YS.Knife.Query.UnitTest.Parser
         public void should_throw_exception_when_parse_invalid_collection_functions(string input)
         {
             var action = new Action(() => SelectInfo.Parse(input));
-            action.Should().ThrowExactly<FilterInfoParseException>();
+            action.Should().ThrowExactly<ParseException>();
         }
         private void ParseSelectInfoShouldBe(string inputText, string expected)
         {

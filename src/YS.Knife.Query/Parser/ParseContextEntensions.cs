@@ -596,7 +596,7 @@ namespace YS.Knife.Query.Parser
             while (context.SkipWhiteSpace())
             {
                 var paths = context.ParsePropertyPaths();
-                orderInfo.Add(OrderByItem.FromValuePaths(paths));
+                orderInfo.Add(CreateOrderByItemFromValuePaths(paths));
 
                 if (context.SkipWhiteSpace() && context.Current() == ',')
                 {
@@ -609,7 +609,35 @@ namespace YS.Knife.Query.Parser
             }
             return orderInfo.HasItems() ? orderInfo : null;
         }
+        internal static OrderByItem CreateOrderByItemFromValuePaths(List<ValuePath> paths)
+        {
+            var last = paths?.LastOrDefault();
 
+            if (last != null && last.IsFunction)
+            {
+                if (string.Equals(last.Name, nameof(OrderByType.Desc), StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return new OrderByItem
+                    {
+                        NavigatePaths = paths.SkipLast(1).ToList(),
+                        OrderByType = OrderByType.Desc
+                    };
+                }
+                else if (string.Equals(last.Name, nameof(OrderByType.Asc), StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return new OrderByItem
+                    {
+                        NavigatePaths = paths.SkipLast(1).ToList(),
+                        OrderByType = OrderByType.Asc
+                    };
+                }
+            }
+            return new OrderByItem
+            {
+                NavigatePaths = paths,
+                OrderByType = OrderByType.Asc
+            };
+        }
         public static LimitInfo ParseLimitInfo(this ParseContext context)
         {
             if (context.SkipWhiteSpace())

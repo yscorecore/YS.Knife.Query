@@ -216,7 +216,7 @@ namespace YS.Knife.Query.UnitTest.Parser
         public void ShouldThrowFilterException(string expression)
         {
             var action = new Action(() => Parse(expression));
-            action.Should().ThrowExactly<FilterInfoParseException>();
+            action.Should().ThrowExactly<ParseException>();
         }
 
 

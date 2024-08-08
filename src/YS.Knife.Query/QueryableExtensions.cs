@@ -3,37 +3,133 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using YS.Knife.Query.Parser;
 
 namespace YS.Knife.Query
 {
     public static class QueryableExtensions
     {
-        
         public static IQueryable<T> DoQuery<T>(this IQueryable<T> source, QueryInfo queryInfo)
+           where T : class, new()
         {
-            return source;
+            _ = source ?? throw new ArgumentNullException(nameof(source));
+            if (queryInfo == null) return source;
+            var filter = ParseFilter(queryInfo.Filter);
+            var orderBy = ParseOrderBy(queryInfo.OrderBy);
+            var select = ParseSelect(queryInfo.Select);
+            var result = source;
+            result = Filter(result, filter);
+            result = OrderBy(result, orderBy);
+            result = Select(result, select);
+            return result;
+            static FilterInfo ParseFilter(string filter)
+            {
+                try
+                {
+                    return FilterInfo.Parse(filter);
+                }
+                catch (ParseException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    throw new ParseException("");
+                }
+            }
+            static OrderByInfo ParseOrderBy(string orderby)
+            {
+                try
+                {
+                    return OrderByInfo.Parse(orderby);
+                }
+                catch (ParseException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    throw new ParseException("");
+                }
+            }
+            static SelectInfo ParseSelect(string select)
+            {
+                try
+                {
+                    return SelectInfo.Parse(select);
+                }
+                catch (ParseException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    throw new ParseException("");
+                }
+            }
+            static IQueryable<T> Filter(IQueryable<T> source, FilterInfo filter)
+            {
+                try
+                {
+                    return source.DoFilter(filter);
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+            }
+            static IQueryable<T> OrderBy(IQueryable<T> source, OrderByInfo orderBy)
+            {
+                try
+                {
+                    return source.DoOrderBy(orderBy);
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+            }
+            static IQueryable<T> Select(IQueryable<T> source, SelectInfo select)
+            {
+                try
+                {
+                    return source.DoSelect(select);
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+            }
         }
-       
+
         public static List<T> QueryList<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
+            where T : class, new()
         {
             return source.DoQuery(queryInfo).Skip(queryInfo.Offset).Take(queryInfo.Limit).ToList();
         }
         public static Task<List<T>> QueryListAsync<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
+            where T : class, new()
         {
             return Task.FromResult(source.QueryList(queryInfo));
         }
 
         public static LimitList<T> QueryLimitList<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
+            where T : class, new()
         {
             var data = source.DoQuery(queryInfo).Skip(queryInfo.Offset).Take(queryInfo.Limit + 1).ToList();
             return new LimitList<T>(data.Take(queryInfo.Limit), queryInfo.Offset, queryInfo.Limit, data.Count > queryInfo.Limit);
         }
         public static Task<LimitList<T>> QueryLimitListAsync<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
+            where T : class, new()
         {
             return Task.FromResult(source.QueryLimitList(queryInfo));
         }
 
         public static PagedList<T> QueryPage<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
+            where T : class, new()
         {
             _ = source ?? throw new ArgumentNullException(nameof(source));
             _ = queryInfo ?? throw new ArgumentNullException(nameof(queryInfo));
@@ -60,13 +156,10 @@ namespace YS.Knife.Query
             }
         }
         public static Task<PagedList<T>> QueryPageAsync<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
+            where T : class, new()
         {
-             return Task.FromResult(QueryPage(source, queryInfo));
+            return Task.FromResult(QueryPage(source, queryInfo));
         }
-
-
-
-
         public static IQueryable<R> WhereItemsAnd<T, R>(this IQueryable<R> query, IEnumerable<T> source, Expression<Func<T, R, bool>> predicate)
         {
             Expression expression = Expression.Constant(true);
