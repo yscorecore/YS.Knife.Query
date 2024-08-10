@@ -45,7 +45,7 @@ namespace YS.Knife.Query.Parser
         private static readonly Func<char, bool> IsWhiteSpace = ch => ch == ' ' || ch == '\t';
         private static readonly Func<char, bool> IsEscapeChar = ch => ch == '\\';
         private static readonly Func<char, bool> IsOperationChar = ch => ch == '=' || ch == '<' || ch == '>' || ch == '!';
-
+        private static readonly Func<char, bool> IsStringWrapChar = ch => ch == '\'' || ch == '"';
         private static bool IsNumberStartChar(char current, ParseContext context) => char.IsDigit(current) || current == context.NumberDecimal || current == context.NumberNegativeSign || current == context.NumberPositiveSign;
 
 
@@ -87,12 +87,6 @@ namespace YS.Knife.Query.Parser
         {
             context.SkipWhiteSpace();
 
-            var (isValue, value) = TryParseValue(context);
-            if (isValue)
-            {
-                return ValueInfo.FromConstantValue(value);
-            }
-
             var propertyPaths = ParsePropertyPaths(context);
 
             return ValueInfo.FromPaths(propertyPaths);
@@ -126,10 +120,10 @@ namespace YS.Knife.Query.Parser
                 return (false, null);
             }
             var current = context.Current();
-            if (current == '\"')
+            if (IsStringWrapChar(current))
             {
                 //string
-                return (true, ParseStringValue(context));
+                return (true, ParseStringValue(context, current));
             }
             else if (char.IsLetter(current))
             {
@@ -158,7 +152,7 @@ namespace YS.Knife.Query.Parser
             return (false, null);
 
 
-            string ParseStringValue(ParseContext context)
+            string ParseStringValue(ParseContext context, char wrapChar = '"')
             {
                 // skip start
                 context.Index++;
@@ -176,7 +170,7 @@ namespace YS.Knife.Query.Parser
                     else
                     {
                         var current = context.Current();
-                        if (current == '\"')
+                        if (current == wrapChar)
                         {
                             break;
                         }
@@ -309,10 +303,10 @@ namespace YS.Knife.Query.Parser
             {
                 context.SkipWhiteSpace();
                 var current = context.Current();
-                if (current == '\"')
+                if (IsStringWrapChar(current))
                 {
                     //string
-                    return ParseStringValue(context);
+                    return ParseStringValue(context, current);
                 }
                 else if (char.IsLetter(current))
                 {
@@ -341,6 +335,32 @@ namespace YS.Knife.Query.Parser
             List<ValuePath> names = new List<ValuePath>();
             while (context.NotEnd())
             {
+                //只允许第一个是常数，e.g "abc".toupper()
+
+                if (names.Count == 0)
+                {
+                    var (isValue, value) = TryParseValue(context);
+                    if (isValue)
+                    {
+                        names.Add(new ValuePath { ConstantValue = value, IsConstant = true });
+                        context.SkipWhiteSpace();
+                        if (context.End())
+                        {
+                            break;
+                        }
+                        else if (context.Current() == '.')
+                        {
+                            context.Index++;
+                            continue;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+
+
                 var name = ParseName(context);
                 context.SkipWhiteSpace();
                 if (context.End())
@@ -380,6 +400,9 @@ namespace YS.Knife.Query.Parser
                     break;
                 }
 
+
+
+
             }
             return names;
 
@@ -406,7 +429,7 @@ namespace YS.Knife.Query.Parser
 
                 if (context.SkipWhiteSpace())
                 {
-                    if (closed && context.Current()!=')')
+                    if (closed && context.Current() != ')')
                     {
                         throw ParseErrors.FunctionParametersExceedsLimit(context);
                     }
@@ -595,9 +618,16 @@ namespace YS.Knife.Query.Parser
             OrderByInfo orderInfo = new OrderByInfo();
             while (context.SkipWhiteSpace())
             {
+                var startIndex = context.Index;
                 var paths = context.ParsePropertyPaths();
-                orderInfo.Add(CreateOrderByItemFromValuePaths(paths));
-
+                try
+                {
+                    orderInfo.Add(CreateOrderByItemFromValuePaths(paths));
+                }
+                catch (Exception ex)
+                {
+                    throw ParseErrors.InvalidOrderbyItem(context, startIndex, ex);
+                }
                 if (context.SkipWhiteSpace() && context.Current() == ',')
                 {
                     context.Index++;
@@ -611,31 +641,157 @@ namespace YS.Knife.Query.Parser
         }
         internal static OrderByItem CreateOrderByItemFromValuePaths(List<ValuePath> paths)
         {
-            var last = paths?.LastOrDefault();
-
-            if (last != null && last.IsFunction)
+            var properties = new List<ValuePath>();
+            object orderByType = null;
+            for (var i = 0; i < paths.Count; i++)
             {
-                if (string.Equals(last.Name, nameof(OrderByType.Desc), StringComparison.InvariantCultureIgnoreCase))
+                var path = paths[i];
+                if (path.IsFunction)
                 {
-                    return new OrderByItem
+                    if (orderByType == null)
                     {
-                        NavigatePaths = paths.SkipLast(1).ToList(),
-                        OrderByType = OrderByType.Desc
-                    };
+                        if (Enum.TryParse(typeof(OrderByType), path.Name, true, out orderByType))
+                        {
+                            if (path.FunctionArgs?.Length > 0)
+                            {
+                                throw new ParseException("orderby function should has no argument.");
+                            }
+                        }
+                        else
+                        {
+                            properties.Add(path);
+                        }
+                    }
+                    else
+                    {
+                        throw new ParseException($"invalid function '{path.Name}' after '{orderByType}' function");
+                    }
                 }
-                else if (string.Equals(last.Name, nameof(OrderByType.Asc), StringComparison.InvariantCultureIgnoreCase))
+                else if (path.IsConstant)
                 {
-                    return new OrderByItem
+                    throw new ParseException("orderby item should not be constant.");
+                }
+                else
+                {
+                    if (orderByType != null)
                     {
-                        NavigatePaths = paths.SkipLast(1).ToList(),
-                        OrderByType = OrderByType.Asc
-                    };
+                        throw new ParseException($"invalid property '{path.Name}' after '{orderByType}' function");
+                    }
+                    else
+                    {
+                        properties.Add(path);
+                    }
+
                 }
             }
+
             return new OrderByItem
             {
-                NavigatePaths = paths,
-                OrderByType = OrderByType.Asc
+                NavigatePaths = properties,
+                OrderByType = orderByType == null ? OrderByType.Asc : (OrderByType)orderByType
+            };
+        }
+        public static AggInfo ParseAggInfo(this ParseContext context)
+        {
+            AggInfo aggInfo = new AggInfo();
+            while (context.SkipWhiteSpace())
+            {
+                var startIndex = context.Index;
+                var paths = context.ParsePropertyPaths();
+                try
+                {
+                    aggInfo.Add(CreateAggItemFromValuePaths(paths));
+                }
+                catch (Exception ex)
+                {
+                    throw ParseErrors.InvalidAggItem(context, startIndex, ex);
+                }
+                if (context.SkipWhiteSpace() && context.Current() == ',')
+                {
+                    context.Index++;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            return aggInfo.HasItems() ? aggInfo : null;
+        }
+        internal static AggItem CreateAggItemFromValuePaths(List<ValuePath> paths)
+        {
+            var properties = new List<ValuePath>();
+            object aggType = null;
+            var alias = default(string);
+            for (var i = 0; i < paths.Count; i++)
+            {
+                var path = paths[i];
+                if (path.IsFunction)
+                {
+                    if (properties.Count == 0)
+                    {
+                        throw new ParseException("missing agg property");
+                    }
+                    else if (aggType == null)
+                    {
+                        if (Enum.TryParse(typeof(AggType), path.Name, true, out aggType))
+                        {
+                            if (path.FunctionArgs?.Length > 0)
+                            {
+                                throw new ParseException("agg function should has no argument.");
+                            }
+                        }
+                        else
+                        {
+                            throw new ParseException($"unknow agg function type '{path.Name}'");
+                        }
+                    }
+                    else if (alias == null)
+                    {
+                        //as
+                        if (path.Name.Equals("as", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            if (path.FunctionArgs.Length == 1)
+                            {
+                                var firstArg = path.FunctionArgs[0];
+                                if (firstArg.IsConstant)
+                                {
+                                    alias = Convert.ToString(firstArg.ConstantValue);
+                                }
+                                else
+                                {
+                                    alias = firstArg.ToString();
+                                }
+                            }
+                            else
+                            {
+                                throw new ParseException("function 'as' only has one argument.");
+                            }
+                        }
+                        else
+                        {
+                            throw new ParseException($"invalid function {path.Name} after 'as'.");
+                        }
+                    }
+                    else
+                    {
+                        throw new ParseException($"invalid function {path.Name} after '{alias}'.");
+                    }
+                }
+                else if (path.IsConstant)
+                {
+                    throw new ParseException("agg item should not be constant.");
+                }
+                else
+                {
+                    properties.Add(path);
+                }
+            }
+
+            return new AggItem
+            {
+                NavigatePaths = properties,
+                AggType = aggType == null ? AggType.Sum : (AggType)aggType,
+                AggName = alias
             };
         }
         public static LimitInfo ParseLimitInfo(this ParseContext context)

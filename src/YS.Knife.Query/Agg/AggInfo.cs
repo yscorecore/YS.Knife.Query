@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using YS.Knife.Query.Parser;
 
 namespace YS.Knife.Query
 {
-    public record AggInfo
+    [TypeConverter(typeof(AggInfoTypeConverter))]
+    [Serializable]
+    public class AggInfo
     {
         public AggInfo()
         {
@@ -20,5 +23,25 @@ namespace YS.Knife.Query
 
         public List<AggItem> Items { get; set; } = new List<AggItem>();
 
+        public void Add(AggItem item)
+        {
+            this.Items.Add(item);
+        }
+        public bool HasItems() 
+        {
+           return this.Items?.Count > 0;
+        }
+        public static AggInfo Parse(string orderText)
+        {
+            return Parse(orderText, CultureInfo.CurrentCulture);
+        }
+        public static AggInfo Parse(string orderText, CultureInfo cultureInfo)
+        {
+            return new QueryExpressionParser(cultureInfo).ParseAggInfo(orderText);
+        }
+        public override string ToString()
+        {
+            return string.Join(",", this.Items.TrimNotNull());
+        }
     }
 }

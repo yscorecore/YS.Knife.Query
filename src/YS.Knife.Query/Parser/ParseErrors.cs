@@ -85,6 +85,15 @@ namespace YS.Knife.Query.Parser
         {
             throw new ParseException($"Invalid function body near index {context.Index}, the number of function parameters exceeds the range");
         }
-
+        public static Exception InvalidAggItem(ParseContext context, int startIndex, Exception exception)
+        {
+            string exp = context.Text.Substring(startIndex, context.Index - startIndex);
+            throw new ParseException($"Invalid agg item '{exp}' start at index {startIndex}.", exception);
+        }
+        public static Exception InvalidOrderbyItem(ParseContext context, int startIndex, Exception exception)
+        {
+            string exp = context.Text.Substring(startIndex, context.Index - startIndex);
+            throw new ParseException($"Invalid orderby item '{exp}' start at index {startIndex}.", exception);
+        }
     }
 }

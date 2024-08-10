@@ -113,17 +113,5 @@ namespace YS.Knife.Query.UnitTest
             };
             select.ToString().Should().Be("a,b{limit(1,5),orderby(e.asc(),f.desc(),g.asc()),where((c > 1) and (d < 2))}(h,i),j");
         }
-
-        //[Fact]
-        //public void should_deserialize_from_json_string()
-        //{
-        //    var jsonText = "{\"select\":\"a,b,c\"}";
-        //    var selectWrap = Json.DeSerialize<SelectWrap>(jsonText);
-        //    selectWrap.DoSelect.Should().BeEquivalentTo(SelectInfo.Parse("a,b,c"));
-        //}
-        class SelectWrap
-        {
-            public SelectInfo Select { get; set; }
-        }
     }
 }

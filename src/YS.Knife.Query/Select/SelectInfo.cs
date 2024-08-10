@@ -1,13 +1,26 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using YS.Knife.Query.Parser;
 
 namespace YS.Knife.Query
 {
+    [TypeConverter(typeof(SelectInfoTypeConverter))]
+    [Serializable]
     public class SelectInfo
     {
-        public List<SelectItem> Items { get; set; }
+        public SelectInfo()
+        {
+
+        }
+        public SelectInfo(params SelectItem[] selectItems)
+        {
+            var items = (selectItems ?? Enumerable.Empty<SelectItem>()).Where(p => p != null);
+            this.Items.AddRange(items);
+        }
+        public List<SelectItem> Items { get; set; } = new List<SelectItem>();
 
         public override string ToString()
         {
@@ -23,5 +36,6 @@ namespace YS.Knife.Query
         {
             return new QueryExpressionParser(culture).ParseSelectInfo(text);
         }
+
     }
 }

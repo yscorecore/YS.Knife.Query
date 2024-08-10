@@ -75,6 +75,18 @@ namespace YS.Knife.Query.Parser
             }
             return limitInfo;
         }
+        public AggInfo ParseAggInfo(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return null;
+            var context = new ParseContext(text, this.CurrentCulture);
+            AggInfo aggInfo = context.ParseAggInfo();
+            context.SkipWhiteSpace();
+            if (context.NotEnd())
+            {
+                throw ParseErrors.InvalidText(context);
+            }
+            return aggInfo;
+        }
     }
 
 }
