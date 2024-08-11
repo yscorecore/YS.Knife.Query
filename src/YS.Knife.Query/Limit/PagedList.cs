@@ -23,7 +23,7 @@ namespace YS.Knife.Query
             this.Offset = offset;
             this.TotalCount = totalCount;
             this.Items = limitListData?.ToList() ?? new List<T>();
-            this.Aggs = aggs == null ? new Dictionary<string, object>() : new Dictionary<string, object>(aggs);
+            this.Aggs = aggs == null ? null : new Dictionary<string, object>(aggs);
         }
 
         public bool HasNext
