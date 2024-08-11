@@ -12,11 +12,11 @@ namespace YS.Knife.Query
           .Where(p => p.GetParameters().Length == 2)
           .ToDictionary(p => p.GetParameters()[1].ParameterType.GenericTypeArguments[1]);
         private static readonly Dictionary<Type, MethodInfo> MinMethodWith2Args = typeof(Enumerable).GetMethods()
-            .Where(p => p.Name == nameof(Enumerable.Min))
+            .Where(p => p.Name == nameof(Enumerable.Min) && p.GetGenericArguments().Length==2)
             .Where(p => p.GetParameters().Length == 2)
             .ToDictionary(p => p.GetParameters()[1].ParameterType.GenericTypeArguments[1]);
         private static readonly Dictionary<Type, MethodInfo> MaxMethodWith2Args = typeof(Enumerable).GetMethods()
-          .Where(p => p.Name == nameof(Enumerable.Max))
+          .Where(p => p.Name == nameof(Enumerable.Max) && p.GetGenericArguments().Length == 2)
           .Where(p => p.GetParameters().Length == 2)
           .ToDictionary(p => p.GetParameters()[1].ParameterType.GenericTypeArguments[1]);
         private static readonly Dictionary<Type, MethodInfo> AverageMethodWith2Args = typeof(Enumerable).GetMethods()

@@ -38,7 +38,7 @@ namespace YS.Knife.Query.Expressions
         {
             if (Parameters.Count == 0)
             {
-                throw new QueryExpressionBuildException("context deep is zero.");
+                throw new BuildException("context deep is zero.");
             }
             else
             {

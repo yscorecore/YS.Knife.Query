@@ -34,7 +34,7 @@ namespace YS.Knife.Query
                 }
                 catch (Exception ex)
                 {
-                    throw new ParseException("");
+                    throw new ParseException("parse filter error." ,ex);
                 }
             }
             static OrderByInfo ParseOrderBy(string orderby)
@@ -127,18 +127,50 @@ namespace YS.Knife.Query
         {
             return Task.FromResult(source.QueryLimitList(queryInfo));
         }
+        private static Dictionary<string, object> QueryAgg<T>(this IQueryable<T> source, LimitQueryInfo limitQueryInfo)
+        {
+            var aggInfo = ParseAgg(limitQueryInfo.Agg);
+            return DoAgg(source, aggInfo);
+            static AggInfo ParseAgg(string agg)
+            {
+                try
+                {
+                    return AggInfo.Parse(agg);
+                }
+                catch (ParseException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    throw new ParseException("");
+                }
+            }
+            static Dictionary<string, object> DoAgg(IQueryable<T> source, AggInfo agg)
+            {
+                try
+                {
+                    return source.DoAgg(agg);
+                }
+                catch (Exception)
+                {
 
+                    throw;
+                }
+            }
+        }
         public static PagedList<T> QueryPage<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
             where T : class, new()
         {
             _ = source ?? throw new ArgumentNullException(nameof(source));
             _ = queryInfo ?? throw new ArgumentNullException(nameof(queryInfo));
             var query = source.DoQuery(queryInfo);
+            var aggResult = source.QueryAgg(queryInfo);
             if (queryInfo.Limit <= 0)
             {
                 //only count all
                 var totalCount = query.LongCount();
-                return new PagedList<T>(new List<T>(), queryInfo.Offset, queryInfo.Limit, totalCount);
+                return new PagedList<T>(new List<T>(), queryInfo.Offset, queryInfo.Limit, totalCount, aggResult);
             }
             else
             {
@@ -146,12 +178,12 @@ namespace YS.Knife.Query
                 if (data.Count < queryInfo.Limit)
                 {
                     var totalCount = queryInfo.Offset + data.Count;
-                    return new PagedList<T>(data, queryInfo.Offset, queryInfo.Limit, totalCount);
+                    return new PagedList<T>(data, queryInfo.Offset, queryInfo.Limit, totalCount, aggResult);
                 }
                 else
                 {
                     var totalCount = query.LongCount();
-                    return new PagedList<T>(data, queryInfo.Offset, queryInfo.Limit, totalCount);
+                    return new PagedList<T>(data, queryInfo.Offset, queryInfo.Limit, totalCount, aggResult);
                 }
             }
         }

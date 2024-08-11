@@ -80,7 +80,7 @@ namespace YS.Knife.Query
             var expressionDesc = expressionOperator.CreatePredicateExpression(context);
             if (expressionDesc.ValueType != typeof(bool))
             {
-                throw new QueryExpressionBuildException($"the return type of the operate '{singleItemFilter.Operator}' should be bool.");
+                throw new BuildException($"the return type of the operate '{singleItemFilter.Operator}' should be bool.");
             }
             return expressionDesc.Expression;
         }

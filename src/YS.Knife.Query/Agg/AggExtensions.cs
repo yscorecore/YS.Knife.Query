@@ -14,10 +14,12 @@ namespace System.Linq
             typeof(TempRecord).GetProperties().ToImmutableList();
         public static Dictionary<string, object> DoAgg<T>(this IQueryable<T> source, AggInfo aggInfo)
         {
-            var items = aggInfo?.Items?.Where(p => p != null).ToList();
+            _ = source ?? throw new ArgumentNullException(nameof(source));
+            if (aggInfo == null) return null;
+            var items = aggInfo.Items?.Where(p => p != null).ToList();
             if (items?.Count > TempRecordProperties.Count)
             {
-                throw new QueryExpressionBuildException("max agg item count shoule not great than 64.");
+                throw new BuildException("max agg item count shoule not great than 64.");
             }
             if (items?.Count > 0)
             {
@@ -129,7 +131,7 @@ namespace System.Linq
                 _ => throw new InvalidEnumArgumentException()
             };
         }
-      
+
         public record TempRecord
         {
             public object Column0 { get; set; }

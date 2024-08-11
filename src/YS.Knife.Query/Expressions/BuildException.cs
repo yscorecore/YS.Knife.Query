@@ -8,12 +8,12 @@ namespace YS.Knife.Query.Expressions
 {
 
     [Serializable]
-    public class QueryExpressionBuildException : Exception
+    public class BuildException : Exception
     {
-        public QueryExpressionBuildException() { }
-        public QueryExpressionBuildException(string message) : base(message) { }
-        public QueryExpressionBuildException(string message, Exception inner) : base(message, inner) { }
-        protected QueryExpressionBuildException(
+        public BuildException() { }
+        public BuildException(string message) : base(message) { }
+        public BuildException(string message, Exception inner) : base(message, inner) { }
+        protected BuildException(
           System.Runtime.Serialization.SerializationInfo info,
           System.Runtime.Serialization.StreamingContext context) : base(info, context) { }
     }

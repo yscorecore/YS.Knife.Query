@@ -82,7 +82,7 @@ namespace YS.Knife.Query.Expressions
                 var property = PropertyFinder.GetProertyOrField(context.LastExpression.ValueType, valuePath.Name);
                 if (property == null)
                 {
-                    throw new QueryExpressionBuildException($"can not find member '{valuePath.Name}' from type '{lastExpression.ValueType.FullName}'.");
+                    throw new BuildException($"can not find member '{valuePath.Name}' from type '{lastExpression.ValueType.FullName}'.");
                 }
                 var expression = Expression.Property(lastExpression.Expression, property);
                 return ValueExpressionDesc.FromExpression(expression);
@@ -103,7 +103,7 @@ namespace YS.Knife.Query.Expressions
                         context = context.Pop();
                         if (context.Deepth == 0)
                         {
-                            throw new QueryExpressionBuildException($"can not find member '{valuePath.Name}' from parameters.");
+                            throw new BuildException($"can not find member '{valuePath.Name}' from parameters.");
                         }
                     }
                 }
