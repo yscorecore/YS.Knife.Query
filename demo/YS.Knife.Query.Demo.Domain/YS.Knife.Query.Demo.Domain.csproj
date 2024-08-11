@@ -6,8 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\YS.Knife.Query\YS.Knife.Query.csproj" />
-  </ItemGroup>
-
 </Project>

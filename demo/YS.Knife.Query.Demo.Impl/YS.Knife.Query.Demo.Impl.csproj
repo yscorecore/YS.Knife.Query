@@ -6,4 +6,14 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+      <Using Include="FlyTiger"/>
+    <PackageReference Include="FlyTiger" Version="0.0.15" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\YS.Knife.Query.Demo.Core\YS.Knife.Query.Demo.Core.csproj" />
+    <ProjectReference Include="..\YS.Knife.Query.Demo.Models\YS.Knife.Query.Demo.Models.csproj" />
+  </ItemGroup>
+
 </Project>
