@@ -8,6 +8,7 @@ namespace YS.Knife.Query
 {
     public class SelectItem
     {
+        public bool Exclude { get; set; }
         public string Name { get; set; }
 
         // SubItems for sub object type or collection type
@@ -25,6 +26,10 @@ namespace YS.Knife.Query
         {
             //source{where(a=b),orderby(a.asc(),b.desc()),limit(1,3)}(a,b)
             StringBuilder sb = new StringBuilder();
+            if(Exclude)
+            {
+                sb.Append('-');
+            }
             sb.Append(this.Name);
             if (CollectionFilter != null || CollectionOrderBy != null || CollectionLimit != null)
             {

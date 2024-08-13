@@ -49,6 +49,10 @@ namespace YS.Knife.Query.Parser
         {
             throw new ParseException($"Invalid expression, missing close bracket near index {context.Index}.");
         }
+        public static Exception MissCloseSquarebrackets(ParseContext context)
+        {
+            throw new ParseException($"Invalid expression, missing close square bracket near index {context.Index}.");
+        }
         public static Exception ExpectedCharNotFound(ParseContext context, char ch)
         {
             throw new ParseException($"Invalid expression near index {context.Index}, expect char '{ch}' not found.");

@@ -861,12 +861,26 @@ namespace YS.Knife.Query.Parser
             {
                 Items = new List<SelectItem>()
             };
+            var exclude = false;
             while (context.SkipWhiteSpace())
             {
-                var (found, name) = context.TryParseName();
+                char current = context.Current();
+                exclude = false;
+                if (current == '+' || current == '-')
+                {
+                    exclude = current == '-';
+                    context.Index++;
+                    context.SkipWhiteSpace();
+                    if (context.End())
+                    {
+                        throw ParseErrors.InvalidText(context);
+                    }
+                }
+
+                var (found, name) = context.TryParseNameOrSpecialName();
                 if (found)
                 {
-                    selectInfo.Items.Add(ParseSelectItem(name, context));
+                    selectInfo.Items.Add(ParseSelectItem(exclude, name, context));
                     if (context.SkipWhiteSpace() && context.Current() == ',')
                     {
                         context.Index++;
@@ -883,9 +897,9 @@ namespace YS.Knife.Query.Parser
             }
 
             return selectInfo;
-            SelectItem ParseSelectItem(string name, ParseContext context)
+            SelectItem ParseSelectItem(bool exclude, string name, ParseContext context)
             {
-                SelectItem item = new SelectItem { Name = name };
+                SelectItem item = new SelectItem { Name = name, Exclude = exclude };
                 if (context.SkipWhiteSpace() && context.Current() == '{')
                 {
                     // parse collection infos
@@ -1005,6 +1019,33 @@ namespace YS.Knife.Query.Parser
                 }
 
             }
+        }
+
+        private static (bool, string) TryParseNameOrSpecialName(this ParseContext context)
+        {
+            var startIndex = context.Index;
+            char current = context.Current();
+            if (current == '[')
+            {
+                context.Index++;
+                context.SkipWhiteSpace();
+                string name = context.ParseName();
+                context.SkipWhiteSpace();
+                if (context.Current() == ']')
+                {
+                    context.Index++;
+                    return (true, $"[{name}]");
+                }
+                else
+                {
+                    throw ParseErrors.MissCloseSquarebrackets(context);
+                }
+            }
+            else
+            {
+                return context.TryParseName();
+            }
+
         }
     }
 }

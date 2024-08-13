@@ -29,6 +29,22 @@ namespace YS.Knife.Query.UnitTest.Parser
         }
 
         [Theory]
+        [InlineData("+a", "a")]
+        [InlineData("-abc", "-abc")]
+        [InlineData(" -a,+ b, -c", "-a,b,-c")]
+        [InlineData("[default],a", "[default],a")]
+        [InlineData("[complex],+abc", "[complex],abc")]
+        [InlineData("[all],-abc", "[all],-abc")]
+        [InlineData("+[all],-abc", "[all],-abc")]
+        [InlineData("[all],-  abc", "[all],-abc")]
+        [InlineData("+ [all], - abc", "[all],-abc")]
+        public void should_parse_special_name(string input, string expected)
+        {
+            ParseSelectInfoShouldBe(input, expected);
+        }
+
+
+        [Theory]
         [InlineData("a()", "a()")]
         [InlineData("a(b)", "a(b)")]
         [InlineData("a(b(c(d())))", "a(b(c(d())))")]
