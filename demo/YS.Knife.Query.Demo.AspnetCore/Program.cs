@@ -3,6 +3,9 @@ using YS.Knife.Query.Demo.Impl;
 using YS.Knife.Query.Demo.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Sqlite;
+using Microsoft.AspNetCore.Http.Json;
+using Microsoft.Extensions.Options;
+using YS.Knife.Query.Demo.AspnetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,8 +21,19 @@ builder.Services.AddDbContext<EFContext>((op) =>
     op.UseSqlite("Data Source=demo.db");
     op.LogTo(Console.WriteLine);
 });
+builder.Services.AddControllers()
+    .AddFilterJson();
+//builder.Services.AddControllers()
+//    .AddJsonOptions(t =>
+//    {
+//        builder.Services.AddSingleton<IConfigureOptions<JsonOptions>, CustomJsonOptionsSetup>();
 
+//    });
 
+//builder.Services.PostConfigure<System.Text.Json.JsonSerializerOptions>((t) => 
+//{
+//    t.AllowTrailingCommas = true;
+//});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

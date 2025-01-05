@@ -13,6 +13,8 @@ namespace YS.Knife.Query.Demo.AspnetCore.Controllers
         [HttpGet]
         public Task<PagedList<IMaterialService.MaterialInfo>> QueryMaterials([FromQuery] LimitQueryInfo queryInfo)
         {
+            HttpContext.Items["__query_select"] = queryInfo.Select;
+           
             return materialService.QueryMaterials(queryInfo);
         }
     }

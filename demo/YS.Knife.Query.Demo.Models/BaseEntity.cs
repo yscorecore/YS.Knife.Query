@@ -13,7 +13,16 @@ namespace YS.Knife.Query.Demo.Models
     {
         [StringLength(32)]
         public string Name { get; set; }
-        
 
+        public MaterialType Type { get; set; }
+
+
+    }
+    public enum MaterialType
+    {
+        Common,
+        Meat,
+        Fruit,
+        Vegetable
     }
 }

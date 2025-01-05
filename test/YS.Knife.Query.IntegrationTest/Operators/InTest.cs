@@ -11,6 +11,7 @@ namespace YS.Knife.Query.IntegrationTest.Operators
     {
         [Theory]
         [MemberData(nameof(GetTestData))]
+        [MemberData(nameof(GetTestData2))]
         public void ConstantAndConstant(Type leftType, object left, Type rightType, object right, bool result)
         {
             CompareConstantAndConstant(Operator.In, leftType, left, rightType, right, result);
@@ -19,6 +20,7 @@ namespace YS.Knife.Query.IntegrationTest.Operators
 
         [Theory]
         [MemberData(nameof(GetTestData))]
+        [MemberData(nameof(GetTestData2))]
         public void PathAndConstant(Type leftType, object left, Type rightType, object right, bool result)
         {
             ComparePathAndConstant(Operator.In, leftType, left, rightType, right, result);
@@ -49,6 +51,7 @@ namespace YS.Knife.Query.IntegrationTest.Operators
                 p.Item5
              });
         }
+      
         private static IEnumerable<(Type, object, Type, object, bool)> GetTestDataInternal()
         {
             yield return new(typeof(int), 1, typeof(int[]), new int[] { 1 }, true);
@@ -68,6 +71,22 @@ namespace YS.Knife.Query.IntegrationTest.Operators
 
         }
 
+        public static IEnumerable<object[]> GetTestData2()
+        {
+            return GetTestDataInternal2().Select(p => new object[]
+             {
+                p.Item1,
+                p.Item2,
+                p.Item3,
+                p.Item4,
+                p.Item5
+             });
+        }
+        private static IEnumerable<(Type, object, Type, object, bool)> GetTestDataInternal2()
+        {
+            yield return new(typeof(int), 1, typeof(object[]), new object[] { 1 }, true);
 
+
+        }
     }
 }
