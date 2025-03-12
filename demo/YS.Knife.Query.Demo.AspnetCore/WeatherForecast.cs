@@ -1,4 +1,4 @@
-namespace YS.Knife.Query.Demo.AspnetCore
+﻿namespace YS.Knife.Query.Demo.AspnetCore
 {
     public class WeatherForecast
     {

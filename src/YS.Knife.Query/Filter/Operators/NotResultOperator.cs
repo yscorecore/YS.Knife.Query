@@ -6,13 +6,13 @@ namespace YS.Knife.Query.Filter.Operators
 {
     internal abstract class NotResultOperator : IExpressionOperator
     {
-        public NotResultOperator( Operator @operator)
+        public NotResultOperator(Operator @operator)
         {
-            IsNot = @operator<0;
+            IsNot = @operator < 0;
             Operator = @operator;
         }
 
-        public bool IsNot { get;  }
+        public bool IsNot { get; }
         public Operator Operator { get; }
 
         public ValueExpressionDesc CreatePredicateExpression(OperatorExpressionContext context)

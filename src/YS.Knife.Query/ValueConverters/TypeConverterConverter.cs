@@ -12,7 +12,7 @@ namespace YS.Knife.Query.ValueConverters
         public bool CanConvertTo(Type fromType, Type toType)
         {
             var converter = TypeDescriptor.GetConverter(toType);
-            return converter.CanConvertFrom(fromType); 
+            return converter.CanConvertFrom(fromType);
         }
 
         public object Convert(object fromValue, Type toType)

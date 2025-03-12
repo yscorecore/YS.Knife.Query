@@ -120,7 +120,7 @@ namespace YS.Knife.Query
                 OpType = CombinSymbol.SingleItem,
                 Operator = filterType,
                 Left = ValueInfo.Parse(fieldPaths),
-                Right = new ValueInfo { NavigatePaths= new List<ValuePath> { new ValuePath { IsConstant = true, ConstantValue = value } } }
+                Right = new ValueInfo { NavigatePaths = new List<ValuePath> { new ValuePath { IsConstant = true, ConstantValue = value } } }
             };
         }
 

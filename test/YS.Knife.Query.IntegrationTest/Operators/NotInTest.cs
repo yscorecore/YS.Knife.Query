@@ -63,7 +63,7 @@ namespace YS.Knife.Query.IntegrationTest.Operators
             yield return new(typeof(double?), null, typeof(int?[]), new int?[] { 1, null }, false);
 
             //yield return new(typeof(double?), 1.0, typeof(int[]), new int[] { 1 }, false);
-           // yield return new(typeof(double?), 1.0, typeof(int[]), new int[] { }, true);
+            // yield return new(typeof(double?), 1.0, typeof(int[]), new int[] { }, true);
             yield return new(typeof(double?), 1.0, typeof(int?[]), new int?[] { 1, null }, false);
 
         }

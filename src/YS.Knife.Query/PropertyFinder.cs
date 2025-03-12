@@ -13,7 +13,8 @@ namespace YS.Knife.Query
         public static PropertyInfo GetProertyOrField(Type type, string propertyOrField)
         {
             string key = $"{type.FullName}_{propertyOrField}";
-            return caches.GetOrAdd(key, (t) => {
+            return caches.GetOrAdd(key, (t) =>
+            {
                 return type.GetProperties().Where(p => p.Name.Equals(propertyOrField, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
             });
         }

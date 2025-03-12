@@ -7,7 +7,7 @@ using YS.Knife.Query.Expressions;
 
 namespace YS.Knife.Query.Functions
 {
-    public record FunctionContext 
+    public record FunctionContext
     {
         public string Name { get; internal set; }
         public ValueInfo[] Arguments { get; internal set; }

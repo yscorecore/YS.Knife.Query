@@ -34,7 +34,7 @@ namespace YS.Knife.Query
                 }
                 catch (Exception ex)
                 {
-                    throw new ParseException("parse filter error." ,ex);
+                    throw new ParseException("parse filter error.", ex);
                 }
             }
             static OrderByInfo ParseOrderBy(string orderby)

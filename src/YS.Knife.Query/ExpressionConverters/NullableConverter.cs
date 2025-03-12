@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace YS.Knife.Query.ExpressionConverters
 {
-    internal class NullableConverter :  IExpressionConverter
+    internal class NullableConverter : IExpressionConverter
     {
         public bool CanConvertTo(Type fromType, Type toType)
         {

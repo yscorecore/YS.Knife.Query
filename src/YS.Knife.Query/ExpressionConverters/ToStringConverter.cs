@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace YS.Knife.Query.ExpressionConverters
 {
-    internal class ToStringConverter :  IExpressionConverter
+    internal class ToStringConverter : IExpressionConverter
     {
         static MethodInfo ToStringMethod = typeof(object).GetMethod(nameof(object.ToString), BindingFlags.Instance | BindingFlags.Public, null, Type.EmptyTypes, null);
         public bool CanConvertTo(Type fromType, Type toType)

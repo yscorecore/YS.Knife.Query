@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace YS.Knife.Query.ExpressionConverters
 {
-    internal class ExplicitNumberConverter:IExpressionConverter
+    internal class ExplicitNumberConverter : IExpressionConverter
     {
         /*
 sbyte	byte, ushort, uint, ulong, or nuint

@@ -25,7 +25,7 @@ namespace YS.Knife.Query.Expressions
                 ValueType = exp.Type
             };
         }
-       
+
         public static ValueExpressionDesc FromExpression(Expression expression)
         {
             return new ValueExpressionDesc

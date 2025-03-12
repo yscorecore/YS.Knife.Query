@@ -36,7 +36,7 @@ namespace YS.Knife.Query.Filter
         public static bool SupportsComparisonOperators(this Type type)
         {
             var actualType = Nullable.GetUnderlyingType(type) ?? type;
-            return ComparisonTypes.Contains(actualType)|| cache.GetOrAdd(actualType,
+            return ComparisonTypes.Contains(actualType) || cache.GetOrAdd(actualType,
                 x => x.GetMethods(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
                       .Where(m => m.IsSpecialName && (m.Name == "op_LessThan")).Any());
         }

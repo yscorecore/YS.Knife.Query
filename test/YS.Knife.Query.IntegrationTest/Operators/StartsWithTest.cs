@@ -15,7 +15,7 @@ namespace YS.Knife.Query.IntegrationTest.Operators
         [InlineData(typeof(string), "123", typeof(int?), null, false)]
         public void ConstantAndConstant(Type leftType, object left, Type rightType, object right, bool result)
         {
-            CompareConstantAndConstant(Operator.StartsWith, leftType, left, rightType, right, result);   
+            CompareConstantAndConstant(Operator.StartsWith, leftType, left, rightType, right, result);
         }
 
 
@@ -23,7 +23,7 @@ namespace YS.Knife.Query.IntegrationTest.Operators
         [MemberData(nameof(GetTestData))]
         public void PathAndConstant(Type leftType, object left, Type rightType, object right, bool result)
         {
-           ComparePathAndConstant(Operator.StartsWith, leftType, left, rightType, right, result);
+            ComparePathAndConstant(Operator.StartsWith, leftType, left, rightType, right, result);
         }
 
 
@@ -51,6 +51,6 @@ namespace YS.Knife.Query.IntegrationTest.Operators
             yield return new(typeof(int), 123, typeof(int?), 12, true);
         }
 
-       
+
     }
 }

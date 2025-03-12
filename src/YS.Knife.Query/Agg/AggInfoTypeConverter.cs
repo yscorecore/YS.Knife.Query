@@ -3,7 +3,7 @@ using System.Globalization;
 
 namespace YS.Knife.Query
 {
-    public class AggInfoTypeConverter: StringConverter
+    public class AggInfoTypeConverter : StringConverter
     {
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {

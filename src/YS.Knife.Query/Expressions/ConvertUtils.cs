@@ -8,6 +8,6 @@ namespace YS.Knife.Query.Expressions
 {
     internal class ConvertUtils
     {
-        
+
     }
 }

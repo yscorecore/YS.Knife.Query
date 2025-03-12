@@ -8,7 +8,7 @@ namespace YS.Knife.Query.Functions
 {
     public class It
     {
-        public static T Arg<T>() 
+        public static T Arg<T>()
         {
             return default(T);
         }

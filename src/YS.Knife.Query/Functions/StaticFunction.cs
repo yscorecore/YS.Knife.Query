@@ -47,7 +47,7 @@ namespace YS.Knife.Query.Functions
                 throw new Exception($"Missing the {index + 1}th parameter for function '{context.Name}'.");
             }
             var valueInfo = context.Arguments[index];
-            var expression = LambdaUtils.ExecuteValueInfoAndConvert(context.ExecuteContext, valueInfo,type);
+            var expression = LambdaUtils.ExecuteValueInfoAndConvert(context.ExecuteContext, valueInfo, type);
             return expression.Expression;
         }
 

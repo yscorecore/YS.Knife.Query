@@ -13,7 +13,7 @@ namespace YS.Knife.Query.Demo.Models
     {
         [StringLength(32)]
         public string Name { get; set; }
-        
+
 
     }
 }

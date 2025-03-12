@@ -54,5 +54,5 @@ namespace YS.Knife.Query.Filter.Operators
         }
     }
 
-    
+
 }

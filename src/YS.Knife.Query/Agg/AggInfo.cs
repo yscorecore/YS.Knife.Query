@@ -27,9 +27,9 @@ namespace YS.Knife.Query
         {
             this.Items.Add(item);
         }
-        public bool HasItems() 
+        public bool HasItems()
         {
-           return this.Items?.Count > 0;
+            return this.Items?.Count > 0;
         }
         public static AggInfo Parse(string orderText)
         {

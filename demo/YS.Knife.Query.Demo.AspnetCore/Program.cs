@@ -1,8 +1,8 @@
-﻿using YS.Knife.Query.Demo;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Sqlite;
+using YS.Knife.Query.Demo;
 using YS.Knife.Query.Demo.Impl;
 using YS.Knife.Query.Demo.Models;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Sqlite;
 
 var builder = WebApplication.CreateBuilder(args);
 

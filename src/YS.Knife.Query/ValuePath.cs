@@ -15,7 +15,7 @@ namespace YS.Knife.Query
         public ValueInfo[] FunctionArgs { get; set; }
         public override string ToString()
         {
-            if (IsConstant) 
+            if (IsConstant)
             {
                 return ValueInfo.ValueToString(ConstantValue);
             }

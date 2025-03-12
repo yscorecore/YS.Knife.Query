@@ -17,7 +17,7 @@ namespace YS.Knife.Query
         List<T> Items { get; }
     }
     public interface ILimitList<T, S> : ILimitList<T>
-    { 
+    {
         S Summary { get; }
     }
 }

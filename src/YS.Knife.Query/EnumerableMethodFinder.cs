@@ -12,7 +12,7 @@ namespace YS.Knife.Query
           .Where(p => p.GetParameters().Length == 2)
           .ToDictionary(p => p.GetParameters()[1].ParameterType.GenericTypeArguments[1]);
         private static readonly Dictionary<Type, MethodInfo> MinMethodWith2Args = typeof(Enumerable).GetMethods()
-            .Where(p => p.Name == nameof(Enumerable.Min) && p.GetGenericArguments().Length==2)
+            .Where(p => p.Name == nameof(Enumerable.Min) && p.GetGenericArguments().Length == 2)
             .Where(p => p.GetParameters().Length == 2)
             .ToDictionary(p => p.GetParameters()[1].ParameterType.GenericTypeArguments[1]);
         private static readonly Dictionary<Type, MethodInfo> MaxMethodWith2Args = typeof(Enumerable).GetMethods()
@@ -41,7 +41,7 @@ namespace YS.Knife.Query
 
         private static readonly MethodInfo ContainsMethod2Args = typeof(Enumerable).GetMethods()
           .Where(p => p.Name == nameof(Enumerable.Contains))
-          .Where(p => p.GetParameters().Length == 2 )
+          .Where(p => p.GetParameters().Length == 2)
           .Single();
 
         public static MethodInfo GetSumAgg2<TSource, TResult>()

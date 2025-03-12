@@ -26,7 +26,7 @@ namespace YS.Knife.Query
         {
             //source{where(a=b),orderby(a.asc(),b.desc()),limit(1,3)}(a,b)
             StringBuilder sb = new StringBuilder();
-            if(Exclude)
+            if (Exclude)
             {
                 sb.Append('-');
             }

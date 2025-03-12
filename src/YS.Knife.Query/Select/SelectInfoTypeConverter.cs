@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace YS.Knife.Query
 {
-    internal class SelectInfoTypeConverter:StringConverter
+    internal class SelectInfoTypeConverter : StringConverter
     {
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {

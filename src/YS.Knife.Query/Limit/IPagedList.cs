@@ -18,7 +18,7 @@ namespace YS.Knife.Query
     {
 
     }
-    public interface IPagedList<T,S> : IPagedList, ILimitList<T,S>
+    public interface IPagedList<T, S> : IPagedList, ILimitList<T, S>
     {
 
     }
