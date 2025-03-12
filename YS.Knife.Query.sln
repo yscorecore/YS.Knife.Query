@@ -17,15 +17,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestProject1", "test\TestPr
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "demo", "demo", "{D739BE87-F2D5-441D-88E9-474895BBA62F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YS.Knife.Query.Demo.AspnetCore", "demo\YS.Knife.Query.Demo.AspnetCore\YS.Knife.Query.Demo.AspnetCore.csproj", "{7674F6B5-7AEC-4AAE-B675-1D5D588E8464}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YS.Knife.Query.Demo.AspnetCore", "example\YS.Knife.Query.Demo.AspnetCore\YS.Knife.Query.Demo.AspnetCore.csproj", "{7674F6B5-7AEC-4AAE-B675-1D5D588E8464}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YS.Knife.Query.Demo.Core", "demo\YS.Knife.Query.Demo.Core\YS.Knife.Query.Demo.Core.csproj", "{81D2748C-1994-4315-B01B-0881754D6C85}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YS.Knife.Query.Demo.Core", "example\YS.Knife.Query.Demo.Core\YS.Knife.Query.Demo.Core.csproj", "{81D2748C-1994-4315-B01B-0881754D6C85}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YS.Knife.Query.Demo.Impl", "demo\YS.Knife.Query.Demo.Impl\YS.Knife.Query.Demo.Impl.csproj", "{5490DAD8-1E96-4A96-976C-9B013E191E98}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YS.Knife.Query.Demo.Impl", "example\YS.Knife.Query.Demo.Impl\YS.Knife.Query.Demo.Impl.csproj", "{5490DAD8-1E96-4A96-976C-9B013E191E98}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YS.Knife.Query.Demo.Domain", "demo\YS.Knife.Query.Demo.Domain\YS.Knife.Query.Demo.Domain.csproj", "{8EE26894-2CD5-4BBB-A99D-E0A20BD27E7F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YS.Knife.Query.Demo.Domain", "example\YS.Knife.Query.Demo.Domain\YS.Knife.Query.Demo.Domain.csproj", "{8EE26894-2CD5-4BBB-A99D-E0A20BD27E7F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YS.Knife.Query.Demo.Models", "demo\YS.Knife.Query.Demo.Models\YS.Knife.Query.Demo.Models.csproj", "{6CEC4E61-D1C0-454E-A534-E4B9305830F4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YS.Knife.Query.Demo.Models", "example\YS.Knife.Query.Demo.Models\YS.Knife.Query.Demo.Models.csproj", "{6CEC4E61-D1C0-454E-A534-E4B9305830F4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
