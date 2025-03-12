@@ -11,14 +11,13 @@ namespace YS.Knife.Query
           .Where(p => p.Name == nameof(Enumerable.Sum))
           .Where(p => p.GetParameters().Length == 2)
           .ToDictionary(p => p.GetParameters()[1].ParameterType.GenericTypeArguments[1]);
-        private static readonly Dictionary<Type, MethodInfo> MinMethodWith2Args = typeof(Enumerable).GetMethods()
+        private static readonly MethodInfo MinMethodWith2Args = typeof(Enumerable).GetMethods()
             .Where(p => p.Name == nameof(Enumerable.Min) && p.GetGenericArguments().Length == 2)
-            .Where(p => p.GetParameters().Length == 2)
-            .ToDictionary(p => p.GetParameters()[1].ParameterType.GenericTypeArguments[1]);
-        private static readonly Dictionary<Type, MethodInfo> MaxMethodWith2Args = typeof(Enumerable).GetMethods()
+            .Where(p => p.GetParameters().Length == 2).Single();
+
+        private static readonly MethodInfo MaxMethodWith2Args = typeof(Enumerable).GetMethods()
           .Where(p => p.Name == nameof(Enumerable.Max) && p.GetGenericArguments().Length == 2)
-          .Where(p => p.GetParameters().Length == 2)
-          .ToDictionary(p => p.GetParameters()[1].ParameterType.GenericTypeArguments[1]);
+          .Where(p => p.GetParameters().Length == 2).Single();
         private static readonly Dictionary<Type, MethodInfo> AverageMethodWith2Args = typeof(Enumerable).GetMethods()
          .Where(p => p.Name == nameof(Enumerable.Average))
          .Where(p => p.GetParameters().Length == 2)
@@ -54,11 +53,11 @@ namespace YS.Knife.Query
         }
         public static MethodInfo GetMaxAgg2(Type sourceType, Type returnType)
         {
-            return MaxMethodWith2Args[returnType].MakeGenericMethod(sourceType);
+            return MaxMethodWith2Args.MakeGenericMethod(sourceType,returnType);
         }
         public static MethodInfo GetMinAgg2(Type sourceType, Type returnType)
         {
-            return MinMethodWith2Args[returnType].MakeGenericMethod(sourceType);
+            return MinMethodWith2Args.MakeGenericMethod(sourceType, returnType);
         }
         public static MethodInfo GetAverageAgg2(Type sourceType, Type returnType)
         {
