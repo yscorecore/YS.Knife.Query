@@ -49,7 +49,7 @@ namespace YS.Knife.Query
                 }
                 catch (Exception ex)
                 {
-                    throw new ParseException("");
+                    throw new ParseException("parse order error", ex);
                 }
             }
             static SelectInfo ParseSelect(string select)
@@ -64,7 +64,7 @@ namespace YS.Knife.Query
                 }
                 catch (Exception ex)
                 {
-                    throw new ParseException("");
+                    throw new ParseException("parse select error", ex);
                 }
             }
             static IQueryable<T> Filter(IQueryable<T> source, FilterInfo filter)
@@ -143,7 +143,7 @@ namespace YS.Knife.Query
                 }
                 catch (Exception ex)
                 {
-                    throw new ParseException("");
+                    throw new ParseException("parse agg error", ex);
                 }
             }
             static Dictionary<string, object> DoAgg(IQueryable<T> source, AggInfo agg)
