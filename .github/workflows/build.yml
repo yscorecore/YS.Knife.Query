@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: 01 Checkout Code
-      uses: actions/checkout@v1
+      uses: actions/checkout@v3
     - name: 02 Setup .NET Core
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 5.0.100
     - name: 03 Restore Dotnet Tool
@@ -32,7 +32,7 @@ jobs:
       run: dotnet reportgenerator -reports:test/*/coverage.cobertura.xml -reporttype:cobertura -targetdir:.
     - name: 09 Save Artifact
       if: env.TEST_PROJ_COUNT>0  
-      uses: actions/upload-artifact@v1
+      uses: actions/upload-artifact@v3
       with:
         name: cobertura_report
         path: ./Cobertura.xml
