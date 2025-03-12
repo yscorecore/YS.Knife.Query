@@ -32,13 +32,13 @@ jobs:
       run: dotnet reportgenerator -reports:test/*/coverage.cobertura.xml -reporttype:cobertura -targetdir:.
     - name: 09 Save Artifact
       if: env.TEST_PROJ_COUNT>0  
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact
       with:
         name: cobertura_report
         path: ./Cobertura.xml
     - name: 10 Upload coverage to Codecov
       if: env.TEST_PROJ_COUNT>0  
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         flags: unittests
