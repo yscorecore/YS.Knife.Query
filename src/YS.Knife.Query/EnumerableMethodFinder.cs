@@ -53,7 +53,7 @@ namespace YS.Knife.Query
         }
         public static MethodInfo GetMaxAgg2(Type sourceType, Type returnType)
         {
-            return MaxMethodWith2Args.MakeGenericMethod(sourceType,returnType);
+            return MaxMethodWith2Args.MakeGenericMethod(sourceType, returnType);
         }
         public static MethodInfo GetMinAgg2(Type sourceType, Type returnType)
         {
