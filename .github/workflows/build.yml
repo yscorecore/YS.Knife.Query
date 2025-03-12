@@ -32,7 +32,7 @@ jobs:
       run: dotnet reportgenerator -reports:test/*/coverage.cobertura.xml -reporttype:cobertura -targetdir:.
     - name: 09 Save Artifact
       if: env.TEST_PROJ_COUNT>0  
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: cobertura_report
         path: ./Cobertura.xml
