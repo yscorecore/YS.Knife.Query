@@ -192,7 +192,7 @@ namespace YS.Knife.Query
         {
             return Task.FromResult(QueryPage(source, queryInfo));
         }
-        public static IQueryable<R> WhereItemsAnd<T, R>(this IQueryable<R> query, IEnumerable<T> source, Expression<Func<T, R, bool>> predicate)
+        internal static IQueryable<R> WhereItemsAnd<T, R>(this IQueryable<R> query, IEnumerable<T> source, Expression<Func<T, R, bool>> predicate)
         {
             Expression expression = Expression.Constant(true);
             foreach (var item in source)
@@ -204,7 +204,7 @@ namespace YS.Knife.Query
             var lambda = Expression.Lambda<Func<R, bool>>(expression, predicate.Parameters[0]);
             return query.Where(lambda);
         }
-        public static IQueryable<R> WhereItemsOr<T, R>(this IQueryable<R> query, IEnumerable<T> source, Expression<Func<R, T, bool>> predicate)
+        internal static IQueryable<R> WhereItemsOr<T, R>(this IQueryable<R> query, IEnumerable<T> source, Expression<Func<R, T, bool>> predicate)
         {
             Expression expression = Expression.Constant(false);
             foreach (var item in source)
