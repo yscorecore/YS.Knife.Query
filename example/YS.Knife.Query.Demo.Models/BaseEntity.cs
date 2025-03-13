@@ -6,6 +6,8 @@ namespace YS.Knife.Query.Demo.Models
     {
         public Guid Id { get; set; }
         public DateTime CreatedAt { get; set; }
+        [StringLength(32)]
+        public string CreatedBy { get; set; }
 
     }
 
@@ -14,6 +16,6 @@ namespace YS.Knife.Query.Demo.Models
         [StringLength(32)]
         public string Name { get; set; }
 
-
+        public UnitType Unit { get; set; }
     }
 }

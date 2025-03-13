@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -279,7 +280,51 @@ namespace YS.Knife.Query.Parser
                     }
 
                 }
-                return datas.ToArray();
+                return ConvertToSameTypeArray(datas);
+
+            }
+
+            object ConvertToSameTypeArray(List<object> datas)
+            {
+
+                if (datas.Count == 0)
+                {
+                    return Array.Empty<string>();
+                }
+                else
+                {
+                    var item = datas.Where(p => p != null).FirstOrDefault();
+                    if (item == null)
+                    {
+                        return datas.Select(p => (string)p).ToArray();
+                    }
+                    else
+                    {
+                        var itemType = item.GetType();
+                        var isValueType = itemType.IsValueType;
+                        bool hasNull = false;
+                        for (int i = 0; i < datas.Count; i++)
+                        {
+                            if (datas[i] == null)
+                            {
+                                hasNull = true;
+                            }
+                            else
+                            {
+                                datas[i] = Convert.ChangeType(datas[i], item.GetType());
+                            }
+                        }
+                        var res = (hasNull && itemType.IsValueType) ?
+                            Array.CreateInstance(typeof(Nullable<>).MakeGenericType(itemType), datas.Count)
+                            : Array.CreateInstance(itemType, datas.Count);
+                        for (var i = 0; i < datas.Count; i++)
+                        {
+                            res.SetValue(datas[i], i);
+                        }
+                        return res;
+                    }
+                }
+
             }
             object ParseKeywordValue(ParseContext context)
             {

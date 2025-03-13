@@ -45,18 +45,15 @@ using (var context = scope.ServiceProvider.GetService<EFContext>())
 {
     context.Database.EnsureDeleted();
     context.Database.EnsureCreated();
-    context.Materials.Add(new Material
+    var datas = Enumerable.Range(1, 1000).Select((i) => new Material
     {
         Id = Guid.NewGuid(),
-        Name = "食材1",
-        CreatedAt = DateTime.Now
+        Name = $"食材{i}",
+        CreatedAt = DateTime.Now,
+        CreatedBy = "user001",
+        Unit = (UnitType)Random.Shared.Next(0, 4)
     });
-    context.Materials.Add(new Material
-    {
-        Id = Guid.NewGuid(),
-        Name = "食材2",
-        CreatedAt = DateTime.Now
-    });
+    context.Materials.AddRange(datas);
     context.SaveChanges();
 }
 

@@ -252,7 +252,7 @@ namespace YS.Knife.Query.Expressions
                     else
                     {
                         // 两个常量不能转换
-                        throw new Exception();
+                        throw new Exception($"can not convert value '{leftNode.ValueType}' and '{rightNode.ValueType}' as the same type.");
                     }
                 }
 
@@ -424,6 +424,7 @@ namespace YS.Knife.Query.Expressions
                 {
                     //右边转为左边的数组
                     object rightValue = (right.Expression as ConstantExpression).Value;
+
                     if (ValueConverterFactory.CanConverter(rightItemType, left.ValueType, out var converter5))
                     {
                         return (left, RebuildConstantValueArray(rightValue, rightItemType, left.ValueType, converter5));

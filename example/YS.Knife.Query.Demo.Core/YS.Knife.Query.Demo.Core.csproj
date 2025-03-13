@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\YS.Knife.Query\YS.Knife.Query.csproj" />
+    <ProjectReference Include="..\YS.Knife.Query.Demo.Domain\YS.Knife.Query.Demo.Domain.csproj" />
   </ItemGroup>
 
 </Project>

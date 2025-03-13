@@ -141,7 +141,10 @@ namespace YS.Knife.Query.UnitTest.Parser
         [InlineData("a in [true]", "a", Operator.In, new object[] { true })]
         [InlineData("a in [\"abc\"]", "a", Operator.In, new object[] { "abc" })]
         [InlineData("a in [true,null ]", "a", Operator.In, new object[] { true, null })]
-        [InlineData("a in [false , 1_234 , \"abc\"]", "a", Operator.In, new object[] { false, 1234, "abc" })]
+        [InlineData("a in [false , 1_234 , 0]", "a", Operator.In, new object[] { false, true, false })]
+        [InlineData("a in [null , 1_234 , 0]", "a", Operator.In, new object[] { null, 1234, 0 })]
+        [InlineData("a in [null , 1_234 , true, false]", "a", Operator.In, new object[] { null, 1234, 1, 0 })]
+
         public void ShouldParseArrayValue(string text, string expectedFieldName, Operator expectedFilterType, object expectedValue)
         {
             TestRightConstValueFilter(text, expectedFieldName, expectedFilterType, expectedValue);
