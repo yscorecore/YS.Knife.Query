@@ -13,6 +13,8 @@ namespace YS.Knife.Query.ValueConverters
             new TypeConverterConverter(),
             new ParserConverter(),
             new NullableParserConverter(),
+            new EnumConverter(),
+            new NullabaleEnumConverter(),
             new BasicConverter(),
             new NullableBasicConverter(),
             new ToStringConverter(),

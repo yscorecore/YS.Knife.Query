@@ -325,7 +325,7 @@ namespace YS.Knife.Query.Expressions
                 else
                 {
                     //表达式不能相互转换
-                    throw new Exception();
+                    throw new Exception($"Can not convert expression from '{leftNode.ValueType}' to '{rightNode.ValueType}'");
                 }
             }
         }

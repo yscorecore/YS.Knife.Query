@@ -12,6 +12,8 @@ namespace YS.Knife.Query.ExpressionConverters
             new SubTypeConverter(),
             new ImplicitNumberConverter(),
             new NullableImplicitNumberConverter(),
+            new EnumConverter(),
+            new NullableEnumConverter(),
             new ExplicitNumberConverter(),
             new NullableExplicitNumberConverter(),
             new ConvertibleConverter(),
