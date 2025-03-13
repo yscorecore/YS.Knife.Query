@@ -2,7 +2,7 @@
 
 namespace System.Linq
 {
-    public static class EnumerableExtenstions
+    internal static class EnumerableExtenstions
     {
         public static IEnumerable<T> TrimNotNull<T>(this IEnumerable<T> items)
           where T : class
