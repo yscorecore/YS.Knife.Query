@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Sqlite;
 using YS.Knife.Query.Demo;
 using YS.Knife.Query.Demo.Impl;
 using YS.Knife.Query.Demo.Models;
+using YS.Knife.Query.Functions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +16,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IMaterialService, MaterialService>();
 builder.Services.AddDbContext<EFContext>((op) =>
 {
-    op.UseSqlite("Data Source=demo.db");
+    op.UseSqlite("Data Source=demo.db").EnableSensitiveDataLogging(true);
     op.LogTo(Console.WriteLine);
 });
 
@@ -34,6 +35,9 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+YS.Knife.Query.Functions.StaticFunctions.Add("random", () => EF.Functions.Random());
+YS.Knife.Query.Functions.InstanceFunctions.Add<string, bool>("like", s => EF.Functions.Like(s, It.Arg<string>()));
 
 var scopeFactory = app.Services.GetService<IServiceScopeFactory>();
 using var scope = scopeFactory.CreateScope();
