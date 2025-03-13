@@ -23,6 +23,7 @@ namespace YS.Knife.Query.UnitTest.Parser
         [InlineData("random()", "random().asc()")]
         [InlineData("random(1).desc( )", "random(1).desc()")]
         [InlineData("date.desc(),random()", "date.desc(),random().asc()")]
+        [InlineData("date.desc();random()", "date.desc(),random().asc()")]
         public void should_parse_orderby_info(string input, string expected)
         {
             // order by 支持函数,不支持常数

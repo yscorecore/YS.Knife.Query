@@ -47,6 +47,7 @@ namespace YS.Knife.Query.Parser
         private static readonly Func<char, bool> IsEscapeChar = ch => ch == '\\';
         private static readonly Func<char, bool> IsOperationChar = ch => ch == '=' || ch == '<' || ch == '>' || ch == '!';
         private static readonly Func<char, bool> IsStringWrapChar = ch => ch == '\'' || ch == '"';
+        private static readonly Func<char, bool> IsSplitChar = ch => ch == ',' || ch == ';';
         private static bool IsNumberStartChar(char current, ParseContext context) => char.IsDigit(current) || current == context.NumberDecimal || current == context.NumberNegativeSign || current == context.NumberPositiveSign;
 
 
@@ -673,7 +674,7 @@ namespace YS.Knife.Query.Parser
                 {
                     throw ParseErrors.InvalidOrderbyItem(context, startIndex, ex);
                 }
-                if (context.SkipWhiteSpace() && context.Current() == ',')
+                if (context.SkipWhiteSpace() && IsSplitChar(context.Current()))
                 {
                     context.Index++;
                 }
@@ -751,7 +752,7 @@ namespace YS.Knife.Query.Parser
                 {
                     throw ParseErrors.InvalidAggItem(context, startIndex, ex);
                 }
-                if (context.SkipWhiteSpace() && context.Current() == ',')
+                if (context.SkipWhiteSpace() && IsSplitChar(context.Current()))
                 {
                     context.Index++;
                 }
@@ -926,7 +927,7 @@ namespace YS.Knife.Query.Parser
                 if (found)
                 {
                     selectInfo.Items.Add(ParseSelectItem(exclude, name, context));
-                    if (context.SkipWhiteSpace() && context.Current() == ',')
+                    if (context.SkipWhiteSpace() && IsSplitChar(context.Current()))
                     {
                         context.Index++;
                     }

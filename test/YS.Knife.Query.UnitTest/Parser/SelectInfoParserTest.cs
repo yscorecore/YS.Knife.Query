@@ -23,6 +23,7 @@ namespace YS.Knife.Query.UnitTest.Parser
         [InlineData("abc", "abc")]
         [InlineData("a,b,c", "a,b,c")]
         [InlineData(" a , b , c ", "a,b,c")]
+        [InlineData(" a ; b ; c ", "a,b,c")]
         public void should_parse_simple_select_items(string input, string expected)
         {
             ParseSelectInfoShouldBe(input, expected);

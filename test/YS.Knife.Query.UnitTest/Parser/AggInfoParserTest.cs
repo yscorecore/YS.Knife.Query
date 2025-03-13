@@ -30,6 +30,7 @@ namespace YS.Knife.Query.UnitTest.Parser
         [InlineData("a.b.sum().as('t')", "a.b.sum().as(t)")]
         [InlineData("a.b.sum().as(\"t\")", "a.b.sum().as(t)")]
         [InlineData("a.sum().as(a1),b,c.avg().as(c3)", "a.sum().as(a1),b.sum(),c.avg().as(c3)")]
+        [InlineData("a.sum().as(a1);b;c.avg().as(c3)", "a.sum().as(a1),b.sum(),c.avg().as(c3)")]
         public void should_parse_agg_info(string input, string expected)
         {
             ParseAggInfoShouldBe(input, expected);
