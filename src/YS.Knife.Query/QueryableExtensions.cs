@@ -64,7 +64,7 @@ namespace YS.Knife.Query
                 }
                 catch (Exception ex)
                 {
-                    throw new ParseException("parse select error", ex);
+                    throw new ParseException("");
                 }
             }
             static IQueryable<T> Filter(IQueryable<T> source, FilterInfo filter)
@@ -110,11 +110,11 @@ namespace YS.Knife.Query
         {
             return source.DoQuery(queryInfo).Skip(queryInfo.Offset).Take(queryInfo.Limit).ToList();
         }
-        public static Task<List<T>> QueryListAsync<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
-            where T : class, new()
-        {
-            return Task.FromResult(source.QueryList(queryInfo));
-        }
+        //public static Task<List<T>> QueryListAsync<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
+        //    where T : class, new()
+        //{
+        //    return Task.FromResult(source.QueryList(queryInfo));
+        //}
 
         public static LimitList<T> QueryLimitList<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
             where T : class, new()
@@ -122,11 +122,11 @@ namespace YS.Knife.Query
             var data = source.DoQuery(queryInfo).Skip(queryInfo.Offset).Take(queryInfo.Limit + 1).ToList();
             return new LimitList<T>(data.Take(queryInfo.Limit), queryInfo.Offset, queryInfo.Limit, data.Count > queryInfo.Limit);
         }
-        public static Task<LimitList<T>> QueryLimitListAsync<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
-            where T : class, new()
-        {
-            return Task.FromResult(source.QueryLimitList(queryInfo));
-        }
+        //public static Task<LimitList<T>> QueryLimitListAsync<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
+        //    where T : class, new()
+        //{
+        //    return Task.FromResult(source.QueryLimitList(queryInfo));
+        //}
         private static Dictionary<string, object> QueryAgg<T>(this IQueryable<T> source, LimitQueryInfo limitQueryInfo)
         {
             var aggInfo = ParseAgg(limitQueryInfo.Agg);
@@ -143,7 +143,7 @@ namespace YS.Knife.Query
                 }
                 catch (Exception ex)
                 {
-                    throw new ParseException("parse agg error", ex);
+                    throw new ParseException("");
                 }
             }
             static Dictionary<string, object> DoAgg(IQueryable<T> source, AggInfo agg)
@@ -187,12 +187,7 @@ namespace YS.Knife.Query
                 }
             }
         }
-        public static Task<PagedList<T>> QueryPageAsync<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
-            where T : class, new()
-        {
-            return Task.FromResult(QueryPage(source, queryInfo));
-        }
-        internal static IQueryable<R> WhereItemsAnd<T, R>(this IQueryable<R> query, IEnumerable<T> source, Expression<Func<T, R, bool>> predicate)
+        public static IQueryable<R> WhereItemsAnd<T, R>(this IQueryable<R> query, IEnumerable<T> source, Expression<Func<T, R, bool>> predicate)
         {
             Expression expression = Expression.Constant(true);
             foreach (var item in source)

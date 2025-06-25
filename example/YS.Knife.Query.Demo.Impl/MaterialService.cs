@@ -15,8 +15,8 @@ namespace YS.Knife.Query.Demo.Impl
         private readonly EFContext context;
         public Task<PagedList<MaterialInfo>> QueryMaterials(LimitQueryInfo queryInfo)
         {
-            return context.Materials.To<MaterialInfo>()
-                 .QueryPageAsync(queryInfo);
+            return Task.FromResult(context.Materials.To<MaterialInfo>()
+                 .QueryPage(queryInfo));
         }
     }
 }

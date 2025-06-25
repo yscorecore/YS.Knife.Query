@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using YS.Knife.Query;
 using YS.Knife.Query.Expressions;
 
@@ -27,6 +28,44 @@ namespace System.Linq
                 var group = source.GroupBy(p => 1);
                 var tempRecordQuery = QueryFieldDaynmic(group, items, properties);
                 var tempRecord = tempRecordQuery.FirstOrDefault();
+                if (tempRecord != null)
+                {
+                    Dictionary<string, object> res = new Dictionary<string, object>();
+                    for (int i = 0; i < items.Count; i++)
+                    {
+                        res[items[i].AggName ?? $"agg{i}"] = properties[i].GetValue(tempRecord);
+                    }
+                    return res;
+                }
+                else
+                {
+                    Dictionary<string, object> res = new Dictionary<string, object>();
+                    for (int i = 0; i < items.Count; i++)
+                    {
+                        res[items[i].AggName ?? $"agg{i}"] = GetAggItemDefaultValue(items[i]);
+                    }
+                    return res;
+                }
+
+            }
+            return null;
+        }
+
+        public static async Task<Dictionary<string, object>> DoAggAsync<T>(this IQueryable<T> source, AggInfo aggInfo, Func<IQueryable<TempRecord>, Task<TempRecord>> firstOrDefaultFun)
+        {
+            _ = source ?? throw new ArgumentNullException(nameof(source));
+            if (aggInfo == null) return null;
+            var items = aggInfo.Items?.Where(p => p != null).ToList();
+            if (items?.Count > TempRecordProperties.Count)
+            {
+                throw new BuildException("max agg item count shoule not great than 64.");
+            }
+            if (items?.Count > 0)
+            {
+                var properties = TempRecordProperties.Take(items.Count).ToList();
+                var group = source.GroupBy(p => 1);
+                var tempRecordQuery = QueryFieldDaynmic(group, items, properties);
+                var tempRecord = await firstOrDefaultFun(tempRecordQuery);
                 if (tempRecord != null)
                 {
                     Dictionary<string, object> res = new Dictionary<string, object>();
