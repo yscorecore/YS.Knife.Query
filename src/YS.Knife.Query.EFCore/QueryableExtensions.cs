@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System;
 using Microsoft.EntityFrameworkCore;
-using static System.Linq.AggExtensions;
 
 namespace YS.Knife.Query
 {
@@ -26,7 +25,7 @@ namespace YS.Knife.Query
             _ = source ?? throw new ArgumentNullException(nameof(source));
             _ = queryInfo ?? throw new ArgumentNullException(nameof(queryInfo));
             var query = source.DoQuery(queryInfo);
-            var aggResult = await  source.QueryAggAsync(queryInfo,(p)=> { return p.FirstOrDefaultAsync(); });
+            var aggResult = await source.QueryAggAsync(queryInfo, (p) => { return p.FirstOrDefaultAsync(); });
             if (queryInfo.Limit <= 0)
             {
                 //only count all

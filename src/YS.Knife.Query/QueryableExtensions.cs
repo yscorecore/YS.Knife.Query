@@ -111,7 +111,6 @@ namespace YS.Knife.Query
         {
             return source.DoQuery(queryInfo).Skip(queryInfo.Offset).Take(queryInfo.Limit).ToList();
         }
-       
 
         public static LimitList<T> QueryLimitList<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
             where T : class, new()
@@ -155,7 +154,7 @@ namespace YS.Knife.Query
         internal static Task<Dictionary<string, object>> QueryAggAsync<T>(this IQueryable<T> source, LimitQueryInfo limitQueryInfo, Func<IQueryable<TempRecord>, Task<TempRecord>> firstOrDefaultFun)
         {
             var aggInfo = ParseAgg(limitQueryInfo.Agg);
-            return DoAgg(source, aggInfo,firstOrDefaultFun);
+            return DoAgg(source, aggInfo, firstOrDefaultFun);
             static AggInfo ParseAgg(string agg)
             {
                 try
@@ -175,7 +174,7 @@ namespace YS.Knife.Query
             {
                 try
                 {
-                    return source.DoAggAsync(agg,firstOrDefaultFun);
+                    return source.DoAggAsync(agg, firstOrDefaultFun);
                 }
                 catch (Exception)
                 {
