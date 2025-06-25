@@ -51,7 +51,7 @@ namespace System.Linq
             return null;
         }
 
-        public static async Task<Dictionary<string, object>> DoAggAsync<T>(this IQueryable<T> source, AggInfo aggInfo, Func<IQueryable<TempRecord>, Task<TempRecord>> firstOrDefaultFun)
+        internal static async Task<Dictionary<string, object>> DoAggAsync<T>(this IQueryable<T> source, AggInfo aggInfo, Func<IQueryable<TempRecord>, Task<TempRecord>> firstOrDefaultFun)
         {
             _ = source ?? throw new ArgumentNullException(nameof(source));
             if (aggInfo == null) return null;

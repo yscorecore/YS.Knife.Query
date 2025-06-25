@@ -27,6 +27,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YS.Knife.Query.Demo.Domain"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "YS.Knife.Query.Demo.Models", "example\YS.Knife.Query.Demo.Models\YS.Knife.Query.Demo.Models.csproj", "{6CEC4E61-D1C0-454E-A534-E4B9305830F4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "YS.Knife.Query.EFCore", "src\YS.Knife.Query.EFCore\YS.Knife.Query.EFCore.csproj", "{4701E213-5330-49E8-9367-1036F60A1B6A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{6CEC4E61-D1C0-454E-A534-E4B9305830F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6CEC4E61-D1C0-454E-A534-E4B9305830F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6CEC4E61-D1C0-454E-A534-E4B9305830F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4701E213-5330-49E8-9367-1036F60A1B6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4701E213-5330-49E8-9367-1036F60A1B6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4701E213-5330-49E8-9367-1036F60A1B6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4701E213-5330-49E8-9367-1036F60A1B6A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -83,6 +89,7 @@ Global
 		{5490DAD8-1E96-4A96-976C-9B013E191E98} = {D739BE87-F2D5-441D-88E9-474895BBA62F}
 		{8EE26894-2CD5-4BBB-A99D-E0A20BD27E7F} = {D739BE87-F2D5-441D-88E9-474895BBA62F}
 		{6CEC4E61-D1C0-454E-A534-E4B9305830F4} = {D739BE87-F2D5-441D-88E9-474895BBA62F}
+		{4701E213-5330-49E8-9367-1036F60A1B6A} = {6C7E5914-CD6B-40F1-BFD7-8FB17E3EAE11}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DB11BB21-3F5D-42D6-8737-F19C0666F1F8}

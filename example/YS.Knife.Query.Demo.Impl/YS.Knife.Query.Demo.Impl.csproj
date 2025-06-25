@@ -7,11 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-      <Using Include="FlyTiger"/>
+      <Using Include="FlyTiger" />
     <PackageReference Include="FlyTiger" Version="0.0.15" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\YS.Knife.Query.EFCore\YS.Knife.Query.EFCore.csproj" />
     <ProjectReference Include="..\YS.Knife.Query.Demo.Core\YS.Knife.Query.Demo.Core.csproj" />
     <ProjectReference Include="..\YS.Knife.Query.Demo.Models\YS.Knife.Query.Demo.Models.csproj" />
   </ItemGroup>

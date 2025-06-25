@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using YS.Knife.Query.Parser;
+using static System.Linq.AggExtensions;
 
 namespace YS.Knife.Query
 {
@@ -64,7 +65,7 @@ namespace YS.Knife.Query
                 }
                 catch (Exception ex)
                 {
-                    throw new ParseException("");
+                    throw new ParseException("passe select error.", ex);
                 }
             }
             static IQueryable<T> Filter(IQueryable<T> source, FilterInfo filter)
@@ -110,11 +111,7 @@ namespace YS.Knife.Query
         {
             return source.DoQuery(queryInfo).Skip(queryInfo.Offset).Take(queryInfo.Limit).ToList();
         }
-        //public static Task<List<T>> QueryListAsync<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
-        //    where T : class, new()
-        //{
-        //    return Task.FromResult(source.QueryList(queryInfo));
-        //}
+       
 
         public static LimitList<T> QueryLimitList<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
             where T : class, new()
@@ -122,11 +119,7 @@ namespace YS.Knife.Query
             var data = source.DoQuery(queryInfo).Skip(queryInfo.Offset).Take(queryInfo.Limit + 1).ToList();
             return new LimitList<T>(data.Take(queryInfo.Limit), queryInfo.Offset, queryInfo.Limit, data.Count > queryInfo.Limit);
         }
-        //public static Task<LimitList<T>> QueryLimitListAsync<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
-        //    where T : class, new()
-        //{
-        //    return Task.FromResult(source.QueryLimitList(queryInfo));
-        //}
+
         private static Dictionary<string, object> QueryAgg<T>(this IQueryable<T> source, LimitQueryInfo limitQueryInfo)
         {
             var aggInfo = ParseAgg(limitQueryInfo.Agg);
@@ -143,7 +136,7 @@ namespace YS.Knife.Query
                 }
                 catch (Exception ex)
                 {
-                    throw new ParseException("");
+                    throw new ParseException("parse agg error.", ex);
                 }
             }
             static Dictionary<string, object> DoAgg(IQueryable<T> source, AggInfo agg)
@@ -151,6 +144,38 @@ namespace YS.Knife.Query
                 try
                 {
                     return source.DoAgg(agg);
+                }
+                catch (Exception)
+                {
+
+                    throw;
+                }
+            }
+        }
+        internal static Task<Dictionary<string, object>> QueryAggAsync<T>(this IQueryable<T> source, LimitQueryInfo limitQueryInfo, Func<IQueryable<TempRecord>, Task<TempRecord>> firstOrDefaultFun)
+        {
+            var aggInfo = ParseAgg(limitQueryInfo.Agg);
+            return DoAgg(source, aggInfo,firstOrDefaultFun);
+            static AggInfo ParseAgg(string agg)
+            {
+                try
+                {
+                    return AggInfo.Parse(agg);
+                }
+                catch (ParseException)
+                {
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    throw new ParseException("parse agg error.", ex);
+                }
+            }
+            static Task<Dictionary<string, object>> DoAgg(IQueryable<T> source, AggInfo agg, Func<IQueryable<TempRecord>, Task<TempRecord>> firstOrDefaultFun)
+            {
+                try
+                {
+                    return source.DoAggAsync(agg,firstOrDefaultFun);
                 }
                 catch (Exception)
                 {
