@@ -28,6 +28,10 @@ namespace YS.Knife.Query.Functions
 
             Add<string, string>(nameof(string.ToLower), p => p.ToLower());
             Add<string, string>(nameof(string.ToUpper), p => p.ToUpper());
+            Add<string, int>(nameof(string.CompareTo), p => p.CompareTo(It.Arg<string>()));
+            Add<string, bool>(nameof(string.StartsWith), p => p.StartsWith(It.Arg<string>()));
+            Add<string, bool>(nameof(string.EndsWith), p => p.EndsWith(It.Arg<string>()));
+            Add<string, bool>(nameof(string.Contains), p => p.Contains(It.Arg<string>()));
             Add<string, int>(nameof(string.Length), p => p.Length);
             //Add<string, string>("left", p => p.Substring(It.Arg<int>()));
 
@@ -44,16 +48,20 @@ namespace YS.Knife.Query.Functions
             {
                 throw new ArgumentNullException(nameof(name));
             }
-            All[name] = function;
+            All[$"{type.FullName}_{name}"] = function;
         }
         public static bool Remove(Type type, string name)
         {
-            return All.Remove(name);
+            return All.Remove($"{type.FullName}_{name}");
+        }
+        public static bool Contains(Type type, string name)
+        {
+            return All.ContainsKey($"{type.FullName}_{name}");
         }
 
         public static IFunction Get(Type type, string name)
         {
-            return All.TryGetValue(name, out var fun) ? fun : null;
+            return All.TryGetValue($"{type.FullName}_{name}", out var fun) ? fun : null;
         }
     }
 }
