@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using System.Linq.Expressions;
 using YS.Knife.Query.Functions;
 
 namespace YS.Knife.Query
@@ -54,7 +54,7 @@ namespace YS.Knife.Query
                 {
                     throw new NotSupportedException($"not support node type '{body.NodeType}'.");
                 }
-                  
+
             }
             else if (body is MethodCallExpression callExpression)
             {
@@ -116,8 +116,8 @@ namespace YS.Knife.Query
                     }
                 }
                 else if (current is UnaryExpression unaryExpression)
-                { 
-                    if(unaryExpression.NodeType== ExpressionType.Convert)
+                {
+                    if (unaryExpression.NodeType == ExpressionType.Convert)
                     {
                         current = unaryExpression.Operand;
                         continue;

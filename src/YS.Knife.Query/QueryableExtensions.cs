@@ -22,6 +22,10 @@ namespace YS.Knife.Query
             result = Filter(result, filter);
             result = OrderBy(result, orderBy);
             result = Select(result, select);
+            if (queryInfo.Distinct)
+            {
+                result = result.Distinct();
+            }
             return result;
             static FilterInfo ParseFilter(string filter)
             {

@@ -13,6 +13,7 @@ namespace YS.Knife.Query
         [MaxLength(1024)]
         public string Select { get; set; }
 
+        public bool Distinct { get; set; }
 
         public LimitQueryInfo AsLimit(int limitCount = 10000)
         {
