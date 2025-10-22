@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using YS.Knife.Query.Functions.Specials;
 
 namespace YS.Knife.Query.Functions
 {
@@ -34,7 +35,7 @@ namespace YS.Knife.Query.Functions
             Add<string, bool>(nameof(string.Contains), p => p.Contains(It.Arg<string>()));
             Add<string, int>(nameof(string.Length), p => p.Length);
             //Add<string, string>("left", p => p.Substring(It.Arg<int>()));
-
+            Add<IEnumerable<It.AnyType>,bool>(nameof(Exists), p => System.Linq.Enumerable.Any(It.Arg<IEnumerable<It.AnyType>>()));
         }
 
         public static void Add<Source, Target>(string name, Expression<Func<Source, Target>> body)

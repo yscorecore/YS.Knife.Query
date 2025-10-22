@@ -119,7 +119,7 @@ namespace YS.Knife.Query.Expressions
                 var instanceFunction = InstanceFunctions.Get(context.LastExpression.ValueType, valuePath.Name);
                 if (instanceFunction == null)
                 {
-                    throw new Exception($"can not find instance functino '{valuePath.Name}' for type '{context.LastExpression.ValueType}'.");
+                    throw new Exception($"can not find instance function '{valuePath.Name}' for type '{context.LastExpression.ValueType}'.");
                 }
                 var functionContext = new FunctionContext { Arguments = valuePath.FunctionArgs ?? Array.Empty<ValueInfo>(), ExecuteContext = context };
                 return instanceFunction.Execute(functionContext);

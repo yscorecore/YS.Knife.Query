@@ -13,7 +13,8 @@ namespace YS.Knife.Query.Parser
     {
         internal static readonly HashSet<string> filterArgumentFunction = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
         {
-            nameof(Where)
+            nameof(Where),
+            nameof(Exists),
         };
         internal static readonly HashSet<string> orderByArgumentFunction = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
         {
