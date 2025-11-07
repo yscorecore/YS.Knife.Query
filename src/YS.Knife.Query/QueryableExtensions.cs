@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using YS.Knife.Query.Parser;
 using static System.Linq.AggExtensions;
 
-[assembly:InternalsVisibleTo("YS.Knife.Query.EFCore")]
+[assembly: InternalsVisibleTo("YS.Knife.Query.EFCore")]
 
 namespace YS.Knife.Query
 {

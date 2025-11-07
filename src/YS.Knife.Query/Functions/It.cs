@@ -13,8 +13,8 @@ namespace YS.Knife.Query.Functions
             return default(T);
         }
         public class AnyType
-        { 
-        
+        {
+
         }
     }
 }

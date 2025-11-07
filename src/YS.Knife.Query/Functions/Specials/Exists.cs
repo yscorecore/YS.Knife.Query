@@ -11,13 +11,13 @@ namespace YS.Knife.Query.Functions.Specials
     {
         protected override ValueExpressionDesc ExecuteInstanceFunction(FunctionContext context)
         {
-            return (context.Arguments?.Length??0)
+            return (context.Arguments?.Length ?? 0)
                 switch
-                {
-                    0 => default(ValueExpressionDesc),
-                    1 => default(ValueExpressionDesc),
-                    _ => throw new Exception($"The argument count for function '{context.Name}' not match.")
-                };
+            {
+                0 => default(ValueExpressionDesc),
+                1 => default(ValueExpressionDesc),
+                _ => throw new Exception($"The argument count for function '{context.Name}' not match.")
+            };
         }
     }
 
