@@ -17,7 +17,7 @@ namespace YS.Knife.Query
         public static async Task<LimitList<T>> QueryLimitListAsync<T>(this IQueryable<T> source, LimitQueryInfo queryInfo, CancellationToken cancellationToken = default)
             where T : class, new()
         {
-            var data = await source.DoQuery(queryInfo).Skip(queryInfo.Offset).Take(queryInfo.Limit + 1).ToListAsync(cancellationToken);
+            var data = await source.DoQuery(queryInfo).TryOrderByEntityKey().Skip(queryInfo.Offset).Take(queryInfo.Limit + 1).ToListAsync(cancellationToken);
             return new LimitList<T>(data.Take(queryInfo.Limit), queryInfo.Offset, queryInfo.Limit, data.Count > queryInfo.Limit);
         }
         public static async Task<PagedList<T>> QueryPageAsync<T>(this IQueryable<T> source, LimitQueryInfo queryInfo, CancellationToken cancellationToken = default)
@@ -35,7 +35,7 @@ namespace YS.Knife.Query
             }
             else
             {
-                var data = await query.Skip(queryInfo.Offset).Take(queryInfo.Limit).ToListAsync(cancellationToken);
+                var data = await query.TryOrderByEntityKey().Skip(queryInfo.Offset).Take(queryInfo.Limit).ToListAsync(cancellationToken);
                 if (data.Count < queryInfo.Limit)
                 {
                     var totalCount = queryInfo.Offset + data.Count;
