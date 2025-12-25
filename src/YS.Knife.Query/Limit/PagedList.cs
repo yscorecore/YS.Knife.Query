@@ -44,7 +44,7 @@ namespace YS.Knife.Query
 
         [Required]
         public long TotalCount { get; set; }
-        public Dictionary<string, object> Aggs { get; }
+        public Dictionary<string, object> Aggs { get; set; }
     }
 
 
