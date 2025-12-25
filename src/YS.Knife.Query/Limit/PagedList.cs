@@ -38,7 +38,7 @@ namespace YS.Knife.Query
         public int Limit { get; set; }
 
         [Required]
-        public List<T> Items { get; set; } 
+        public List<T> Items { get; set; }
         [Required]
         public int Offset { get; set; }
 
