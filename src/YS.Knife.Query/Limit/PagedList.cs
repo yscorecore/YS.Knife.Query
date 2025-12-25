@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,7 +26,7 @@ namespace YS.Knife.Query
             this.Items = limitListData?.ToList() ?? new List<T>();
             this.Aggs = aggs == null ? null : new Dictionary<string, object>(aggs);
         }
-
+        [Required]
         public bool HasNext
         {
             get
@@ -33,15 +34,15 @@ namespace YS.Knife.Query
                 return this.TotalCount > this.Offset + this.Limit;
             }
         }
-
+        [Required]
         public int Limit { get; set; }
 
-
-        public List<T> Items { get; set; }
-
+        [Required]
+        public List<T> Items { get; set; } 
+        [Required]
         public int Offset { get; set; }
 
-
+        [Required]
         public long TotalCount { get; set; }
         public Dictionary<string, object> Aggs { get; }
     }
