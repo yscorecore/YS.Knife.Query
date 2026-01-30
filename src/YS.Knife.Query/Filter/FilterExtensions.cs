@@ -11,13 +11,14 @@ namespace YS.Knife.Query
 {
     public static class FilterExtensions
     {
+
         public static IQueryable<T> DoFilter<T>(this IQueryable<T> source, FilterInfo filter)
         {
             _ = source ?? throw new ArgumentNullException(nameof(source));
             return filter == null ? source : source.Where(CreateFilterLambdaExpression<T>(filter));
         }
 
-        private static Expression<Func<T, bool>> CreateFilterLambdaExpression<T>(FilterInfo filterInfo)
+        internal static Expression<Func<T, bool>> CreateFilterLambdaExpression<T>(FilterInfo filterInfo)
         {
             var p = Expression.Parameter(typeof(T), "p");
             var expression = CreateFilterExpression(p, filterInfo);
