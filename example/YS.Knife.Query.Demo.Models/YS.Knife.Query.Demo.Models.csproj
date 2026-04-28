@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.32" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.32" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.20" />
   </ItemGroup>
 
   <ItemGroup>
