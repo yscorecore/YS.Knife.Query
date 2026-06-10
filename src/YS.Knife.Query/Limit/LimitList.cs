@@ -26,11 +26,19 @@ namespace YS.Knife.Query
 
         public bool HasNext { get; private set; }
 
+        public PagedList<T> ToPagedList(int? totalCount, IDictionary<string, object> aggs = null)
+        {
+            return new PagedList<T>(Items, Offset, Limit, totalCount, HasNext, aggs);
+        }
+        public PagedList<T> ToPagedList(IDictionary<string, object> aggs = null)
+        {
+            return this.ToPagedList(null, aggs);
+        }
     }
 
-    [Serializable]
-    public record LimitList<T, S> : LimitList<T>, ILimitList<T, S>
-    {
-        public S Summary { get; }
-    }
+    //[Serializable]
+    //public record LimitList<T, S> : LimitList<T>, ILimitList<T, S>
+    //{
+    //    public S Summary { get; }
+    //}
 }

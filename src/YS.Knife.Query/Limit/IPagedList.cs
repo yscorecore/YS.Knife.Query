@@ -8,7 +8,7 @@ namespace YS.Knife.Query
 {
     public interface IPagedList : ILimitList
     {
-        long TotalCount { get; }
+        long? TotalCount { get; }
         bool CanToPage => this.Limit > 0 && this.Offset % this.Limit == 0;
         int PageSize => this.Limit;
         int PageIndex => this.Limit > 0 ? this.Offset / this.Limit + 1 : 1;
@@ -18,8 +18,8 @@ namespace YS.Knife.Query
     {
 
     }
-    public interface IPagedList<T, S> : IPagedList, ILimitList<T, S>
-    {
+    //public interface IPagedList<T, S> : IPagedList, ILimitList<T, S>
+    //{
 
-    }
+    //}
 }

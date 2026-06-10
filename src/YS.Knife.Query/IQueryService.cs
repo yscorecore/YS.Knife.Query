@@ -17,7 +17,7 @@ namespace YS.Knife.Query
         public static async Task<long> CountAsync<T>(this IQueryPageService<T> service, QueryInfo queryInfo)
         {
             var res = await service.QueryPage(queryInfo.AsLimit(0));
-            return res.TotalCount;
+            return res.TotalCount.Value;
         }
         public static async Task<List<T>> QueryListAsync<T>(this IQueryPageService<T> service, QueryInfo queryInfo, int limitCount = 10000)
         {

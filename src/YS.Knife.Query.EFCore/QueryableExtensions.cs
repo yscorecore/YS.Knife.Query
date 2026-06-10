@@ -23,10 +23,25 @@ namespace YS.Knife.Query
         public static async Task<PagedList<T>> QueryPageAsync<T>(this IQueryable<T> source, LimitQueryInfo queryInfo, CancellationToken cancellationToken = default)
             where T : class, new()
         {
+            if (queryInfo.CountAll)
+            {
+                return await source.QueryPageInternalAsync(queryInfo, cancellationToken);
+            }
+            else
+            {
+                var limitList = await source.QueryLimitListAsync(queryInfo, cancellationToken);
+                var aggResult = await source.QueryAgg(queryInfo, (p) => { return p.FirstOrDefaultAsync(cancellationToken); });
+                return limitList.ToPagedList(aggResult);
+            }
+
+        }
+        public static async Task<PagedList<T>> QueryPageInternalAsync<T>(this IQueryable<T> source, LimitQueryInfo queryInfo, CancellationToken cancellationToken = default)
+            where T : class, new()
+        {
             _ = source ?? throw new ArgumentNullException(nameof(source));
             _ = queryInfo ?? throw new ArgumentNullException(nameof(queryInfo));
             var query = source.DoQuery(queryInfo);
-            var aggResult = await source.QueryAggAsync(queryInfo, (p) => { return p.FirstOrDefaultAsync(cancellationToken); });
+            var aggResult = await source.QueryAgg(queryInfo, (p) => { return p.FirstOrDefaultAsync(cancellationToken); });
             if (queryInfo.Limit <= 0)
             {
                 //only count all
@@ -36,7 +51,7 @@ namespace YS.Knife.Query
             else
             {
                 var data = await query.TryOrderByEntityKey().Skip(queryInfo.Offset).Take(queryInfo.Limit).ToListAsync(cancellationToken);
-                if (data.Count < queryInfo.Limit)
+                if (data.Count > 0 && data.Count < queryInfo.Limit)
                 {
                     var totalCount = queryInfo.Offset + data.Count;
                     return new PagedList<T>(data, queryInfo.Offset, queryInfo.Limit, totalCount, aggResult);

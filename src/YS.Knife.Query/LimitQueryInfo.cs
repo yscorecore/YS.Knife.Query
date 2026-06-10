@@ -13,5 +13,7 @@ namespace YS.Knife.Query
 
         [MaxLength(1024)]
         public string Agg { get; set; }
+
+        public bool CountAll { get; set; } = true;
     }
 }

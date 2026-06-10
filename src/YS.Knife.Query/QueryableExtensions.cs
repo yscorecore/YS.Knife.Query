@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 using YS.Knife.Query.Parser;
 using static System.Linq.AggExtensions;
@@ -160,7 +161,7 @@ namespace YS.Knife.Query
                 }
             }
         }
-        internal static Task<Dictionary<string, object>> QueryAggAsync<T>(this IQueryable<T> source, LimitQueryInfo limitQueryInfo, Func<IQueryable<TempRecord>, Task<TempRecord>> firstOrDefaultFun)
+        internal static Task<Dictionary<string, object>> QueryAgg<T>(this IQueryable<T> source, LimitQueryInfo limitQueryInfo, Func<IQueryable<TempRecord>, Task<TempRecord>> firstOrDefaultFun)
         {
             var aggInfo = ParseAgg(limitQueryInfo.Agg);
             return DoAgg(source, aggInfo, firstOrDefaultFun);
@@ -193,6 +194,20 @@ namespace YS.Knife.Query
             }
         }
         public static PagedList<T> QueryPage<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
+           where T : class, new()
+        {
+            if (queryInfo.CountAll)
+            {
+                return source.QueryPageInternal(queryInfo);
+            }
+            else
+            {
+                var limitList = source.QueryLimitList(queryInfo);
+                var aggResult = source.QueryAgg(queryInfo);
+                return limitList.ToPagedList(aggResult);
+            }
+        }
+        public static PagedList<T> QueryPageInternal<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
             where T : class, new()
         {
             _ = source ?? throw new ArgumentNullException(nameof(source));
@@ -208,7 +223,7 @@ namespace YS.Knife.Query
             else
             {
                 var data = query.TryOrderByEntityKey().Skip(queryInfo.Offset).Take(queryInfo.Limit).ToList();
-                if (data.Count < queryInfo.Limit)
+                if (data.Count > 0 && data.Count < queryInfo.Limit)
                 {
                     var totalCount = queryInfo.Offset + data.Count;
                     return new PagedList<T>(data, queryInfo.Offset, queryInfo.Limit, totalCount, aggResult);
@@ -220,48 +235,7 @@ namespace YS.Knife.Query
                 }
             }
         }
-        public static IQueryable<R> WhereItemsAnd<T, R>(this IQueryable<R> query, IEnumerable<T> source, Expression<Func<T, R, bool>> predicate)
-        {
-            Expression expression = Expression.Constant(true);
-            foreach (var item in source)
-            {
-                var parameterReplacer = new ParameterReplacerVisitor(predicate.Parameters[1], Expression.Constant(item));
-                var segment = parameterReplacer.Visit(predicate.Body);
-                expression = Expression.AndAlso(expression, segment);
-            }
-            var lambda = Expression.Lambda<Func<R, bool>>(expression, predicate.Parameters[0]);
-            return query.Where(lambda);
-        }
-        internal static IQueryable<R> WhereItemsOr<T, R>(this IQueryable<R> query, IEnumerable<T> source, Expression<Func<R, T, bool>> predicate)
-        {
-            Expression expression = Expression.Constant(false);
-            foreach (var item in source)
-            {
-                var parameterReplacer = new ParameterReplacerVisitor(predicate.Parameters[1], Expression.Constant(item));
-                var segment = parameterReplacer.Visit(predicate.Body);
-                expression = Expression.OrElse(expression, segment);
-            }
-            var lambda = Expression.Lambda<Func<R, bool>>(expression, predicate.Parameters[0]);
-            return query.Where(lambda);
-        }
 
-
-        class ParameterReplacerVisitor : ExpressionVisitor
-        {
-            private readonly Expression _oldParameter;
-            private readonly Expression _newParameter;
-
-            public ParameterReplacerVisitor(Expression oldParameter, Expression newParameter)
-            {
-                _oldParameter = oldParameter;
-                _newParameter = newParameter;
-            }
-
-            protected override Expression VisitParameter(ParameterExpression node)
-            {
-                return node == _oldParameter ? _newParameter : base.VisitParameter(node);
-            }
-        }
     }
 
     internal static class QueryableOrderByExtension
