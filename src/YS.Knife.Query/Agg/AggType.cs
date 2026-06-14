@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace YS.Knife.Query
 {
+    
     public enum AggType
     {
         Sum = 0,
@@ -13,6 +14,12 @@ namespace YS.Knife.Query
         Max = 2,
         Avg = 3,
         Count = 100,
-        DistinctCount = 200
+        DistinctCount = 200,
+        SumIf = 1000,
+        MinIf = 1001,
+        MaxIf = 1002,
+        AvgIf = 1003,
+        CountIf = 1100,
+        DistinctCountIf = 1200,
     }
 }
