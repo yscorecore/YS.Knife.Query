@@ -121,14 +121,22 @@ namespace System.Linq
         }
         private static MemberBinding CreateMemberBinding<T>(AggItem aggItem, PropertyInfo propertyInfo, Expression sourceExpression)
         {
-            if (aggItem.AggType == AggType.Count)
+            var aggType = aggItem.AggType;
+            if ((int)aggType > 1000)
+            {
+                aggType = (AggType)((int)aggType - 1000);
+                var filter = FilterExtensions.CreateFilterLambdaExpression<T>(null);
+                
+            }
+
+            if (aggType == AggType.Count)
             {
                 var method = EnumerableMethodFinder.GetLongCount1(typeof(T));
                 var valueExp = Expression.Call(null, method, sourceExpression);
                 var castToObject = Expression.Convert(valueExp, typeof(object));
                 return Expression.Bind(propertyInfo, castToObject);
             }
-            else if (aggItem.AggType == AggType.DistinctCount)
+            else if (aggType == AggType.DistinctCount)
             {
                 var lambdaDesc = LambdaUtils.CreateFunc2Lambda(typeof(T), aggItem.NavigatePaths, false);
                 var selectMethod = EnumerableMethodFinder.GetSelect2(typeof(T), lambdaDesc.ValueType);
@@ -140,7 +148,7 @@ namespace System.Linq
                 var castToObject = Expression.Convert(valueExp, typeof(object));
                 return Expression.Bind(propertyInfo, castToObject);
             }
-            else if (aggItem.AggType == AggType.Sum)
+            else if (aggType == AggType.Sum)
             {
                 var lambdaDesc = LambdaUtils.CreateFunc2Lambda(typeof(T), aggItem.NavigatePaths, false);
                 var method = GetMethod(aggItem, typeof(T), lambdaDesc.ValueType);
