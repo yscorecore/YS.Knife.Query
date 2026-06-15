@@ -15,6 +15,12 @@ namespace YS.Knife.Query.Parser
         {
             nameof(Where),
             nameof(Exists),
+            nameof(AggType.AvgIf),
+            nameof(AggType.CountIf),
+            nameof(AggType.DistinctCountIf),
+            nameof(AggType.SumIf),
+            nameof(AggType.MinIf),
+            nameof(AggType.MaxIf)
         };
         internal static readonly HashSet<string> orderByArgumentFunction = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
         {
@@ -769,6 +775,7 @@ namespace YS.Knife.Query.Parser
             var properties = new List<ValuePath>();
             object aggType = null;
             var alias = default(string);
+            ValueInfo[] args = null;
             for (var i = 0; i < paths.Count; i++)
             {
                 var path = paths[i];
@@ -782,10 +789,11 @@ namespace YS.Knife.Query.Parser
                     {
                         if (Enum.TryParse(typeof(AggType), path.Name, true, out aggType))
                         {
-                            if (path.FunctionArgs?.Length > 0)
-                            {
-                                throw new ParseException("agg function should has no argument.");
-                            }
+                            //if (path.FunctionArgs?.Length > 0)
+                            //{
+                            //    throw new ParseException("agg function should has no argument.");
+                            //}
+                            args = path.FunctionArgs;
                         }
                         else
                         {
@@ -838,7 +846,8 @@ namespace YS.Knife.Query.Parser
             {
                 NavigatePaths = properties,
                 AggType = aggType == null ? AggType.Sum : (AggType)aggType,
-                AggName = alias
+                AggName = alias,
+                Args = args
             };
         }
         public static LimitInfo ParseLimitInfo(this ParseContext context)

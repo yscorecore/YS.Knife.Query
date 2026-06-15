@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace YS.Knife.Query
 {
-    
+
     public enum AggType
     {
         Sum = 0,

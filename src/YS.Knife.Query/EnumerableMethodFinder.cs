@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
+using YS.Knife.Query.Functions.Specials;
 
 namespace YS.Knife.Query
 {
@@ -11,6 +13,9 @@ namespace YS.Knife.Query
           .Where(p => p.Name == nameof(Enumerable.Sum))
           .Where(p => p.GetParameters().Length == 2)
           .ToDictionary(p => p.GetParameters()[1].ParameterType.GenericTypeArguments[1]);
+
+
+
         private static readonly MethodInfo MinMethodWith2Args = typeof(Enumerable).GetMethods()
             .Where(p => p.Name == nameof(Enumerable.Min) && p.GetGenericArguments().Length == 2)
             .Where(p => p.GetParameters().Length == 2).Single();
