@@ -51,7 +51,8 @@ using (var context = scope.ServiceProvider.GetService<EFContext>())
         Name = $"食材{i}",
         CreatedAt = DateTime.Now,
         CreatedBy = "user001",
-        Unit = (UnitType)Random.Shared.Next(0, 4)
+        Unit = (UnitType)Random.Shared.Next(0, 4),
+        Price = Convert.ToDecimal(Random.Shared.Next(10, 100) / 100.0)
     });
     context.Materials.AddRange(datas);
     context.SaveChanges();

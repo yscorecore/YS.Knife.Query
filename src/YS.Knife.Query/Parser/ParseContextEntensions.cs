@@ -15,12 +15,12 @@ namespace YS.Knife.Query.Parser
         {
             nameof(Where),
             nameof(Exists),
-            nameof(AggType.AvgIf),
-            nameof(AggType.CountIf),
-            nameof(AggType.DistinctCountIf),
-            nameof(AggType.SumIf),
-            nameof(AggType.MinIf),
-            nameof(AggType.MaxIf)
+            nameof(AggType.Sum),
+            nameof(AggType.Max),
+            nameof(AggType.Min),
+            nameof(AggType.Avg),
+            nameof(AggType.Count),
+            nameof(AggType.DistinctCount)
         };
         internal static readonly HashSet<string> orderByArgumentFunction = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
         {
@@ -775,7 +775,7 @@ namespace YS.Knife.Query.Parser
             var properties = new List<ValuePath>();
             object aggType = null;
             var alias = default(string);
-            ValueInfo[] args = null;
+            FilterInfo aggFilter = null;
             for (var i = 0; i < paths.Count; i++)
             {
                 var path = paths[i];
@@ -789,11 +789,14 @@ namespace YS.Knife.Query.Parser
                     {
                         if (Enum.TryParse(typeof(AggType), path.Name, true, out aggType))
                         {
+                            if (path.FunctionArgs != null && path.FunctionArgs.Length == 1 && path.FunctionArgs[0].IsConstant && path.FunctionArgs[0].ConstantValue is FilterInfo funFilter)
+                            {
+                                aggFilter = funFilter;
+                            }
                             //if (path.FunctionArgs?.Length > 0)
                             //{
                             //    throw new ParseException("agg function should has no argument.");
                             //}
-                            args = path.FunctionArgs;
                         }
                         else
                         {
@@ -847,7 +850,7 @@ namespace YS.Knife.Query.Parser
                 NavigatePaths = properties,
                 AggType = aggType == null ? AggType.Sum : (AggType)aggType,
                 AggName = alias,
-                Args = args
+                Filter = aggFilter
             };
         }
         public static LimitInfo ParseLimitInfo(this ParseContext context)

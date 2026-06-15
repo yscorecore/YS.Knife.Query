@@ -14,25 +14,13 @@ using static System.Linq.AggExtensions;
 
 namespace YS.Knife.Query
 {
+
     public static class QueryableExtensions
     {
-        public static IQueryable<T> DoQuery<T>(this IQueryable<T> source, QueryInfo queryInfo)
-           where T : class, new()
+        internal record ParsedQueryInfo<T>(FilterInfo Filter, OrderByInfo OrderBy, SelectInfo Select, T RawQueryInfo) where T : QueryInfo;
+        internal static ParsedQueryInfo<T> ParseQueryInfo<T>(T queryInfo) where T : QueryInfo
         {
-            _ = source ?? throw new ArgumentNullException(nameof(source));
-            if (queryInfo == null) return source;
-            var filter = ParseFilter(queryInfo.Filter);
-            var orderBy = ParseOrderBy(queryInfo.OrderBy);
-            var select = ParseSelect(queryInfo.Select);
-            var result = source;
-            result = Filter(result, filter);
-            result = OrderBy(result, orderBy);
-            result = Select(result, select);
-            if (queryInfo.Distinct)
-            {
-                result = result.Distinct();
-            }
-            return result;
+            return new ParsedQueryInfo<T>(ParseFilter(queryInfo.Filter), ParseOrderBy(queryInfo.OrderBy), ParseSelect(queryInfo.Select), queryInfo);
             static FilterInfo ParseFilter(string filter)
             {
                 try
@@ -78,6 +66,23 @@ namespace YS.Knife.Query
                     throw new ParseException("passe select error.", ex);
                 }
             }
+        }
+        internal static IQueryable<T> DoQuery<T, Q>(this IQueryable<T> source, ParsedQueryInfo<Q> queryInfo)
+          where T : class, new()
+            where Q : QueryInfo
+        {
+            _ = source ?? throw new ArgumentNullException(nameof(source));
+            if (queryInfo == null) return source;
+
+            var result = source;
+            result = Filter(result, queryInfo.Filter);
+            result = OrderBy(result, queryInfo.OrderBy);
+            result = Select(result, queryInfo.Select);
+            if (queryInfo.RawQueryInfo.Distinct)
+            {
+                result = result.Distinct();
+            }
+            return result;
             static IQueryable<T> Filter(IQueryable<T> source, FilterInfo filter)
             {
                 try
@@ -115,6 +120,13 @@ namespace YS.Knife.Query
                 }
             }
         }
+        public static IQueryable<T> DoQuery<T>(this IQueryable<T> source, QueryInfo queryInfo)
+           where T : class, new()
+        {
+            _ = source ?? throw new ArgumentNullException(nameof(source));
+            if (queryInfo == null) return source;
+            return source.DoQuery(ParseQueryInfo(queryInfo));
+        }
 
         public static List<T> QueryList<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
             where T : class, new()
@@ -128,7 +140,12 @@ namespace YS.Knife.Query
             var data = source.DoQuery(queryInfo).TryOrderByEntityKey().Skip(queryInfo.Offset).Take(queryInfo.Limit + 1).ToList();
             return new LimitList<T>(data.Take(queryInfo.Limit), queryInfo.Offset, queryInfo.Limit, data.Count > queryInfo.Limit);
         }
-
+        private static LimitList<T> QueryLimitList<T>(this IQueryable<T> source, ParsedQueryInfo<LimitQueryInfo> queryInfo)
+            where T : class, new()
+        {
+            var data = source.DoQuery(queryInfo).TryOrderByEntityKey().Skip(queryInfo.RawQueryInfo.Offset).Take(queryInfo.RawQueryInfo.Limit + 1).ToList();
+            return new LimitList<T>(data.Take(queryInfo.RawQueryInfo.Limit), queryInfo.RawQueryInfo.Offset, queryInfo.RawQueryInfo.Limit, data.Count > queryInfo.RawQueryInfo.Limit);
+        }
         private static Dictionary<string, object> QueryAgg<T>(this IQueryable<T> source, LimitQueryInfo limitQueryInfo)
         {
             var aggInfo = ParseAgg(limitQueryInfo.Agg);
@@ -202,18 +219,20 @@ namespace YS.Knife.Query
             }
             else
             {
-                var limitList = source.QueryLimitList(queryInfo);
-                var aggResult = source.QueryAgg(queryInfo);
+                var parsed = ParseQueryInfo(queryInfo);
+                var limitList = source.QueryLimitList(parsed);
+                var aggResult = source.DoFilter(parsed.Filter).QueryAgg(queryInfo);
                 return limitList.ToPagedList(aggResult);
             }
         }
-        public static PagedList<T> QueryPageInternal<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
+        private static PagedList<T> QueryPageInternal<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
             where T : class, new()
         {
             _ = source ?? throw new ArgumentNullException(nameof(source));
             _ = queryInfo ?? throw new ArgumentNullException(nameof(queryInfo));
-            var query = source.DoQuery(queryInfo);
-            var aggResult = source.QueryAgg(queryInfo);
+            var parsed = ParseQueryInfo(queryInfo);
+            var query = source.DoQuery(parsed);
+            var aggResult = source.DoFilter(parsed.Filter).QueryAgg(queryInfo);
             if (queryInfo.Limit <= 0)
             {
                 //only count all

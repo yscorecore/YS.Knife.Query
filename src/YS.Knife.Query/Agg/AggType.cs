@@ -15,11 +15,5 @@ namespace YS.Knife.Query
         Avg = 3,
         Count = 100,
         DistinctCount = 200,
-        SumIf = 1000,
-        MinIf = 1001,
-        MaxIf = 1002,
-        AvgIf = 1003,
-        CountIf = 1100,
-        DistinctCountIf = 1200,
     }
 }

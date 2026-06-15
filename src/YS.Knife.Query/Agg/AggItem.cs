@@ -11,7 +11,7 @@ namespace YS.Knife.Query
         public AggType AggType { get; set; }
         public List<ValuePath> NavigatePaths { get; set; }
         public string AggName { get; set; }
-        public ValueInfo[] Args { get; set; }
+        public FilterInfo Filter { get; set; }
         public override string ToString()
         {
             var sb = new StringBuilder();
@@ -19,7 +19,8 @@ namespace YS.Knife.Query
             {
                 sb.Append(string.Join(".", NavigatePaths));
             }
-            sb.Append(string.Format($".{AggType.ToString().ToLowerInvariant()}()"));
+            var filterText = this.Filter?.ToString() ?? string.Empty;
+            sb.Append(string.Format($".{AggType.ToString().ToLowerInvariant()}({filterText})"));
             if (!string.IsNullOrEmpty(AggName))
             {
                 sb.Append($".as({AggName})");

@@ -13,6 +13,8 @@
             public string CreatedBy { get; set; }
             public UnitType Unit { get; set; }
 
+            public decimal Price { get; set; }
+
         }
         public class MaterialSpecInfo
         {
