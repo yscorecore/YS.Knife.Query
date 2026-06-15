@@ -159,7 +159,7 @@ namespace System.Linq
             else if (aggType == AggType.Sum)
             {
                 var lambdaDesc = LambdaUtils.CreateFunc2Lambda(typeof(T), aggItem.NavigatePaths, false);
-                var method = GetMethod(aggItem, typeof(T), lambdaDesc.ValueType);
+                var method = GetMethod(aggType, typeof(T), lambdaDesc.ValueType);
                 var valueExp = Expression.Call(null, method, sourceExpression, lambdaDesc.Lambda);
                 var castToObject = Expression.Convert(valueExp, typeof(object));
                 return Expression.Bind(propertyInfo, castToObject);
@@ -167,7 +167,7 @@ namespace System.Linq
             else
             {
                 var lambdaDesc = LambdaUtils.CreateFunc2Lambda(typeof(T), aggItem.NavigatePaths, true);
-                var method = GetMethod(aggItem, typeof(T), lambdaDesc.ValueType);
+                var method = GetMethod(aggType, typeof(T), lambdaDesc.ValueType);
                 var valueExp = Expression.Call(null, method, sourceExpression, lambdaDesc.Lambda);
                 var castToObject = Expression.Convert(valueExp, typeof(object));
                 return Expression.Bind(propertyInfo, castToObject);
@@ -175,9 +175,9 @@ namespace System.Linq
 
 
         }
-        private static MethodInfo GetMethod(AggItem aggItem, Type type, Type returnType)
+        private static MethodInfo GetMethod(AggType aggType, Type type, Type returnType)
         {
-            return aggItem.AggType switch
+            return aggType switch
             {
                 AggType.Sum => EnumerableMethodFinder.GetSumAgg2(type, returnType),
                 AggType.Max => EnumerableMethodFinder.GetMaxAgg2(type, returnType),

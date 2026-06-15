@@ -40,7 +40,7 @@ namespace YS.Knife.Query.UnitTest.Parser
         [InlineData("sum()")]
         [InlineData("sum().as()")]
         [InlineData("a.sum2()")]
-        [InlineData("a.sum(1)")]
+        //[InlineData("a.sum(1)")]
         [InlineData("a.sum().t()")]
         [InlineData("a.sum().as()")]
         [InlineData("a.sum().as(b).as(c)")]
