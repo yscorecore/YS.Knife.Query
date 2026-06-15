@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using YS.Knife.Query;
 using YS.Knife.Query.Expressions;
+using YS.Knife.Query.Functions.Specials;
 
 namespace System.Linq
 {
@@ -119,14 +120,21 @@ namespace System.Linq
 
             return Expression.Lambda<Func<IGrouping<int, T1>, TempRecord>>(memberInitExpression, p);
         }
-        private static MemberBinding CreateMemberBinding<T>(AggItem aggItem, PropertyInfo propertyInfo, Expression sourceExpression)
+        private static MemberBinding CreateMemberBinding<T>(AggItem aggItem, PropertyInfo propertyInfo, Expression sourceExpression1)
         {
+            var sourceExpression = sourceExpression1;
             var aggType = aggItem.AggType;
             if ((int)aggType > 1000)
             {
                 aggType = (AggType)((int)aggType - 1000);
-                var filter = FilterExtensions.CreateFilterLambdaExpression<T>(null);
-                
+                var filterInfo = (aggItem.Args ?? Array.Empty<ValueInfo>()).FirstOrDefault()?.ConstantValue as FilterInfo;
+                var filter = FilterExtensions.CreateFilterLambdaExpression<T>(filterInfo);
+                sourceExpression = Expression.Call(
+                    null,
+                     new Func<IEnumerable<T>, Func<T, bool>, IEnumerable<T>>(Enumerable.Where).Method,
+                    sourceExpression,
+                    filter
+                );
             }
 
             if (aggType == AggType.Count)

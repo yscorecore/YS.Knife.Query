@@ -11,7 +11,7 @@ namespace YS.Knife.Query
         public AggType AggType { get; set; }
         public List<ValuePath> NavigatePaths { get; set; }
         public string AggName { get; set; }
-
+        public ValueInfo[] Args { get; set; }
         public override string ToString()
         {
             var sb = new StringBuilder();
