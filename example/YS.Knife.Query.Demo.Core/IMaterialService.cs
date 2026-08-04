@@ -14,6 +14,7 @@
             public UnitType Unit { get; set; }
 
             public decimal Price { get; set; }
+            public List<MaterialSpecInfo> Specs { get; set; }
 
         }
         public class MaterialSpecInfo

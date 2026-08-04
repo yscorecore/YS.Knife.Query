@@ -137,14 +137,26 @@ namespace YS.Knife.Query
         public static LimitList<T> QueryLimitList<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
             where T : class, new()
         {
-            var data = source.DoQuery(queryInfo).TryOrderByEntityKey().Skip(queryInfo.Offset).Take(queryInfo.Limit + 1).ToList();
-            return new LimitList<T>(data.Take(queryInfo.Limit), queryInfo.Offset, queryInfo.Limit, data.Count > queryInfo.Limit);
+            return source.QueryLimitList(queryInfo, p => p);
+        }
+
+        public static LimitList<R> QueryLimitList<T, R>(this IQueryable<T> source, LimitQueryInfo queryInfo, Func<IQueryable<T>, IQueryable<R>> mapper)
+            where T : class, new()
+        {
+            var data = mapper(source.DoQuery(queryInfo).TryOrderByEntityKey()).Skip(queryInfo.Offset).Take(queryInfo.Limit + 1).ToList();
+            return new LimitList<R>(data.Take(queryInfo.Limit), queryInfo.Offset, queryInfo.Limit, data.Count > queryInfo.Limit);
         }
         private static LimitList<T> QueryLimitList<T>(this IQueryable<T> source, ParsedQueryInfo<LimitQueryInfo> queryInfo)
             where T : class, new()
         {
-            var data = source.DoQuery(queryInfo).TryOrderByEntityKey().Skip(queryInfo.RawQueryInfo.Offset).Take(queryInfo.RawQueryInfo.Limit + 1).ToList();
-            return new LimitList<T>(data.Take(queryInfo.RawQueryInfo.Limit), queryInfo.RawQueryInfo.Offset, queryInfo.RawQueryInfo.Limit, data.Count > queryInfo.RawQueryInfo.Limit);
+            return source.QueryLimitList(queryInfo, p => p);
+        }
+
+        private static LimitList<R> QueryLimitList<T, R>(this IQueryable<T> source, ParsedQueryInfo<LimitQueryInfo> queryInfo, Func<IQueryable<T>, IQueryable<R>> mapper)
+            where T : class, new()
+        {
+            var data = mapper(source.DoQuery(queryInfo).TryOrderByEntityKey()).Skip(queryInfo.RawQueryInfo.Offset).Take(queryInfo.RawQueryInfo.Limit + 1).ToList();
+            return new LimitList<R>(data.Take(queryInfo.RawQueryInfo.Limit), queryInfo.RawQueryInfo.Offset, queryInfo.RawQueryInfo.Limit, data.Count > queryInfo.RawQueryInfo.Limit);
         }
         private static Dictionary<string, object> QueryAgg<T>(this IQueryable<T> source, LimitQueryInfo limitQueryInfo)
         {
@@ -210,26 +222,37 @@ namespace YS.Knife.Query
                 }
             }
         }
+        [Obsolete]
         public static PagedList<T> QueryPage<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
            where T : class, new()
         {
+            return source.QueryPage(queryInfo, p => p);
+        }
+
+        public static PagedList<R> QueryPage<T, R>(this IQueryable<T> source, LimitQueryInfo queryInfo, Func<IQueryable<T>, IQueryable<R>> mapper)
+           where T : class, new()
+           where R : class
+        {
+            _ = mapper ?? throw new ArgumentNullException(nameof(mapper));
             if (queryInfo.CountAll)
             {
-                return source.QueryPageInternal(queryInfo);
+                return source.QueryPageInternal(queryInfo, mapper);
             }
             else
             {
                 var parsed = ParseQueryInfo(queryInfo);
-                var limitList = source.QueryLimitList(parsed);
+                var limitList = source.QueryLimitList(parsed, mapper);
                 var aggResult = source.DoFilter(parsed.Filter).QueryAgg(queryInfo);
                 return limitList.ToPagedList(aggResult);
             }
         }
-        private static PagedList<T> QueryPageInternal<T>(this IQueryable<T> source, LimitQueryInfo queryInfo)
+        private static PagedList<R> QueryPageInternal<T, R>(this IQueryable<T> source, LimitQueryInfo queryInfo, Func<IQueryable<T>, IQueryable<R>> mapper)
             where T : class, new()
+            where R : class
         {
             _ = source ?? throw new ArgumentNullException(nameof(source));
             _ = queryInfo ?? throw new ArgumentNullException(nameof(queryInfo));
+            _ = mapper ?? throw new ArgumentNullException(nameof(mapper));
             var parsed = ParseQueryInfo(queryInfo);
             var query = source.DoQuery(parsed);
             var aggResult = source.DoFilter(parsed.Filter).QueryAgg(queryInfo);
@@ -237,20 +260,20 @@ namespace YS.Knife.Query
             {
                 //only count all
                 var totalCount = query.LongCount();
-                return new PagedList<T>(new List<T>(), queryInfo.Offset, queryInfo.Limit, totalCount, aggResult);
+                return new PagedList<R>(new List<R>(), queryInfo.Offset, queryInfo.Limit, totalCount, aggResult);
             }
             else
             {
-                var data = query.TryOrderByEntityKey().Skip(queryInfo.Offset).Take(queryInfo.Limit).ToList();
+                var data = mapper(query.TryOrderByEntityKey().Skip(queryInfo.Offset).Take(queryInfo.Limit)).ToList();
                 if (data.Count > 0 && data.Count < queryInfo.Limit)
                 {
                     var totalCount = queryInfo.Offset + data.Count;
-                    return new PagedList<T>(data, queryInfo.Offset, queryInfo.Limit, totalCount, aggResult);
+                    return new PagedList<R>(data, queryInfo.Offset, queryInfo.Limit, totalCount, aggResult);
                 }
                 else
                 {
                     var totalCount = query.LongCount();
-                    return new PagedList<T>(data, queryInfo.Offset, queryInfo.Limit, totalCount, aggResult);
+                    return new PagedList<R>(data, queryInfo.Offset, queryInfo.Limit, totalCount, aggResult);
                 }
             }
         }

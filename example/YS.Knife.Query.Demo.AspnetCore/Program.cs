@@ -45,14 +45,23 @@ using (var context = scope.ServiceProvider.GetService<EFContext>())
 {
     context.Database.EnsureDeleted();
     context.Database.EnsureCreated();
-    var datas = Enumerable.Range(1, 1000).Select((i) => new Material
+    var datas = Enumerable.Range(1, 200).Select((i) => new Material
     {
         Id = Guid.NewGuid(),
         Name = $"食材{i}",
         CreatedAt = DateTime.Now,
         CreatedBy = "user001",
         Unit = (UnitType)Random.Shared.Next(0, 4),
-        Price = Convert.ToDecimal(Random.Shared.Next(10, 100) / 100.0)
+        Price = Convert.ToDecimal(Random.Shared.Next(10, 100) / 100.0),
+        Specs = Enumerable.Range(0, Random.Shared.Next(1,3)).Select((j) => new MateialSpec
+        {
+            Id = Guid.NewGuid(),
+            CreatedAt = DateTime.Now,
+            CreatedBy = "user001",
+            FullName = $"食材{i}规格{j}",
+            Factor = Random.Shared.Next(1, 10),
+            Unit = (UnitType)Random.Shared.Next(0, 4)
+        }).ToList()
     });
     context.Materials.AddRange(datas);
     context.SaveChanges();

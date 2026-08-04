@@ -15,62 +15,74 @@ namespace YS.Knife.Query
         {
             return source.DoQuery(queryInfo).Skip(queryInfo.Offset).Take(queryInfo.Limit).ToListAsync(cancellationToken);
         }
-        public static async Task<LimitList<T>> QueryLimitListAsync<T>(this IQueryable<T> source, LimitQueryInfo queryInfo, CancellationToken cancellationToken = default)
+        public static async Task<LimitList<R>> QueryLimitListAsync<T, R>(this IQueryable<T> source, LimitQueryInfo queryInfo, Func<IQueryable<T>, IQueryable<R>> mapper, CancellationToken cancellationToken = default)
             where T : class, new()
         {
-            var data = await source.DoQuery(queryInfo).TryOrderByEntityKey().Skip(queryInfo.Offset).Take(queryInfo.Limit + 1).ToListAsync(cancellationToken);
-            return new LimitList<T>(data.Take(queryInfo.Limit), queryInfo.Offset, queryInfo.Limit, data.Count > queryInfo.Limit);
+            var data = await mapper(source.DoQuery(queryInfo).TryOrderByEntityKey()).Skip(queryInfo.Offset).Take(queryInfo.Limit + 1).ToListAsync(cancellationToken);
+            return new LimitList<R>(data.Take(queryInfo.Limit), queryInfo.Offset, queryInfo.Limit, data.Count > queryInfo.Limit);
         }
-        private static async Task<LimitList<T>> QueryLimitListAsync<T>(this IQueryable<T> source, ParsedQueryInfo<LimitQueryInfo> queryInfo, CancellationToken cancellationToken = default)
+        private static async Task<LimitList<R>> QueryLimitListAsync<T, R>(this IQueryable<T> source, ParsedQueryInfo<LimitQueryInfo> queryInfo, Func<IQueryable<T>, IQueryable<R>> mapper, CancellationToken cancellationToken = default)
             where T : class, new()
         {
-            var data = await source.DoQuery(queryInfo).TryOrderByEntityKey().Skip(queryInfo.RawQueryInfo.Offset).Take(queryInfo.RawQueryInfo.Limit + 1).ToListAsync(cancellationToken);
-            return new LimitList<T>(data.Take(queryInfo.RawQueryInfo.Limit), queryInfo.RawQueryInfo.Offset, queryInfo.RawQueryInfo.Limit, data.Count > queryInfo.RawQueryInfo.Limit);
+            var data = await mapper(source.DoQuery(queryInfo).TryOrderByEntityKey()).Skip(queryInfo.RawQueryInfo.Offset).Take(queryInfo.RawQueryInfo.Limit + 1).ToListAsync(cancellationToken);
+            return new LimitList<R>(data.Take(queryInfo.RawQueryInfo.Limit), queryInfo.RawQueryInfo.Offset, queryInfo.RawQueryInfo.Limit, data.Count > queryInfo.RawQueryInfo.Limit);
         }
-        public static async Task<PagedList<T>> QueryPageAsync<T>(this IQueryable<T> source, LimitQueryInfo queryInfo, CancellationToken cancellationToken = default)
+        [Obsolete]
+        public static Task<PagedList<T>> QueryPageAsync<T>(this IQueryable<T> source, LimitQueryInfo queryInfo, CancellationToken cancellationToken = default)
             where T : class, new()
         {
+            return source.QueryPageAsync(queryInfo, p => p, cancellationToken);
+
+        }
+
+        public static async Task<PagedList<R>> QueryPageAsync<T, R>(this IQueryable<T> source, LimitQueryInfo queryInfo, Func<IQueryable<T>, IQueryable<R>> mapper, CancellationToken cancellationToken = default)
+            where T : class, new()
+            where R : class
+        {
+            _ = mapper ?? throw new ArgumentNullException(nameof(mapper));
             if (queryInfo.CountAll)
             {
-                return await source.QueryPageInternalAsync(queryInfo, cancellationToken);
+                return await source.QueryPageInternalAsync(queryInfo, mapper, cancellationToken);
             }
             else
             {
 
                 var parsed = YS.Knife.Query.QueryableExtensions.ParseQueryInfo(queryInfo);
-                var limitList = await source.QueryLimitListAsync(parsed, cancellationToken);
+                var limitList = await source.QueryLimitListAsync(parsed, mapper, cancellationToken);
                 var aggResult = await source.DoFilter(parsed.Filter).QueryAgg(queryInfo, (p) => { return p.FirstOrDefaultAsync(cancellationToken); });
                 return limitList.ToPagedList(aggResult);
             }
 
         }
-        public static async Task<PagedList<T>> QueryPageInternalAsync<T>(this IQueryable<T> source, LimitQueryInfo queryInfo, CancellationToken cancellationToken = default)
+        internal static async Task<PagedList<R>> QueryPageInternalAsync<T, R>(this IQueryable<T> source, LimitQueryInfo queryInfo, Func<IQueryable<T>, IQueryable<R>> mapper, CancellationToken cancellationToken = default)
             where T : class, new()
+            where R : class
         {
             _ = source ?? throw new ArgumentNullException(nameof(source));
             _ = queryInfo ?? throw new ArgumentNullException(nameof(queryInfo));
+            _ = mapper ?? throw new ArgumentNullException(nameof(mapper));
 
             var parsed = ParseQueryInfo(queryInfo);
             var query = source.DoQuery(parsed);
-            var aggResult = await source.DoFilter(parsed.Filter).QueryAgg(queryInfo, (p) => { return p.FirstOrDefaultAsync(cancellationToken); });
+            var aggResult = string.IsNullOrWhiteSpace(queryInfo.Agg) ? null : await source.DoFilter(parsed.Filter).QueryAgg(queryInfo, (p) => { return p.FirstOrDefaultAsync(cancellationToken); });
             if (queryInfo.Limit <= 0)
             {
                 //only count all
                 var totalCount = await query.LongCountAsync(cancellationToken);
-                return new PagedList<T>(new List<T>(), queryInfo.Offset, queryInfo.Limit, totalCount, aggResult);
+                return new PagedList<R>(new List<R>(), queryInfo.Offset, queryInfo.Limit, totalCount, aggResult);
             }
             else
             {
-                var data = await query.TryOrderByEntityKey().Skip(queryInfo.Offset).Take(queryInfo.Limit).ToListAsync(cancellationToken);
+                var data = await mapper(query.TryOrderByEntityKey().Skip(queryInfo.Offset).Take(queryInfo.Limit)).ToListAsync(cancellationToken);
                 if (data.Count > 0 && data.Count < queryInfo.Limit)
                 {
                     var totalCount = queryInfo.Offset + data.Count;
-                    return new PagedList<T>(data, queryInfo.Offset, queryInfo.Limit, totalCount, aggResult);
+                    return new PagedList<R>(data, queryInfo.Offset, queryInfo.Limit, totalCount, aggResult);
                 }
                 else
                 {
                     var totalCount = await query.LongCountAsync();
-                    return new PagedList<T>(data, queryInfo.Offset, queryInfo.Limit, totalCount, aggResult);
+                    return new PagedList<R>(data, queryInfo.Offset, queryInfo.Limit, totalCount, aggResult);
                 }
             }
 

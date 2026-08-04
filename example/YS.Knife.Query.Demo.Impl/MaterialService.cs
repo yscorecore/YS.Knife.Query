@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using YS.Knife.Query.Demo.Models;
 using static YS.Knife.Query.Demo.IMaterialService;
+using Microsoft.EntityFrameworkCore;
 
 namespace YS.Knife.Query.Demo.Impl
 {
@@ -15,8 +16,7 @@ namespace YS.Knife.Query.Demo.Impl
         private readonly EFContext context;
         public Task<PagedList<MaterialInfo>> QueryMaterials(LimitQueryInfo queryInfo)
         {
-            return context.Materials.To<MaterialInfo>()
-                 .QueryPageAsync(queryInfo);
+            return context.Materials.Include(p => p.Specs.Where(p => p.FullName.Contains("2"))).QueryPageAsync(queryInfo, p => p.To<MaterialInfo>());
         }
     }
 }

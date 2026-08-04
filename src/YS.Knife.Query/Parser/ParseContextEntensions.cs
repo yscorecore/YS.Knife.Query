@@ -14,7 +14,7 @@ namespace YS.Knife.Query.Parser
         internal static readonly HashSet<string> filterArgumentFunction = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
         {
             nameof(Where),
-            nameof(Exists),
+            nameof(Any),
             nameof(AggType.Sum),
             nameof(AggType.Max),
             nameof(AggType.Min),

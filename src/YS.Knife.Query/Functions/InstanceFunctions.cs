@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using YS.Knife.Query.Functions.Specials;
 
@@ -7,7 +8,7 @@ namespace YS.Knife.Query.Functions
 {
     public class InstanceFunctions
     {
-        private readonly static Dictionary<string, IFunction> All = new Dictionary<string, IFunction>(StringComparer.InvariantCultureIgnoreCase);
+        private readonly static Dictionary<string, List<FunctionDesc>> All = new Dictionary<string, List<FunctionDesc>>(StringComparer.InvariantCultureIgnoreCase);
         static InstanceFunctions()
         {
             Add<DateTime, DateTime>(nameof(DateTime.AddYears), p => p.AddYears(It.Arg<int>()));
@@ -35,7 +36,8 @@ namespace YS.Knife.Query.Functions
             Add<string, bool>(nameof(string.Contains), p => p.Contains(It.Arg<string>()));
             Add<string, int>(nameof(string.Length), p => p.Length);
             //Add<string, string>("left", p => p.Substring(It.Arg<int>()));
-            Add<IEnumerable<It.AnyType>, bool>(nameof(Exists), p => System.Linq.Enumerable.Any(It.Arg<IEnumerable<It.AnyType>>()));
+            Add(nameof(Any), typeof(ICollection<>), new Any());
+            Add(nameof(Count), typeof(ICollection<>), new Count());
         }
 
         public static void Add<Source, Target>(string name, Expression<Func<Source, Target>> body)
@@ -49,20 +51,72 @@ namespace YS.Knife.Query.Functions
             {
                 throw new ArgumentNullException(nameof(name));
             }
-            All[$"{type.FullName}_{name}"] = function;
+            if (All.TryGetValue(name, out var desc))
+            {
+                desc.Add(new FunctionDesc(type, function));
+            }
+            else
+            {
+                All[name] = new List<FunctionDesc>() { new FunctionDesc(type, function) };
+            }
+
         }
         public static bool Remove(Type type, string name)
         {
-            return All.Remove($"{type.FullName}_{name}");
+            if (All.TryGetValue(name, out var list))
+            {
+                return list.RemoveAll(p => p.IsMatch(type)) > 0;
+            }
+            return false;
         }
         public static bool Contains(Type type, string name)
         {
-            return All.ContainsKey($"{type.FullName}_{name}");
+            if (All.TryGetValue(name, out var list))
+            {
+                return list.Any(p => p.IsMatch(type));
+            }
+            return false;
         }
 
         public static IFunction Get(Type type, string name)
         {
-            return All.TryGetValue($"{type.FullName}_{name}", out var fun) ? fun : null;
+            if (All.TryGetValue(name, out var list))
+            {
+                return list.FirstOrDefault(p => p.IsMatch(type))?.Instance;
+            }
+            return null;
+        }
+
+        private class FunctionDesc
+        {
+            public FunctionDesc(Type type, IFunction instance)
+            {
+                Type = type;
+                this.Instance = instance;
+            }
+
+            public Type Type { get; }
+            public IFunction Instance { get; set; }
+
+            public bool IsMatch(Type instanceType)
+            {
+                if (Type.IsAssignableFrom(instanceType))
+                {
+                    return true;
+                }
+                if (Type.IsGenericTypeDefinition && instanceType.IsGenericType)
+                {
+                    if (instanceType.GetGenericTypeDefinition() == Type)
+                    {
+                        return true;
+                    }
+                    else if (instanceType.GetInterfaces().Any(p => p.IsGenericType && p.GetGenericTypeDefinition() == Type))
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
         }
     }
 }

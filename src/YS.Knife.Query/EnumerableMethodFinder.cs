@@ -33,6 +33,31 @@ namespace YS.Knife.Query
          .Where(p => p.GetParameters().Length == 1)
          .Single();
 
+        private static readonly MethodInfo LongCountMethodWith2Args = typeof(Enumerable).GetMethods()
+         .Where(p => p.Name == nameof(Enumerable.LongCount))
+         .Where(p => p.GetParameters().Length == 2)
+         .Single();
+
+        private static readonly MethodInfo CountMethodWith1Args = typeof(Enumerable).GetMethods()
+        .Where(p => p.Name == nameof(Enumerable.Count))
+        .Where(p => p.GetParameters().Length == 1)
+        .Single();
+
+        private static readonly MethodInfo CountMethodWith2Args = typeof(Enumerable).GetMethods()
+         .Where(p => p.Name == nameof(Enumerable.Count))
+         .Where(p => p.GetParameters().Length == 2)
+         .Single();
+
+        private static readonly MethodInfo AnyMethodWith1Args = typeof(Enumerable).GetMethods()
+         .Where(p => p.Name == nameof(Enumerable.Any))
+         .Where(p => p.GetParameters().Length == 1)
+         .Single();
+
+        private static readonly MethodInfo AnyMethodWith2Args = typeof(Enumerable).GetMethods()
+         .Where(p => p.Name == nameof(Enumerable.Any))
+         .Where(p => p.GetParameters().Length == 2)
+         .Single();
+
         private static readonly MethodInfo DistinctMethodWith1Args = typeof(Enumerable).GetMethods()
            .Where(p => p.Name == nameof(Enumerable.Distinct))
            .Where(p => p.GetParameters().Length == 1)
@@ -71,6 +96,26 @@ namespace YS.Knife.Query
         public static MethodInfo GetLongCount1(Type sourceType)
         {
             return LongCountMethodWith1Args.MakeGenericMethod(sourceType);
+        }
+        public static MethodInfo GetLongCount2(Type sourceType)
+        {
+            return LongCountMethodWith2Args.MakeGenericMethod(sourceType);
+        }
+        public static MethodInfo GetCount1(Type sourceType)
+        {
+            return CountMethodWith1Args.MakeGenericMethod(sourceType);
+        }
+        public static MethodInfo GetCount2(Type sourceType)
+        {
+            return CountMethodWith2Args.MakeGenericMethod(sourceType);
+        }
+        public static MethodInfo GetAny1(Type sourceType)
+        {
+            return AnyMethodWith1Args.MakeGenericMethod(sourceType);
+        }
+        public static MethodInfo GetAny2(Type sourceType)
+        {
+            return AnyMethodWith2Args.MakeGenericMethod(sourceType);
         }
         public static MethodInfo GetDistinct1(Type sourceType)
         {
