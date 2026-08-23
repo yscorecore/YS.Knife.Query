@@ -12,6 +12,6 @@ namespace YS.Knife.Query.Functions
         {
             return default(T);
         }
-      
+
     }
 }

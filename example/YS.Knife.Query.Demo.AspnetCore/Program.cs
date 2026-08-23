@@ -53,7 +53,7 @@ using (var context = scope.ServiceProvider.GetService<EFContext>())
         CreatedBy = "user001",
         Unit = (UnitType)Random.Shared.Next(0, 4),
         Price = Convert.ToDecimal(Random.Shared.Next(10, 100) / 100.0),
-        Specs = Enumerable.Range(0, Random.Shared.Next(1,3)).Select((j) => new MateialSpec
+        Specs = Enumerable.Range(0, Random.Shared.Next(1, 3)).Select((j) => new MateialSpec
         {
             Id = Guid.NewGuid(),
             CreatedAt = DateTime.Now,
