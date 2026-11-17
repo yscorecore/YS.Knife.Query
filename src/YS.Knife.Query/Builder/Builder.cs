@@ -43,6 +43,11 @@ namespace YS.Knife.Query
             {
                 if (body.NodeType == ExpressionType.Not)
                 {
+                    if (unaryExpression.Operand is MethodCallExpression operandCall &&
+                        TryCreateContainsFilter(p, operandCall, out var notContainsFilter))
+                    {
+                        return notContainsFilter.Not();
+                    }
                     return new FilterInfo
                     {
                         Left = CreateValue(p, unaryExpression.Operand),
@@ -58,6 +63,10 @@ namespace YS.Knife.Query
             }
             else if (body is MethodCallExpression callExpression)
             {
+                if (TryCreateContainsFilter(p, callExpression, out var containsFilter))
+                {
+                    return containsFilter;
+                }
                 return new FilterInfo
                 {
                     Left = CreateValue(p, callExpression),
@@ -92,6 +101,61 @@ namespace YS.Knife.Query
                 return ValueInfo.FromConstantValue(consant.Value);
             }
             return CreateValueFromPaths(p, expression);
+        }
+
+        // 函数参数转换：LambdaExpression 反向为 FilterInfo（存为常量），其他按普通值路径处理
+        private static ValueInfo ConvertFunctionArgument(ParameterExpression outerParam, Expression expression)
+        {
+            if (expression is LambdaExpression lambda)
+            {
+                // Any/Count 的 Lambda 参数：把 body 作为内部 Filter，以 Lambda 参数为基准
+                var innerParam = lambda.Parameters.Single();
+                var innerFilter = CreateFilter(innerParam, lambda.Body);
+                return ValueInfo.FromConstantValue(innerFilter);
+            }
+            return CreateValue(outerParam, expression);
+        }
+
+        // 把集合的 Contains 调用转换为 in 操作符，例如：
+        // arr.Contains(p.Name)      => Name in ["a","b"]
+        // p.Tags.Contains("a")      => "a" in Tags
+        private static bool TryCreateContainsFilter(ParameterExpression p, MethodCallExpression callExpression, out FilterInfo filter)
+        {
+            filter = null;
+            if (callExpression.Method.Name != nameof(Enumerable.Contains))
+            {
+                return false;
+            }
+            Expression source;
+            Expression target;
+            if (callExpression.Method.IsStatic)
+            {
+                if (callExpression.Method.DeclaringType != typeof(Enumerable) || callExpression.Arguments.Count != 2)
+                {
+                    return false;
+                }
+                source = callExpression.Arguments[0];
+                target = callExpression.Arguments[1];
+            }
+            else
+            {
+                // string.Contains 属于字符串实例函数，继续交给 ValuePath 逻辑处理
+                if (callExpression.Object == null || callExpression.Arguments.Count != 1 ||
+                    callExpression.Method.DeclaringType == typeof(string))
+                {
+                    return false;
+                }
+                source = callExpression.Object;
+                target = callExpression.Arguments[0];
+            }
+            filter = new FilterInfo
+            {
+                OpType = CombinSymbol.SingleItem,
+                Left = CreateValue(p, target),
+                Right = CreateValue(p, source),
+                Operator = Operator.In
+            };
+            return true;
         }
         private static ValueInfo CreateValueFromPaths(ParameterExpression p, Expression expression)
         {
@@ -135,18 +199,26 @@ namespace YS.Knife.Query
                     paths.Insert(0, new ValuePath { IsConstant = true, ConstantValue = constantExpression.Value });
                     break;
                 }
+                else if (current is NewArrayExpression newArrayExpression)
+                {
+                    // 数组字面量，如 new[] { "a", "b" }
+                    return ValueInfo.FromConstantValue(Evaluate(newArrayExpression));
+                }
                 else if (current is MethodCallExpression callExpression)
                 {
                     var method = callExpression.Method;
-                    if (callExpression.Method.IsStatic)
+                    if (method.IsStatic)
                     {
-                        var firstArg = callExpression.Method.GetParameters().FirstOrDefault();
+                        var firstArg = method.GetParameters().FirstOrDefault();
 
                         if (firstArg != null && InstanceFunctions.Contains(firstArg.ParameterType, method.Name))
                         {
-                            var functionArgs = callExpression.Arguments.Skip(1).Select(t => CreateValue(p, t)).ToArray();
+                            // 扩展方法（或任何把实例放在第一个参数的静态调用）
+                            var functionArgs = callExpression.Arguments.Skip(1)
+                                .Select(t => ConvertFunctionArgument(p, t)).ToArray();
                             paths.Insert(0, new ValuePath { IsFunction = true, FunctionArgs = functionArgs, Name = method.Name });
-                            current = callExpression.Object;
+                            // 实例在第一个参数（不是 callExpression.Object，静态方法 Object 永远是 null）
+                            current = callExpression.Arguments[0];
                             continue;
                         }
                     }
@@ -154,7 +226,7 @@ namespace YS.Knife.Query
                     {
                         if (InstanceFunctions.Contains(method.DeclaringType, method.Name))
                         {
-                            var functionArgs = callExpression.Arguments.Select(t => CreateValue(p, t)).ToArray();
+                            var functionArgs = callExpression.Arguments.Select(t => ConvertFunctionArgument(p, t)).ToArray();
                             paths.Insert(0, new ValuePath { IsFunction = true, FunctionArgs = functionArgs, Name = method.Name });
                             current = callExpression.Object;
                             continue;
@@ -173,8 +245,18 @@ namespace YS.Knife.Query
             }
             else
             {
-                var val = Expression.Lambda(expression).Compile().DynamicInvoke();
-                return ValueInfo.FromConstantValue(val);
+                return ValueInfo.FromConstantValue(Evaluate(expression));
+            }
+        }
+        private static object Evaluate(Expression expression)
+        {
+            try
+            {
+                return Expression.Lambda(expression).Compile().DynamicInvoke();
+            }
+            catch (Exception ex)
+            {
+                throw new NotSupportedException($"can not evaluate expression '{expression}'.", ex);
             }
         }
 

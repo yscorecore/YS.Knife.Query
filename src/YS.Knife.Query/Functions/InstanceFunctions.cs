@@ -37,7 +37,9 @@ namespace YS.Knife.Query.Functions
             Add<string, int>(nameof(string.Length), p => p.Length);
             //Add<string, string>("left", p => p.Substring(It.Arg<int>()));
             Add(nameof(Any), typeof(ICollection<>), new Any());
+            Add(nameof(Any), typeof(IEnumerable<>), new Any());
             Add(nameof(Count), typeof(ICollection<>), new Count());
+            Add(nameof(Count), typeof(IEnumerable<>), new Count());
         }
 
         public static void Add<Source, Target>(string name, Expression<Func<Source, Target>> body)
