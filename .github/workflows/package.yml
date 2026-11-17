@@ -1,35 +1,36 @@
 name: package
 on:
   push:
-    tags:        
+    tags:
       - "*"
 jobs:
   package:
     runs-on: ubuntu-latest
     steps:
-    - name: 01 Checkout Code
-      uses: actions/checkout@v3
-    - name: 02 Setup .NET Core
-      uses: actions/setup-dotnet@v3
+    - name: Checkout Code
+      uses: actions/checkout@v5
+    - name: Setup .NET SDKs
+      uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 6.0.100
-    - name: 03 Restore Dotnet Tool
+        dotnet-version: |
+          6.0
+          8.0
+          9.0
+          10.0
+          11.0
+    - name: Restore Dotnet Tool
       run: dotnet tool restore
-    - name: 04 Check Code Format
-      run: dotnet format --verify-no-changes 
-    - name: 05 Build with dotnet
+    - name: Check Code Format
+      run: dotnet format --verify-no-changes
+    - name: Build with dotnet
       run: dotnet build
-    - name: 06 Count Test Projects
-      run: echo TEST_PROJ_COUNT=$(ls -l test |grep "^d"|wc -l) >> $GITHUB_ENV
-    - name: 07 Run Unit test
-      if: env.TEST_PROJ_COUNT>0
-      run: dotnet test --no-restore /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Exclude="[*Test]*"
-    - name: 11 Set Git Tag Name
+    - name: Run Unit test
+      run: dotnet test --no-restore
+    - name: Set Git Tag Name
       run: echo GIT_TAG=${GITHUB_REF:10} >> $GITHUB_ENV
-    - name: 12 Set Pack Version
+    - name: Set Pack Version
       run: echo PACK_VERSION=${GIT_TAG#v} >> $GITHUB_ENV
-    - name: 13 Create Package
+    - name: Create Package
       run: dotnet pack -p:PackageVersion=${PACK_VERSION} -p:RepositoryUrl=${{github.event.repository.url}} -p:PackageProjectUrl=${{github.event.repository.url}} -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -o .publish --configuration Release
-    - name: 14 Push Package
+    - name: Push Package
       run: bash ./.github/scripts/pushpack.sh .publish ${{secrets.NUGET_APIKEY}}
-

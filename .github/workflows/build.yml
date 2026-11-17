@@ -2,28 +2,28 @@ name: build
 on:
   push:
     branches:
-      - "*"  
+      - "*"
   pull_request:
-    branches: 
+    branches:
       - master
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dotnet-version: ['6.0', '8.0', '9.0', '10.0', '11.0']
     steps:
-    - name: 01 Checkout Code
-      uses: actions/checkout@v3
-    - name: 02 Setup .NET Core
-      uses: actions/setup-dotnet@v3
+    - name: Checkout Code
+      uses: actions/checkout@v5
+    - name: Setup .NET Core ${{ matrix.dotnet-version }}
+      uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: 6.0.100
-    - name: 03 Restore Dotnet Tool
+        dotnet-version: ${{ matrix.dotnet-version }}
+    - name: Restore Dotnet Tool
       run: dotnet tool restore
-    - name: 04 Check Code Format
-      run: dotnet format --verify-no-changes 
-    - name: 05 Build with dotnet
-      run: dotnet build
-    - name: 06 Count Test Projects
-      run: echo TEST_PROJ_COUNT=$(ls -l test |grep "^d"|wc -l) >> $GITHUB_ENV
-    - name: 07 Run Unit test
-      if: env.TEST_PROJ_COUNT>0
-      run: dotnet test --no-restore /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:Exclude="[*Test]*"
+    - name: Check Code Format
+      run: dotnet format --verify-no-changes
+    - name: Build with dotnet
+      run: dotnet build -f net${{ matrix.dotnet-version }}.0
+    - name: Run Unit test
+      run: dotnet test -f net${{ matrix.dotnet-version }}.0 --no-restore

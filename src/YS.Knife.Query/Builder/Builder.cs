@@ -130,7 +130,11 @@ namespace YS.Knife.Query
             Expression target;
             if (callExpression.Method.IsStatic)
             {
-                if (callExpression.Method.DeclaringType != typeof(Enumerable) || callExpression.Arguments.Count != 2)
+                // .NET 8+ 编译器对 string/primitive 数组的 .Contains() 优化为 MemoryExtensions.Contains
+                // 我们同时接受 Enumerable.Contains 和 MemoryExtensions.Contains（以及任何正确签名的静态扩展方法）
+                var dt = callExpression.Method.DeclaringType;
+                if ((dt != typeof(Enumerable) && dt != typeof(System.MemoryExtensions))
+                    || callExpression.Arguments.Count != 2)
                 {
                     return false;
                 }
@@ -148,6 +152,11 @@ namespace YS.Knife.Query
                 source = callExpression.Object;
                 target = callExpression.Arguments[0];
             }
+
+            // .NET 8+ MemoryExtensions.Contains 会把 source 包装成 op_Implicit(ReadOnlySpan)
+            // 解包这个隐式转换，拿到真正的集合表达式
+            source = UnwrapImplicitConversion(source);
+
             filter = new FilterInfo
             {
                 OpType = CombinSymbol.SingleItem,
@@ -156,6 +165,17 @@ namespace YS.Knife.Query
                 Operator = Operator.In
             };
             return true;
+        }
+
+        // 如果 expr 是方法名 op_Implicit 的 MethodCallExpression（如 ReadOnlySpan 的隐式转换），
+        // 取其第一个参数返回；否则原样返回
+        private static Expression UnwrapImplicitConversion(Expression expr)
+        {
+            if (expr is MethodCallExpression mc && mc.Method.Name == "op_Implicit" && mc.Arguments.Count >= 1)
+            {
+                return mc.Arguments[0];
+            }
+            return expr;
         }
         private static ValueInfo CreateValueFromPaths(ParameterExpression p, Expression expression)
         {
